@@ -7,7 +7,7 @@ import { LookupError } from "./text.mjs";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
-const SERVER_INFO = { name: "icf", title: "ICF und ICD-10-GM (Deutsch)", version: "1.1.0" };
+const SERVER_INFO = { name: "icf", title: "ICF und ICD-10-GM (Deutsch)", version: "1.2.0" };
 
 const INSTRUCTIONS = `Zugriff auf die deutsche ICF (Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit, WHO/BfArM 2005)
 und die ${icd.ICD_VERSION} (Diagnosen, Systematisches Verzeichnis des BfArM).
@@ -19,6 +19,11 @@ icf_get_qualifiers erklärt die Beurteilungsmerkmale, icf_interpret_coding prüf
 ICD-10-GM – icd_search findet Diagnosen, icd_get_code liefert Titel, Ein-/Ausschlüsse, Hinweise und Kodierregeln (§295/§301, Alter, Geschlecht),
 icd_check_code prüft einen Kode mit Zusatzkennzeichen (G/V/Z/A, R/L/B), icd_list_chapters zeigt Kapitel und Gruppen.
 Nur endständige Kodes sind (stationär) kodierbar; Stern-Kodes (*) nur zusammen mit einem Kreuz-Kode (†).
+
+Wissensnetz – icd_relations und icf_get_related zeigen alle amtlichen Beziehungen eines Codes, auch Rückverweise und von Oberklassen
+geerbte Ausschlüsse. icd_compare und icf_compare grenzen zwei Codes voneinander ab (Hierarchie, Ausschlüsse in beiden Richtungen,
+Verbindungsweg). Für Abgrenzungsfragen ("F32 oder F33?", "d450 oder d420?") immer diese Tools nutzen. Alle Beziehungen stammen
+aus den amtlichen Daten; es gibt keine amtliche Zuordnung zwischen ICD und ICF.
 
 Codes immer mit icf_get_code bzw. icd_get_code verifizieren, bevor sie in Berichten verwendet werden.
 Quellen: ICF und ICD-10-GM © WHO, deutsche Fassung herausgegeben vom BfArM; Quellenangaben unter https://github.com/politpatrick/icf-icd-mcp/blob/main/QUELLEN.md
@@ -73,7 +78,8 @@ const TOOLS = [
   {
     name: "icf_get_related",
     title: "Verwandte ICF-Codes",
-    description: "Übergeordnete Kategorie, Geschwister, Unterkategorien und über Ausschlüsse verknüpfte Codes zu einem ICF-Code.",
+    description:
+      "Beziehungen eines ICF-Codes im amtlichen Wissensnetz: Ober- und Unterkategorien, Geschwister, eigene und von Oberkategorien geerbte Ausschlüsse sowie Rückverweise (welche Kategorien diesen Code ausschließen).",
     inputSchema: codeParam,
     annotations: readOnly,
     run: icf.getRelated,
@@ -154,6 +160,51 @@ const TOOLS = [
     },
     annotations: readOnly,
     run: icd.checkCode,
+  },
+  {
+    name: "icd_relations",
+    title: "ICD-10-GM-Beziehungen",
+    description:
+      "Alle amtlichen Beziehungen eines ICD-10-GM-Kodes im Wissensnetz: Ober- und Unterklassen, eigene und von Oberklassen geerbte Ausschlüsse, Rückverweise (bei welchen Kodes dieser Kode als Ausschluss genannt wird, auch über Oberklassen und Bereiche wie J00-J22), Verweise und Kreuz-Stern-Partner (†/*).",
+    inputSchema: {
+      type: "object",
+      properties: { code: { type: "string", description: 'ICD-10-GM-Kode, Gruppe oder Kapitel, z. B. "F33", "F30-F39"' } },
+      required: ["code"],
+    },
+    annotations: readOnly,
+    run: icd.relations,
+  },
+  {
+    name: "icd_compare",
+    title: "ICD-10-GM-Kodes abgrenzen",
+    description:
+      "Grenzt zwei ICD-10-GM-Kodes voneinander ab: Beziehung in der Hierarchie, amtliche Ausschlüsse und Verweise in beiden Richtungen (auch von Oberklassen geerbt), kürzester Verbindungsweg im Wissensnetz sowie Einschlüsse und Definitionen beider Kodes zum Vergleich. Für Fragen wie \"F32.1 oder F33.1?\".",
+    inputSchema: {
+      type: "object",
+      properties: {
+        code_a: { type: "string", description: 'Erster Kode, z. B. "F32.1"' },
+        code_b: { type: "string", description: 'Zweiter Kode, z. B. "F33.1"' },
+      },
+      required: ["code_a", "code_b"],
+    },
+    annotations: readOnly,
+    run: icd.compare,
+  },
+  {
+    name: "icf_compare",
+    title: "ICF-Codes abgrenzen",
+    description:
+      "Grenzt zwei ICF-Kategorien voneinander ab: Beziehung in der Hierarchie, amtliche Ausschlüsse in beiden Richtungen (auch von Oberkategorien geerbt), kürzester Verbindungsweg im Wissensnetz sowie Beschreibungen und Einschlüsse beider Kategorien. Für Fragen wie \"d450 Gehen oder d420 Sich verlagern?\".",
+    inputSchema: {
+      type: "object",
+      properties: {
+        code_a: { type: "string", description: 'Erste ICF-Kategorie, z. B. "d450"' },
+        code_b: { type: "string", description: 'Zweite ICF-Kategorie, z. B. "d420"' },
+      },
+      required: ["code_a", "code_b"],
+    },
+    annotations: readOnly,
+    run: icf.compare,
   },
 ];
 

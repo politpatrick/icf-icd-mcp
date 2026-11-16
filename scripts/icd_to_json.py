@@ -48,7 +48,9 @@ def label_text(label: ET.Element, refs: Optional[List[str]] = None) -> str:
         if elem.tag == "Reference":
             ref_text = "".join(elem.itertext()).strip()
             if refs is not None:
-                refs.append(_normalize_ref(elem.attrib.get("code") or ref_text))
+                # Bei Bereichen wie "J00-J22" nennt das code-Attribut nur den Anfang, daher den Text nehmen
+                is_range = re.search(r"\d[!*†]?-[A-Z]", ref_text)
+                refs.append(_normalize_ref(ref_text if is_range else elem.attrib.get("code") or ref_text))
             parts.append(f" ({ref_text})" if elem.attrib.get("class") == "in brackets" else f" {ref_text}")
         else:
             if elem.text:
@@ -68,7 +70,11 @@ def collect_rubrics(elem: ET.Element, data: Dict) -> None:
         kind = rubric.attrib.get("kind")
         for label in rubric.findall("Label"):
             if kind == "preferred":
-                data["title"] = label_text(label)
+                # Stern-Kodes nennen ihren Kreuz-Kode im Titel, z. B. F00.0* "… (G30.0†)"
+                title_refs: List[str] = []
+                data["title"] = label_text(label, title_refs)
+                if title_refs:
+                    data["title_refs"] = title_refs
             elif kind == "preferredLong":
                 data["title_long"] = label_text(label)
             elif kind in TEXT_RUBRICS:
