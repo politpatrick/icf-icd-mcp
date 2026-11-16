@@ -73,15 +73,57 @@ export function getCode({ code: raw }) {
     description: entry["coding-hints"] ?? [],
     definitions: entry.definitions ?? [],
     inclusions: entry.inclusions ?? [],
-    exclusions: (entry.exclusions ?? []).map(resolveExclusion),
+    exclusions: (entry.exclusions ?? []).map((text) => resolveExclusion(text, code)),
     children: entry.children.map(summary),
   };
 }
 
-function resolveExclusion(text) {
-  // Exklusionen enden oft mit "(b130)" o. ä. oder entsprechen einem Kategorie-Titel
+// Wörter für den Titelvergleich: ohne Füllwörter, Endungen vereinheitlicht ("kardiorespiratorische" = "kardiorespiratorischen")
+const STOPWORDS = new Set(["der", "die", "das", "den", "dem", "des", "und", "zum", "zur", "von", "vom", "fur", "im", "in", "mit", "sowie", "oder"]);
+const words = (text) =>
+  fold(text).split(/[^a-z0-9]+/).filter((w) => w && !STOPWORDS.has(w)).map((w) => w.replace(/(en|n|e|s)$/, ""));
+const titleWords = Object.fromEntries(Object.values(codes).map((e) => [e.code, new Set(words(e.preferred))]));
+
+// Bei gleich lautenden Titeln (Gruppe b280-b289 und Kategorie b280 "Schmerz") die Kategorie nehmen
+function mostSpecific(list) {
+  const categories = list.filter((c) => codes[c].kind !== "block");
+  return categories.length ? categories : list;
+}
+
+function matchTitle(text, fromCode) {
+  for (const candidate of [text, text.replace(/\s*\(.*?\)\s*$/, "")]) {
+    const hit = byTitle[fold(candidate)];
+    if (hit) return mostSpecific(hit);
+  }
+  const component = componentOf(fromCode ?? "");
+  // "Kapitel 6: Häusliches Leben" → d6
+  const chapter = text.match(/^Kapitel (\d+)/);
+  if (chapter && codes[`${component}${chapter[1]}`]) return [`${component}${chapter[1]}`];
+  // Ergänzungsstrich: "Teilzeit- und Vollzeitbeschäftigung" → Teilzeitbeschäftigung, Vollzeitbeschäftigung
+  const compound = text.match(/^(\S+)- und (\S+)$/);
+  if (compound) {
+    const [, first, second] = compound;
+    const secondHit = byTitle[fold(second)];
+    for (let i = 1; secondHit && i < second.length; i++) {
+      const firstHit = byTitle[fold(first + second.slice(i))];
+      if (firstHit) return [...firstHit, ...secondHit];
+    }
+  }
+  // Gleiche Wörter (Beugung egal) oder gekürzter Text: Titel derselben Komponente mit den wenigsten zusätzlichen Wörtern
+  const wanted = words(text);
+  if (!component || !wanted.length) return [];
+  const candidates = Object.keys(codes)
+    .filter((c) => c !== fromCode && componentOf(c) === component && wanted.every((w) => titleWords[c].has(w)))
+    .map((c) => ({ c, extra: titleWords[c].size - new Set(wanted).size }));
+  const best = Math.min(...candidates.map((x) => x.extra));
+  const winners = candidates.filter((x) => x.extra === best).map((x) => x.c);
+  return winners.length === 1 ? winners : [];
+}
+
+function resolveExclusion(text, fromCode) {
+  // Exklusionen enden oft mit "(b130)" o. ä. oder entsprechen (fast) einem Kategorie-Titel
   const inline = [...text.matchAll(/\b([bsde]\d{1,5}(?:-[bsde]\d{1,5})?)\b/g)].map((m) => m[1]);
-  const matched = inline.length ? inline : byTitle[fold(text.replace(/\s*\(.*?\)\s*$/, ""))] ?? [];
+  const matched = inline.length ? inline : matchTitle(text, fromCode);
   return { text, codes: matched.filter((c) => codes[c]).map(summary) };
 }
 
@@ -93,7 +135,7 @@ export function getRelated({ code: raw }) {
     parent: parent ? summary(parent) : null,
     siblings: parent ? codes[parent].children.filter((c) => c !== code).map(summary) : [],
     children: codes[code].children.map(summary),
-    exclusions: (codes[code].exclusions ?? []).map(resolveExclusion),
+    exclusions: (codes[code].exclusions ?? []).map((text) => resolveExclusion(text, code)),
     inherited_exclusions: graph.inherited(code, "ausschluss").map(({ to, text, geerbt_von }) => ({
       text,
       code: summary(to),
@@ -240,7 +282,7 @@ export const graph = new RelationGraph({
 
 for (const entry of Object.values(codes)) {
   for (const text of entry.exclusions ?? []) {
-    for (const target of resolveExclusion(text).codes) graph.addEdge(entry.code, target.code, "ausschluss", text);
+    for (const target of resolveExclusion(text, entry.code).codes) graph.addEdge(entry.code, target.code, "ausschluss", text);
   }
 }
 

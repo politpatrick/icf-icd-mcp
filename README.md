@@ -44,11 +44,12 @@ Aus den amtlichen Daten wird beim Start ein Wissensnetz aufgebaut, ohne Sprachmo
 | Beziehung | ICD-10-GM | ICF |
 | --- | --- | --- |
 | Ober-/Unterklasse | 17.177 Klassen | 1.495 Kategorien |
-| Ausschluss (Exklusivum) | 5.005 | 146 |
-| Verweis in Einschlüssen und Titeln | 688 | – |
+| Ausschluss (Exklusivum) | 5.348 | 148 |
+| Verweis in Einschlüssen und Titeln | 728 | – |
 | Kreuz-Stern-Kombination (†/*) | 312 | – |
+| Nennung in Kodierhinweisen, Anmerkungen, Definitionen (z. B. „zusätzlich U69.80–U69.82 kodieren“) | 293 | – |
 
-Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes. Deshalb zeigen `icd_relations` und `icd_compare` auch geerbte Ausschlüsse; F32.1 grenzt sich etwa über F32 von F33 ab. Verweisziele wie `J00-J22` werden als Bereich ausgewertet, und eine Kategorie zählt nur dann dazu, wenn alle ihre Unterkodes darin liegen.
+Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes. Deshalb zeigen `icd_relations` und `icd_compare` auch geerbte Ausschlüsse; F32.1 grenzt sich etwa über F32 von F33 ab. Verweisziele wie `J00-J22` werden als Bereich ausgewertet: Jede Grenze wird in ihrer eigenen Genauigkeit verglichen, und eine Kategorie zählt nur dann dazu, wenn alle ihre Unterkodes darin liegen. Verweise wie „E10-E14, vierte Stelle .1“ werden in die gemeinten Viersteller E10.1 … E14.1 aufgelöst. ICF-Ausschlüsse, die nur als Titel vorliegen, werden über Titel, Kapitelangaben, Ergänzungsstriche („Teilzeit- und Vollzeitbeschäftigung“) und Wortvergleich vollständig zugeordnet.
 
 Eine amtliche Zuordnung zwischen ICD und ICF gibt es nicht. Das Netz verbindet daher nur Kodes innerhalb einer Klassifikation.
 
@@ -151,7 +152,7 @@ graphify path "F32.1 Mittelgradige depressive Episode" "F33.1 Rezidivierende dep
 graphify explain "F33 Rezidivierende depressive Störung"
 ```
 
-Beziehungen: `ist_teil_von`, `schliesst_aus`, `verweist_auf`, `kreuz_stern` und `umfasst` (Bereichsknoten wie „Bereich J00-J22“ → enthaltene Gruppen und Kategorien). `graphify-out/` wird nicht versioniert.
+Beziehungen: `ist_teil_von`, `schliesst_aus`, `verweist_auf`, `kreuz_stern`, `nennt_im_hinweis` und `umfasst` (Bereichsknoten wie „Bereich J00-J22“ → enthaltene Gruppen und Kategorien). `graphify-out/` wird nicht versioniert.
 
 ### Online-Endpunkt aktualisieren
 

@@ -165,7 +165,7 @@ const TOOLS = [
     name: "icd_relations",
     title: "ICD-10-GM-Beziehungen",
     description:
-      "Alle amtlichen Beziehungen eines ICD-10-GM-Kodes im Wissensnetz: Ober- und Unterklassen, eigene und von Oberklassen geerbte Ausschlüsse, Rückverweise (bei welchen Kodes dieser Kode als Ausschluss genannt wird, auch über Oberklassen und Bereiche wie J00-J22), Verweise und Kreuz-Stern-Partner (†/*).",
+      "Alle amtlichen Beziehungen eines ICD-10-GM-Kodes im Wissensnetz: Ober- und Unterklassen, eigene und von Oberklassen geerbte Ausschlüsse, Rückverweise (bei welchen Kodes dieser Kode als Ausschluss genannt wird, auch über Oberklassen und Bereiche wie J00-J22), Verweise, Kreuz-Stern-Partner (†/*) sowie Kodes, die in Kodierhinweisen, Anmerkungen oder Definitionen genannt werden (z. B. \"zusätzlich U69.80-U69.82 kodieren\") – und wo dieser Kode selbst in Hinweisen genannt wird.",
     inputSchema: {
       type: "object",
       properties: { code: { type: "string", description: 'ICD-10-GM-Kode, Gruppe oder Kapitel, z. B. "F33", "F30-F39"' } },
