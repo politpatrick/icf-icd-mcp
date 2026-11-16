@@ -41,6 +41,26 @@ def _normalize_ref(text: str) -> str:
     text = re.sub(r"[!*†]", "", text.strip())
     return re.sub(r"\.?-$", "", text)
 
+FOURTH_DIGIT = re.compile(r"^([A-Z])(\d{2})(?:-([A-Z])(\d{2}))?,? (?:mit )?vierte[r]? Stelle (\.\d)$")
+
+def _ref_targets(ref_text: str, code_attr: Optional[str]) -> List[str]:
+    """Verweisziele eines <Reference>-Elements.
+
+    - "E10-E14, vierte Stelle .1" meint E10.1, E11.1, …, E14.1 – nicht den ganzen Bereich
+    - Bei Bereichen wie "J00-J22" nennt das code-Attribut nur den Anfang, daher den Text nehmen
+    """
+    plain = re.sub(r"[!*†]", "", ref_text.strip())
+    if " und " in plain:  # z. B. "C95.0-C95.7- und C95.9-"
+        return [t for part in plain.split(" und ") for t in _ref_targets(part, None)]
+    fourth = FOURTH_DIGIT.match(plain)
+    if fourth:
+        letter, start, end_letter, end, suffix = fourth.groups()
+        if end_letter and end_letter != letter:
+            return [_normalize_ref(code_attr or plain)]
+        return [f"{letter}{n:02d}{suffix}" for n in range(int(start), int(end or start) + 1)]
+    is_range = re.search(r"\d-[A-Z]", plain)
+    return [_normalize_ref(plain if is_range else code_attr or ref_text)]
+
 def label_text(label: ET.Element, refs: Optional[List[str]] = None) -> str:
     parts: List[str] = []
 
@@ -48,9 +68,7 @@ def label_text(label: ET.Element, refs: Optional[List[str]] = None) -> str:
         if elem.tag == "Reference":
             ref_text = "".join(elem.itertext()).strip()
             if refs is not None:
-                # Bei Bereichen wie "J00-J22" nennt das code-Attribut nur den Anfang, daher den Text nehmen
-                is_range = re.search(r"\d[!*†]?-[A-Z]", ref_text)
-                refs.append(_normalize_ref(ref_text if is_range else elem.attrib.get("code") or ref_text))
+                refs.extend(_ref_targets(ref_text, elem.attrib.get("code")))
             parts.append(f" ({ref_text})" if elem.attrib.get("class") == "in brackets" else f" {ref_text}")
         else:
             if elem.text:
@@ -83,7 +101,8 @@ def collect_rubrics(elem: ET.Element, data: Dict) -> None:
                 if not text:
                     continue
                 key = TEXT_RUBRICS[kind]
-                entry = {"text": text, "refs": refs} if kind in ("inclusion", "exclusion") and refs else text
+                # Verweise aus allen Textrubriken behalten, auch aus Kodierhinweisen ("Benutze zusätzlich …")
+                entry = {"text": text, "refs": refs} if refs else text
                 data.setdefault(key, []).append(entry)
 
 def metas(elem: ET.Element) -> Dict[str, str]:
@@ -202,6 +221,20 @@ def export_icd(xml_path: Path, target_dir: Path) -> Dict[str, Dict]:
     order = next(m.attrib["value"] for m in root.findall("Meta") if m.attrib["name"] == "TopLevelSort").split()
     for chapter in order:
         visit(chapter, None)
+
+    # Aus "vierte Stelle" gebildete Ziele, die es nicht gibt (z. B. F17.6), wieder entfernen
+    def existing(refs: List[str]) -> List[str]:
+        return [r for r in refs if r in flat or "-" in r]
+
+    for data in flat.values():
+        if "title_refs" in data:
+            data["title_refs"] = existing(data["title_refs"])
+            if not data["title_refs"]:
+                del data["title_refs"]
+        for key in set(TEXT_RUBRICS.values()) | {"modifier_notes"}:
+            for item in data.get(key, []):
+                if isinstance(item, dict):
+                    item["refs"] = existing(item["refs"])
 
     out = {
         "meta": {

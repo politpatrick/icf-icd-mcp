@@ -17,6 +17,7 @@ const RELATION = {
   ausschluss: "schliesst_aus",
   verweis: "verweist_auf",
   kreuz_stern: "kreuz_stern",
+  hinweis: "nennt_im_hinweis",
   bereich: "umfasst",
 };
 

@@ -6,6 +6,7 @@ export const EDGE_TYPES = {
   ausschluss: "schließt aus (Exklusivum)",
   verweis: "verweist auf",
   kreuz_stern: "Kreuz-Stern-Kombination",
+  hinweis: "nennt im Kodierhinweis, in einer Anmerkung oder Definition",
 };
 
 function parseRange(target) {
@@ -58,17 +59,17 @@ export class RelationGraph {
     return null;
   }
 
-  // Ein Kode liegt im Bereich, wenn er in der Kode-Reihenfolge dazwischen liegt. Ist der Bereich genauer
-  // angegeben als der Kode (z. B. "A00.0-Q99.9" für "A00"), müssen alle Unterkodes darin liegen.
+  // Ein Kode liegt im Bereich, wenn er in der Kode-Reihenfolge dazwischen liegt. Jede Grenze wird in ihrer
+  // eigenen Genauigkeit verglichen ("C41.02-C41.1": C41.02 … C41.1 einschließlich aller C41.1x).
+  // Ist der Bereich genauer als der Kode (z. B. "T80-T88.6" für "T88"), müssen alle Unterkodes darin liegen.
   #inRange([start, end], code) {
-    const len = Math.max(start.length, end.length);
-    if (code.length >= len) {
-      const key = code.slice(0, len);
-      return key >= start && key <= end;
-    }
     const children = this.childrenOf(code);
-    if (children.length) return children.every((child) => this.#inRange([start, end], child));
-    return code >= start.slice(0, code.length) && code <= end.slice(0, code.length);
+    if (code.length < Math.max(start.length, end.length) && children.length) {
+      return children.every((child) => this.#inRange([start, end], child));
+    }
+    const lowOk = code.length >= start.length ? code.slice(0, start.length) >= start : code >= start.slice(0, code.length);
+    const highOk = code.length >= end.length ? code.slice(0, end.length) <= end : code <= end.slice(0, code.length);
+    return lowOk && highOk;
   }
 
   /** Eigene ausgehende Kanten eines Kodes, optional nach Typ gefiltert. */

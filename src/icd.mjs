@@ -164,10 +164,10 @@ export function getCode({ code: raw }) {
           restrictions: restrictions(m),
         }
       : {}),
-    definitions: entry.definitions ?? [],
+    definitions: (entry.definitions ?? []).map(textOf),
     inclusions: withRefs(entry.inclusions),
     exclusions: withRefs(entry.exclusions),
-    notes: [...(entry.notes ?? []), ...(entry.coding_hints ?? []), ...(entry.modifier_notes ?? [])],
+    notes: [...(entry.notes ?? []), ...(entry.coding_hints ?? []), ...(entry.modifier_notes ?? [])].map(textOf),
     children: entry.children.map(summary),
   };
 }
@@ -262,6 +262,12 @@ for (const entry of Object.values(codes)) {
     const target = codes[graph.resolve(ref)];
     graph.addEdge(entry.code, ref, isDaggerAster(entry, target) ? "kreuz_stern" : "verweis", text);
   }
+  // Verweise in Kodierhinweisen, Anmerkungen und Definitionen, z. B. "Benutze eine zusätzliche Schlüsselnummer (U69.80-U69.82)"
+  for (const key of ["coding_hints", "notes", "definitions", "modifier_notes"]) {
+    for (const item of entry[key] ?? []) {
+      for (const ref of item.refs ?? []) graph.addEdge(entry.code, ref, "hinweis", item.text);
+    }
+  }
 }
 
 const LIST_LIMIT = 50;
@@ -311,6 +317,8 @@ export function relations({ code: raw }) {
     wird_ausgeschlossen_bei: limited(graph.incoming(code, "ausschluss").map(edgeIn)),
     verweise: graph.out(code, "verweis").map(edgeOut),
     rueckverweise: limited(graph.incoming(code, "verweis").map(edgeIn)),
+    hinweise: graph.out(code, "hinweis").map(edgeOut),
+    in_hinweisen_genannt_bei: limited(graph.incoming(code, "hinweis").map(edgeIn)),
     kreuz_stern: crossPartners(code),
     hinweis:
       "Ausschlüsse (Exklusiva) geben an, unter welchem Kode ein Zustand stattdessen klassifiziert wird. Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes.",
@@ -344,7 +352,7 @@ export function compare({ code_a, code_b }) {
   const pfad = graph.path(a, b);
   const merkmale = (code) => ({
     einschluesse: (codes[code].inclusions ?? []).map(textOf),
-    definitionen: codes[code].definitions ?? [],
+    definitionen: (codes[code].definitions ?? []).map(textOf),
   });
   return {
     version: ICD_VERSION,
