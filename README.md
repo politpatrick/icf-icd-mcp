@@ -21,7 +21,8 @@ Damit können Claude und andere MCP-Clients Diagnosen und ICF-Kategorien suchen,
 | `icf_search` | Volltextsuche in Titeln, Beschreibungen und Einschlüssen; Umlaute egal, Code-Präfixe möglich, optional auf b/s/d/e eingeschränkt |
 | `icf_get_code` | Titel, Beschreibung, Ein-/Ausschlüsse (mit aufgelösten Codes), Hierarchiepfad, Unterkategorien |
 | `icf_list_chapters` | Komponenten b/s/d/e mit ihren Kapiteln |
-| `icf_get_related` | Übergeordnete Kategorie, Geschwister, Unterkategorien, über Ausschlüsse verknüpfte Codes |
+| `icf_get_related` | Ober-/Unterkategorien, Geschwister, eigene und geerbte Ausschlüsse, Rückverweise (wer schließt diesen Code aus) |
+| `icf_compare` | Grenzt zwei Kategorien ab: Hierarchie, Ausschlüsse in beiden Richtungen, Verbindungsweg, Beschreibungen |
 | `icf_get_qualifiers` | Notation und Werteskala der Beurteilungsmerkmale für einen Code |
 | `icf_interpret_coding` | Prüft und übersetzt Kodierungen wie `d450.23`, `b1440.2`, `s7500.213`, `e310+3` |
 
@@ -33,6 +34,23 @@ Damit können Claude und andere MCP-Clients Diagnosen und ICF-Kategorien suchen,
 | `icd_get_code` | Titel, Hierarchiepfad, Ein-/Ausschlüsse mit Verweisen, Hinweise, Unterkodes, §295/§301, Kreuz/Stern/Ausrufezeichen, Alters- und Geschlechtsbezug |
 | `icd_list_chapters` | Die 22 Kapitel mit Kodebereichen oder die Gruppen eines Kapitels |
 | `icd_check_code` | Prüft Kodierbarkeit inkl. Zusatzkennzeichen für Diagnosesicherheit (G/V/Z/A) und Seite (R/L/B), z. B. `F32.1 G` |
+| `icd_relations` | Alle amtlichen Beziehungen eines Kodes: geerbte Ausschlüsse, Rückverweise (auch über Bereiche wie J00-J22), Verweise, Kreuz-Stern-Partner |
+| `icd_compare` | Grenzt zwei Kodes ab, z. B. F32.1 und F33.1: Hierarchie, Ausschlüsse und Verweise in beiden Richtungen, Verbindungsweg, Einschlüsse |
+
+### Wissensnetz
+
+Aus den amtlichen Daten wird beim Start ein Wissensnetz aufgebaut, ohne Sprachmodell und ohne erschlossene Beziehungen:
+
+| Beziehung | ICD-10-GM | ICF |
+| --- | --- | --- |
+| Ober-/Unterklasse | 17.177 Klassen | 1.495 Kategorien |
+| Ausschluss (Exklusivum) | 5.005 | 146 |
+| Verweis in Einschlüssen und Titeln | 688 | – |
+| Kreuz-Stern-Kombination (†/*) | 312 | – |
+
+Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes. Deshalb zeigen `icd_relations` und `icd_compare` auch geerbte Ausschlüsse; F32.1 grenzt sich etwa über F32 von F33 ab. Verweisziele wie `J00-J22` werden als Bereich ausgewertet, und eine Kategorie zählt nur dann dazu, wenn alle ihre Unterkodes darin liegen.
+
+Eine amtliche Zuordnung zwischen ICD und ICF gibt es nicht. Das Netz verbindet daher nur Kodes innerhalb einer Klassifikation.
 
 ## Online-Konnektor (ohne Installation)
 
@@ -94,12 +112,14 @@ src/                 MCP-Server
   icf.mjs            ICF: Datenzugriff und Abfragelogik
   icd.mjs            ICD-10-GM: Datenzugriff und Abfragelogik
   data.mjs           Lädt die JSON-Daten (lokal und in Netlify Functions)
+  graph.mjs          Wissensnetz: Kanten, Rückverweise, Bereiche, kürzeste Wege
   text.mjs           Gemeinsame Hilfen (Suche, Fehler)
 netlify/functions/   Netlify Function für den Online-Endpunkt /mcp
 public/              Startseite des Online-Endpunkts
 data/                Generierte Daten (icf_flat.json, qualifiers.json, icd10gm.json)
 source/              ClaML-Quelldateien von ICF und ICD-10-GM
 scripts/             Konvertierung ClaML → JSON (icf_to_json.py, icd_to_json.py, build_data.sh)
+                     und graphify-Export (export_graphify.mjs, build_graphify.sh)
 test/                Tests
 ```
 
@@ -117,6 +137,21 @@ npm run build:data   # data/ aus source/ neu erzeugen (Python 3.9+)
 2. Die XML aus `Klassifikationsdateien/` nach `source/` kopieren und die alte Version löschen.
 3. `npm run build:data` und `npm test` ausführen. `build_data.sh` nimmt automatisch die neueste `icd10gm*syst_claml_*.xml`.
 4. Die Versionsangaben in `QUELLEN.md` anpassen.
+
+### Wissensnetz in graphify
+
+```bash
+scripts/build_graphify.sh
+```
+
+Das Skript exportiert das Wissensnetz im Extraktionsformat von [graphify](https://github.com/Graphify-Labs/graphify) und baut damit `graphify-out/graph.json`, inklusive Themengruppen. Dafür wird kein Sprachmodell aufgerufen. Alle Kanten sind `EXTRACTED` mit Konfidenz 1,0 und tragen den Ausschlusstext als Quelle. Danach funktionieren die graphify-Befehle und der graphify-MCP-Server:
+
+```bash
+graphify path "F32.1 Mittelgradige depressive Episode" "F33.1 Rezidivierende depressive Störung, gegenwärtig mittelgradige Episode" --undirected
+graphify explain "F33 Rezidivierende depressive Störung"
+```
+
+Beziehungen: `ist_teil_von`, `schliesst_aus`, `verweist_auf`, `kreuz_stern` und `umfasst` (Bereichsknoten wie „Bereich J00-J22“ → enthaltene Gruppen und Kategorien). `graphify-out/` wird nicht versioniert.
 
 ### Online-Endpunkt aktualisieren
 

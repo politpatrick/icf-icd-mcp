@@ -2,6 +2,7 @@
 // aus ../data und stellt Abfrage-Funktionen für die Tools bereit.
 
 import { readData } from "./data.mjs";
+import { RelationGraph } from "./graph.mjs";
 import { fold, LookupError } from "./text.mjs";
 
 const codes = readData("icf_flat.json");
@@ -93,6 +94,16 @@ export function getRelated({ code: raw }) {
     siblings: parent ? codes[parent].children.filter((c) => c !== code).map(summary) : [],
     children: codes[code].children.map(summary),
     exclusions: (codes[code].exclusions ?? []).map(resolveExclusion),
+    inherited_exclusions: graph.inherited(code, "ausschluss").map(({ to, text, geerbt_von }) => ({
+      text,
+      code: summary(to),
+      inherited_from: summary(geerbt_von),
+    })),
+    excluded_by: graph.incoming(code, "ausschluss").map(({ from, text, via, ueber }) => ({
+      code: summary(from),
+      text,
+      via: via === "direkt" ? "direkt" : `über ${ueber}`,
+    })),
   };
 }
 
@@ -215,4 +226,58 @@ export function interpretCoding({ coding }) {
   });
   if (!digits) result.warnings.push("Nach dem Trennzeichen fehlt das Beurteilungsmerkmal.");
   return result;
+}
+
+// ---------------------------------------------------------------------------
+// Wissensnetz: Hierarchie und Ausschlüsse aus den amtlichen Daten
+
+export const graph = new RelationGraph({
+  parentOf: (code) => parentOf[code],
+  childrenOf: (code) => codes[code]?.children ?? [],
+  has: (code) => code in codes,
+  roots: COMPONENTS,
+});
+
+for (const entry of Object.values(codes)) {
+  for (const text of entry.exclusions ?? []) {
+    for (const target of resolveExclusion(text).codes) graph.addEdge(entry.code, target.code, "ausschluss", text);
+  }
+}
+
+export function compare({ code_a, code_b }) {
+  const a = requireCode(code_a);
+  const b = requireCode(code_b);
+  const common = graph.commonAncestor(a, b);
+  const between = (from, to) =>
+    graph.edgesBetween(from, to, "ausschluss").map(({ text, geerbt_von, via, ueber }) => ({
+      text,
+      ...(geerbt_von ? { geerbt_von: summary(geerbt_von) } : {}),
+      trifft: via === "direkt" ? to : `Oberklasse ${ueber}`,
+    }));
+  const fromA = between(a, b);
+  const fromB = between(b, a);
+  const steps = graph.path(a, b);
+  const features = (code) => ({
+    beschreibung: codes[code]["coding-hints"] ?? [],
+    einschluesse: codes[code].inclusions ?? [],
+  });
+  return {
+    a: summary(a),
+    b: summary(b),
+    hierarchie:
+      a === b ? "gleicher Code"
+      : common === a ? `${a} ist Oberkategorie von ${b}`
+      : common === b ? `${b} ist Oberkategorie von ${a}`
+      : common ? { gemeinsame_oberkategorie: summary(common), geschwister: parentOf[a] === parentOf[b] }
+      : "verschiedene Komponenten",
+    [`${a}_schliesst_aus`]: fromA,
+    [`${b}_schliesst_aus`]: fromB,
+    abgrenzung: fromA.length || fromB.length
+      ? "Es gibt einen amtlichen Ausschluss: Der genannte Inhalt wird mit der jeweils anderen Kategorie kodiert."
+      : "Kein amtlicher Ausschluss zwischen den Kategorien (auch nicht über Oberkategorien).",
+    pfad: steps
+      ? steps.map((s) => ({ ...s, von: summary(s.von), nach: summary(s.nach) }))
+      : "Kein Weg über amtliche Beziehungen (höchstens 8 Schritte).",
+    merkmale: { [a]: features(a), [b]: features(b) },
+  };
 }

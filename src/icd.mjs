@@ -2,6 +2,7 @@
 // und stellt Abfrage-Funktionen für die Tools bereit.
 
 import { readData } from "./data.mjs";
+import { RelationGraph } from "./graph.mjs";
 import { fold, LookupError } from "./text.mjs";
 
 const { meta: VERSION, codes } = readData("icd10gm.json");
@@ -63,7 +64,7 @@ function displayCode(entry) {
 
 function summary(code) {
   const entry = codes[code];
-  if (!entry) return { code };
+  if (!entry) return code.includes("-") ? { code, kind: "bereich" } : { code };
   return {
     code: displayCode(entry),
     title: entry.fullTitle,
@@ -234,4 +235,114 @@ export function checkCode({ code: raw }) {
   if (side.length) result.side = `${side[0]} – ${SIDE[side[0]]}`;
   if (certainty.length > 1 || side.length > 1) warnings.push("Pro Kode nur ein Kennzeichen für Diagnosesicherheit und eines für die Seite.");
   return result;
+}
+
+// ---------------------------------------------------------------------------
+// Wissensnetz: Ausschlüsse, Verweise und Kreuz-Stern-Kombinationen aus den amtlichen Daten
+
+const isDaggerAster = (a, b) =>
+  (a?.usage === "dagger" && b?.usage === "aster") || (a?.usage === "aster" && b?.usage === "dagger");
+
+export const graph = new RelationGraph({
+  parentOf: (code) => codes[code]?.parent,
+  childrenOf: (code) => codes[code]?.children ?? [],
+  has: (code) => code in codes,
+  roots: VERSION.chapters,
+});
+
+for (const entry of Object.values(codes)) {
+  for (const item of entry.exclusions ?? []) {
+    for (const ref of item.refs ?? []) graph.addEdge(entry.code, ref, "ausschluss", item.text);
+  }
+  const refs = [
+    ...(entry.inclusions ?? []).flatMap((item) => (item.refs ?? []).map((ref) => [ref, item.text])),
+    ...(entry.title_refs ?? []).map((ref) => [ref, entry.title]),
+  ];
+  for (const [ref, text] of refs) {
+    const target = codes[graph.resolve(ref)];
+    graph.addEdge(entry.code, ref, isDaggerAster(entry, target) ? "kreuz_stern" : "verweis", text);
+  }
+}
+
+const LIST_LIMIT = 50;
+
+function limited(items) {
+  return items.length > LIST_LIMIT ? { anzahl: items.length, eintraege: items.slice(0, LIST_LIMIT) } : items;
+}
+
+function edgeOut({ to, text, geerbt_von }) {
+  return { ziel: summary(to), text, ...(geerbt_von ? { geerbt_von: summary(geerbt_von) } : {}) };
+}
+
+function edgeIn({ from, text, via, ueber }) {
+  return {
+    von: summary(from),
+    text,
+    trifft: via === "direkt" ? "diesen Kode direkt" : via === "oberklasse" ? `die Oberklasse ${ueber}` : `den Bereich ${ueber}`,
+  };
+}
+
+export function relations({ code: raw }) {
+  const code = requireCode(raw);
+  return {
+    version: ICD_VERSION,
+    ...summary(code),
+    oberklassen: graph.ancestors(code).reverse().map(summary),
+    unterklassen: codes[code].children.map(summary),
+    ausschluesse: graph.out(code, "ausschluss").map(edgeOut),
+    geerbte_ausschluesse: limited(graph.inherited(code, "ausschluss").map(edgeOut)),
+    wird_ausgeschlossen_bei: limited(graph.incoming(code, "ausschluss").map(edgeIn)),
+    verweise: graph.out(code, "verweis").map(edgeOut),
+    rueckverweise: limited(graph.incoming(code, "verweis").map(edgeIn)),
+    kreuz_stern: [
+      ...graph.out(code, "kreuz_stern").map(edgeOut),
+      ...graph.incoming(code, "kreuz_stern").map(edgeIn),
+    ],
+    hinweis:
+      "Ausschlüsse (Exklusiva) geben an, unter welchem Kode ein Zustand stattdessen klassifiziert wird. Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes.",
+  };
+}
+
+function hierarchy(a, b) {
+  const common = graph.commonAncestor(a, b);
+  if (a === b) return { beziehung: "gleicher Kode" };
+  if (common === a) return { beziehung: `${a} ist Oberklasse von ${b}` };
+  if (common === b) return { beziehung: `${b} ist Oberklasse von ${a}` };
+  if (!common) return { beziehung: "verschiedene Kapitel, keine gemeinsame Oberklasse" };
+  const sameParent = codes[a].parent === codes[b].parent;
+  return { beziehung: sameParent ? "Geschwister (gleiche Oberklasse)" : "gemeinsame Oberklasse", gemeinsame_oberklasse: summary(common) };
+}
+
+function between(from, to) {
+  return graph.edgesBetween(from, to).map(({ type, text, geerbt_von, via, ueber }) => ({
+    art: type,
+    text,
+    ...(geerbt_von ? { geerbt_von: summary(geerbt_von) } : {}),
+    trifft: via === "direkt" ? to : via === "oberklasse" ? `Oberklasse ${ueber}` : `Bereich ${ueber}`,
+  }));
+}
+
+export function compare({ code_a, code_b }) {
+  const a = requireCode(code_a);
+  const b = requireCode(code_b);
+  const fromA = between(a, b);
+  const fromB = between(b, a);
+  const pfad = graph.path(a, b);
+  const merkmale = (code) => ({
+    einschluesse: (codes[code].inclusions ?? []).map(textOf),
+    definitionen: codes[code].definitions ?? [],
+  });
+  return {
+    version: ICD_VERSION,
+    a: summary(a),
+    b: summary(b),
+    hierarchie: hierarchy(a, b),
+    [`${a}_zu_${b}`]: fromA,
+    [`${b}_zu_${a}`]: fromB,
+    abgrenzung: fromA.some((e) => e.art === "ausschluss") || fromB.some((e) => e.art === "ausschluss")
+      ? "Es gibt einen amtlichen Ausschluss zwischen den Kodes: Der dort genannte Zustand wird unter dem anderen Kode klassifiziert."
+      : "Kein amtlicher Ausschluss zwischen den Kodes (auch nicht über Oberklassen).",
+    pfad: pfad ? pfad.map((s) => ({ ...s, von: summary(s.von), nach: summary(s.nach) })) : "Kein Weg über amtliche Beziehungen (höchstens 8 Schritte).",
+    merkmale: { [a]: merkmale(a), [b]: merkmale(b) },
+  };
 }
