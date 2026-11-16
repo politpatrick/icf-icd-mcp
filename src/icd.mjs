@@ -282,6 +282,23 @@ function edgeIn({ from, text, via, ueber }) {
   };
 }
 
+// Kreuz-Stern-Verweise stehen oft auf beiden Seiten (G30.0† nennt F00.0*, F00.0* nennt G30.0†):
+// je Partner ein Eintrag mit allen Fundstellen
+function crossPartners(code) {
+  const partners = new Map();
+  const add = (target, text, ueber) => {
+    const key = graph.resolve(target) ?? target;
+    if (!partners.has(key)) partners.set(key, { partner: summary(key), texte: [], ...(ueber ? { ueber } : {}) });
+    const entry = partners.get(key);
+    if (!entry.texte.includes(text)) entry.texte.push(text);
+  };
+  for (const edge of graph.out(code, "kreuz_stern")) add(edge.to, edge.text);
+  for (const edge of graph.incoming(code, "kreuz_stern")) {
+    add(edge.from, edge.text, edge.via === "direkt" ? undefined : `über ${edge.ueber}`);
+  }
+  return [...partners.values()];
+}
+
 export function relations({ code: raw }) {
   const code = requireCode(raw);
   return {
@@ -294,10 +311,7 @@ export function relations({ code: raw }) {
     wird_ausgeschlossen_bei: limited(graph.incoming(code, "ausschluss").map(edgeIn)),
     verweise: graph.out(code, "verweis").map(edgeOut),
     rueckverweise: limited(graph.incoming(code, "verweis").map(edgeIn)),
-    kreuz_stern: [
-      ...graph.out(code, "kreuz_stern").map(edgeOut),
-      ...graph.incoming(code, "kreuz_stern").map(edgeIn),
-    ],
+    kreuz_stern: crossPartners(code),
     hinweis:
       "Ausschlüsse (Exklusiva) geben an, unter welchem Kode ein Zustand stattdessen klassifiziert wird. Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes.",
   };

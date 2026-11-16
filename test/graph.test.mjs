@@ -36,8 +36,12 @@ test("icd_relations zeigt Rückverweise, geerbte Ausschlüsse und Kreuz-Stern-Pa
   assert.equal(f321.ausschluesse.length, 0);
   assert.ok(f321.geerbte_ausschluesse.some((e) => e.geerbt_von.code === "F32" && e.ziel.code === "F33"));
 
-  assert.ok(call("icd_relations", { code: "F00.0" }).kreuz_stern.some((e) => e.ziel?.code === "G30.0†"));
-  assert.ok(call("icd_relations", { code: "G30.0" }).kreuz_stern.some((e) => e.ziel?.code === "F00.0*"));
+  const f000 = call("icd_relations", { code: "F00.0" }).kreuz_stern;
+  assert.ok(f000.some((e) => e.partner.code === "G30.0†"));
+  // Jeder Partner nur einmal, auch wenn beide Seiten aufeinander verweisen
+  const partners = call("icd_relations", { code: "G30.0" }).kreuz_stern.map((e) => e.partner.code);
+  assert.deepEqual(partners, [...new Set(partners)]);
+  assert.ok(partners.includes("F00.0*") && partners.includes("F00*"));
 });
 
 test("icd_compare grenzt F32.1 und F33.1 über den geerbten Ausschluss ab", () => {
