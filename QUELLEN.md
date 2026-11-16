@@ -56,6 +56,14 @@ fehlen in der Textebene die Bindestriche. Sie werden in `scripts/bi_to_json.py` 
 Wortlaut ergänzt. Skalen, Formularfelder und Alterstabellen sind von Hand in `source/bi_struktur.json` übertragen, jeweils
 mit Seitenangabe. Verbindlich ist das PDF der BRi.
 
-**Offen:** Bevor das Modul öffentlich ausgeliefert wird (Netlify, GitHub), ist zu klären, ob die BRi als amtliches Werk
-nach § 5 UrhG frei weitergegeben werden dürfen, etwa durch Rückfrage beim Medizinischen Dienst Bund. Bis dahin ist das Modul
-standardmäßig abgeschaltet.
+**Rechtsstellung:** Die BRi sind Richtlinien nach § 17 Absatz 1 und § 53d Absatz 3 SGB XI, vom Medizinischen Dienst Bund
+als Körperschaft des öffentlichen Rechts erlassen und vom Bundesministerium für Gesundheit genehmigt. Als amtliches Werk
+nach § 5 UrhG genießen ihre Inhalte (Texte, Kriterien, Tabellen, Formulargutachten) keinen urheberrechtlichen Schutz.
+Soweit § 5 Absatz 2 UrhG greift, gelten das Änderungsverbot und die Pflicht zur Quellenangabe (§§ 62, 63 UrhG): Die Texte
+werden unverändert übernommen (bis auf die oben beschriebene Ergänzung fehlender Bindestriche nach dem gedruckten
+Wortlaut), die Quelle ist angegeben.
+
+Geschützt sein kann die Gestaltung der Veröffentlichung, etwa das Titelfoto (© Medizinischer Dienst) und Umschlag und
+Satz (fountain studio). Deshalb wird nur der Textauszug weitergegeben, nicht das PDF. Es ist beim Medizinischen Dienst
+Bund erhältlich (www.md-bund.de) und wird nur gebraucht, um bei einer neuen Fassung den Textauszug neu zu erzeugen
+(`scripts/bri_extract.py`); dafür unter `source/bri_pflege_2026.pdf` ablegen.

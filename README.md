@@ -80,7 +80,7 @@ Das Netz enthält 144 Knoten und rund 200 Kanten. Davon stammen 61 Abgrenzungen 
 
 **Vorbereitet für ICF/ICD:** Eigener Namensraum, gleiches `RelationGraph`, gleiches Datenformat unter `data/`. Eine amtliche Zuordnung zwischen BI und ICF gibt es nicht; eine fachlich kuratierte Zuordnung käme als eigene Kantenschicht mit `quelle: "kuratiert"` hinzu.
 
-Daten neu erzeugen (der Textauszug liegt bei, der PDF-Schritt ist nur bei einer neuen BRi-Fassung nötig und braucht `pypdf`):
+Daten neu erzeugen (der Textauszug liegt bei; das PDF wird nicht versioniert und ist nur bei einer neuen BRi-Fassung nötig, dann mit `pypdf`):
 
 ```bash
 python3 scripts/bri_extract.py source/bri_pflege_2026.pdf source/bri_pflege_2026.txt
