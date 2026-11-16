@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 .netlify/
 graphify-out/
+# BRi-PDF: Gestaltung (Titelfoto, Satz) ggf. geschützt, nur der Textauszug wird versioniert
+source/bri_pflege_2026.pdf

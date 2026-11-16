@@ -1,11 +1,12 @@
 # ICF-ICD-MCP
 
-MCP-Server für zwei amtliche Klassifikationen in deutscher Fassung des BfArM:
+MCP-Server für zwei amtliche Klassifikationen in deutscher Fassung des BfArM und das Begutachtungsinstrument der Pflegeversicherung:
 
 - **ICF**: Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit (WHO, Stand 2005)
 - **ICD-10-GM 2026**: Internationale statistische Klassifikation der Krankheiten, German Modification
+- **Begutachtungsinstrument nach § 15 SGB XI**: Module, Kriterien und Formulargutachten nach den Begutachtungs-Richtlinien 2026, mit Pflegegrad-Rechner
 
-Damit können Claude und andere MCP-Clients Diagnosen und ICF-Kategorien suchen, nachschlagen und Kodierungen prüfen, etwa für Teilhabeplanung, Gesamtplanverfahren oder Berichte.
+Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien und Kriterien der Pflegebegutachtung suchen, nachschlagen und Kodierungen prüfen, etwa für Teilhabeplanung, Gesamtplanverfahren, Pflegegrad-Widersprüche oder Berichte.
 
 - Keine Abhängigkeiten, nur Node.js ≥ 18
 - Läuft lokal, sendet keine Daten nach außen
@@ -52,6 +53,45 @@ Aus den amtlichen Daten wird beim Start ein Wissensnetz aufgebaut, ohne Sprachmo
 Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes. Deshalb zeigen `icd_relations` und `icd_compare` auch geerbte Ausschlüsse; F32.1 grenzt sich etwa über F32 von F33 ab. Verweisziele wie `J00-J22` werden als Bereich ausgewertet: Jede Grenze wird in ihrer eigenen Genauigkeit verglichen, und eine Kategorie zählt nur dann dazu, wenn alle ihre Unterkodes darin liegen. Verweise wie „E10-E14, vierte Stelle .1“ werden in die gemeinten Viersteller E10.1 … E14.1 aufgelöst. ICF-Ausschlüsse, die nur als Titel vorliegen, werden über Titel, Kapitelangaben, Ergänzungsstriche („Teilzeit- und Vollzeitbeschäftigung“) und Wortvergleich vollständig zugeordnet.
 
 Eine amtliche Zuordnung zwischen ICD und ICF gibt es nicht. Das Netz verbindet daher nur Kodes innerhalb einer Klassifikation.
+
+## Begutachtungsinstrument nach § 15 SGB XI
+
+Ein drittes Wissensnetz bildet das Begutachtungsinstrument der Pflegebegutachtung ab, auf Grundlage der Begutachtungs-Richtlinien (BRi) des Medizinischen Dienstes Bund, gültig ab 01.10.2026. Es ist standardmäßig eingeschaltet. Wer nur ICF und ICD-10-GM braucht, schaltet es mit der Umgebungsvariable `ICF_MCP_BI=0` ab:
+
+```bash
+claude mcp add icf-icd -e ICF_MCP_BI=0 -- node ~/GitHub/icf-icd-mcp/src/server.mjs
+```
+
+**Kennungen** folgen den Ziffern des Formulargutachtens mit dem Präfix `BI:`, damit sie nicht mit ICF- oder ICD-Kodes kollidieren: `BI:4.1` bis `BI:4.6` sind die Module 1–6, `BI:4.1.3` ist das Kriterium „Umsetzen“, `BI:1.1` bis `BI:9` sind die übrigen Abschnitte und Felder (F1–F9). `F 4.1.3` und `KF 4.1.3` (Kinderfassung) werden ebenfalls verstanden. Der Formularkopf hat in den BRi keine Ziffern; dort sind die Kennungen `BI:K.1` bis `BI:K.6` vergeben.
+
+**Kodierung** einer Ausprägung: `BI:4.1.3=2`. Der Wert ist immer die **Stufe** der Skala (0–3), nicht der Punktwert aus dem Formular. Bei Modul 3 ist `3` also „täglich“ (5 Punkte), bei 4.4.8 ist `3` „unselbständig“ (9 Punkte). Modul 5 wird als Häufigkeit kodiert (`BI:4.5.1=3/Tag`, `BI:4.5.13=1/Monat`, `=entfällt`), Formularfelder mit dem Optionsschlüssel (`BI:5.4=unfall`).
+
+| Tool | Zweck |
+| --- | --- |
+| `bi_list_structure` | Gliederung: Formularkopf, Abschnitte 1–9, Module mit Gewichtung und Kriterien |
+| `bi_get_item` | Verbindliche Definition (Fettdruck der BRi), Hinweise, Ausprägungen mit Einzelpunkten und Erläuterung, Altersangaben für Kinder, Abgrenzungen, Seiten |
+| `bi_search` | Volltextsuche in Definitionen, Hinweisen und Ausprägungstexten |
+| `bi_related` | Beziehungen einer Kennung: Hierarchie, Abgrenzungen und Verweise, Regelkanten |
+| `bi_compare` | Grenzt zwei Kriterien ab, z. B. 4.3.2 und 4.6.2, mit den wörtlichen Abgrenzungen der BRi |
+| `bi_interpret_coding` | Prüft Kodierungen und übersetzt sie in Klartext |
+| `bi_calculate` | Summen, gewichtete Punkte, Gesamtpunkte und Pflegegrad nach Anlage 2 zu § 15 SGB XI, auch für Kinder (Altersvergleich, Sonderregel bis 18 Monate) |
+| `bi_scoring_rules` | Bewertungssystematik mit Schwellen, Modul-5-Regeln und Sonderregeln |
+
+Das Netz enthält 144 Knoten und rund 200 Kanten. Davon stammen 61 Abgrenzungen und 114 Verweise wörtlich aus dem Richtlinientext („… sind unter F 4.6.2 zu berücksichtigen“). Die übrigen Kanten bilden Regeln ab (4.4.0 ersetzt bei Kindern bis 18 Monate 4.4.1–4.4.13, aus Modul 2 und 3 zählt der höhere Wert, 4.1.B führt zu Pflegegrad 5). Jede Kante trägt ihre Herkunft (`quelle`: `richtlinie` oder `struktur`) und die Seite.
+
+**Vorbereitet für ICF/ICD:** Eigener Namensraum, gleiches `RelationGraph`, gleiches Datenformat unter `data/`. Eine amtliche Zuordnung zwischen BI und ICF gibt es nicht; eine fachlich kuratierte Zuordnung käme als eigene Kantenschicht mit `quelle: "kuratiert"` hinzu.
+
+Daten neu erzeugen (der Textauszug liegt bei; das PDF wird nicht versioniert und ist nur bei einer neuen BRi-Fassung nötig, dann mit `pypdf`):
+
+```bash
+python3 scripts/bri_extract.py source/bri_pflege_2026.pdf source/bri_pflege_2026.txt
+```
+
+```bash
+python3 scripts/bi_to_json.py
+```
+
+`source/bi_struktur.json` enthält die von Hand übertragenen Teile (Skalen, Punkteregeln, Alterstabellen, Formularfelder und Optionen), jeweils mit Seitenangabe.
 
 ## Online-Konnektor (ohne Installation)
 
@@ -112,14 +152,17 @@ src/                 MCP-Server
   protocol.mjs       JSON-RPC/MCP-Protokoll und Tool-Definitionen
   icf.mjs            ICF: Datenzugriff und Abfragelogik
   icd.mjs            ICD-10-GM: Datenzugriff und Abfragelogik
+  bi.mjs             Begutachtungsinstrument SGB XI: Wissensnetz, Kodierung, Pflegegrad-Rechner
+  bi_tools.mjs       Tool-Definitionen für bi.mjs (abschaltbar mit ICF_MCP_BI=0)
   data.mjs           Lädt die JSON-Daten (lokal und in Netlify Functions)
   graph.mjs          Wissensnetz: Kanten, Rückverweise, Bereiche, kürzeste Wege
   text.mjs           Gemeinsame Hilfen (Suche, Fehler)
 netlify/functions/   Netlify Function für den Online-Endpunkt /mcp
 public/              Startseite des Online-Endpunkts
-data/                Generierte Daten (icf_flat.json, qualifiers.json, icd10gm.json)
-source/              ClaML-Quelldateien von ICF und ICD-10-GM
-scripts/             Konvertierung ClaML → JSON (icf_to_json.py, icd_to_json.py, build_data.sh)
+data/                Generierte Daten (icf_flat.json, qualifiers.json, icd10gm.json, bi.json)
+source/              ClaML-Quelldateien von ICF und ICD-10-GM; BRi-PDF, Textauszug und bi_struktur.json
+scripts/             Konvertierung ClaML → JSON (icf_to_json.py, icd_to_json.py, build_data.sh),
+                     BRi → JSON (bri_extract.py, bi_to_json.py)
                      und graphify-Export (export_graphify.mjs, build_graphify.sh)
 test/                Tests
 ```
@@ -168,4 +211,4 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"icf_interp
 
 ICF und ICD-10-GM sind Klassifikationen der Weltgesundheitsorganisation (WHO) in der deutschen Fassung des Bundesinstituts für Arzneimittel und Medizinprodukte (BfArM). Sie werden unverändert und mit den vorgeschriebenen Quellenangaben weitergegeben, siehe [QUELLEN.md](QUELLEN.md). Verbindlich ist jeweils das PDF des Systematischen Verzeichnisses beim BfArM.
 
-Die Tools liefern Klassifikationsinhalte, keine fachliche Bewertung im Einzelfall.
+Die Tools liefern Klassifikationsinhalte, keine fachliche Bewertung im Einzelfall. Das gilt auch für `bi_calculate`: Es rechnet nach Anlage 2 zu § 15 SGB XI, ersetzt aber keine Begutachtung.
