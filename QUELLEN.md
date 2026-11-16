@@ -40,3 +40,22 @@ verändert werden. Sie werden hier so ausgegeben, wie sie in der Klassifikation 
 
 Der genaue Wortlaut der vorgeschriebenen Quellenangaben steht im Anhang der Downloadbedingungen, die jedem
 Download des BfArM beiliegen (`downloadbedingungen-2025.pdf`).
+
+## Begutachtungs-Richtlinien (BRi) 2026 – optionales Modul `bi`
+
+- Datei: `source/bri_pflege_2026.pdf` mit dem Textauszug `source/bri_pflege_2026.txt`
+- *Richtlinien zur pflegefachlichen Konkretisierung der Inhalte des Begutachtungsinstruments nach § 15 SGB XI sowie zum
+  Verfahren der Feststellung der Pflegebedürftigkeit nach den §§ 18 bis 18c SGB XI gemäß § 53d Absatz 3 Satz 1 Nummer 1
+  i. V. m. § 17 Absatz 1 SGB XI*, erlassen am 26.08.2026, genehmigt durch das Bundesministerium für Gesundheit am 28.09.2026,
+  in Kraft seit 01.10.2026
+- Herausgeber: Medizinischer Dienst Bund (KöR), Essen, www.md-bund.de
+- Bewertungssystematik: Anlage 1 und 2 zu § 15 SGB XI
+
+Die Texte werden aus dem PDF übernommen. Eine Änderung gibt es nur an einer Stelle: In der fetten Schrift des PDFs
+fehlen in der Textebene die Bindestriche. Sie werden in `scripts/bi_to_json.py` (`KORREKTUREN`) nach dem gedruckten
+Wortlaut ergänzt. Skalen, Formularfelder und Alterstabellen sind von Hand in `source/bi_struktur.json` übertragen, jeweils
+mit Seitenangabe. Verbindlich ist das PDF der BRi.
+
+**Offen:** Bevor das Modul öffentlich ausgeliefert wird (Netlify, GitHub), ist zu klären, ob die BRi als amtliches Werk
+nach § 5 UrhG frei weitergegeben werden dürfen, etwa durch Rückfrage beim Medizinischen Dienst Bund. Bis dahin ist das Modul
+standardmäßig abgeschaltet.

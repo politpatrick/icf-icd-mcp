@@ -4,6 +4,7 @@
 # Erzeugt data/ aus den ClaML-Quelldateien in source/:
 #   icf_flat.json, qualifiers.json  (ICF)
 #   icd10gm.json                    (ICD-10-GM)
+#   bi.json                         (Begutachtungsinstrument SGB XI, aus source/bri_pflege_2026.txt)
 # Aufruf aus beliebigem Ordner: scripts/build_data.sh [ZIEL] [PYTHON]
 # ---------------------------------------------------------------------------
 
@@ -31,3 +32,5 @@ done
 printf "ICF: %s\nICD: %s\nZiel: %s\n\n" "$ICF_XML" "$ICD_XML" "$OUT_DIR"
 "$PY_CMD" "$SCRIPT_DIR/icf_to_json.py" "$ICF_XML" "$OUT_DIR" --lang de
 "$PY_CMD" "$SCRIPT_DIR/icd_to_json.py" "$ICD_XML" "$OUT_DIR"
+# Begutachtungsinstrument (SGB XI) aus Textauszug und Struktur der BRi; nur Standardbibliothek
+"$PY_CMD" "$SCRIPT_DIR/bi_to_json.py" "$OUT_DIR"

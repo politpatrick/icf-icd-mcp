@@ -1,0 +1,481 @@
+{
+  "_hinweis": "Von Hand aus den Begutachtungs-Richtlinien (BRi) übertragene Struktur: Skalen, Formularfelder, Ausprägungen, Bewertungsregeln und Alterstabellen. Jede Angabe nennt die Seite der BRi. Die Erläuterungstexte ergänzt scripts/bi_to_json.py automatisch aus source/bri_pflege_2026.txt.",
+  "meta": {
+    "instrument": "Begutachtungsinstrument nach § 15 SGB XI",
+    "richtlinie": "Richtlinien zur pflegefachlichen Konkretisierung der Inhalte des Begutachtungsinstruments nach § 15 SGB XI sowie zum Verfahren der Feststellung der Pflegebedürftigkeit nach den §§ 18 bis 18c SGB XI (Begutachtungs-Richtlinien – BRi)",
+    "kurz": "BRi 2026",
+    "herausgeber": "Medizinischer Dienst Bund (KöR), Essen",
+    "erlassen": "2026-08-26",
+    "genehmigt_bmg": "2026-09-28",
+    "gueltig_ab": "2026-10-01",
+    "quelle_datei": "source/bri_pflege_2026.pdf",
+    "rechtsgrundlagen": ["§ 15 SGB XI", "Anlage 1 zu § 15 SGB XI (Module und Kriterien)", "Anlage 2 zu § 15 SGB XI (Bewertungssystematik)", "§§ 18 bis 18c SGB XI", "§ 17 Absatz 1, § 53d Absatz 3 SGB XI"]
+  },
+  "skalen": {
+    "selbstaendigkeit": {
+      "titel": "Selbständigkeit",
+      "seite": 52,
+      "stufen": [
+        { "wert": 0, "label": "selbständig", "marke": "Selbständig" },
+        { "wert": 1, "label": "überwiegend selbständig", "marke": "Überwiegend selbständig" },
+        { "wert": 2, "label": "überwiegend unselbständig", "marke": "Überwiegend unselbständig" },
+        { "wert": 3, "label": "unselbständig", "marke": "Unselbständig" }
+      ]
+    },
+    "faehigkeit": {
+      "titel": "Ausprägung der Fähigkeit",
+      "seite": 59,
+      "stufen": [
+        { "wert": 0, "label": "Fähigkeit vorhanden/unbeeinträchtigt", "marke": "Fähigkeit vorhanden" },
+        { "wert": 1, "label": "Fähigkeit größtenteils vorhanden", "marke": "Fähigkeit größtenteils vorhanden" },
+        { "wert": 2, "label": "Fähigkeit in geringem Maße vorhanden", "marke": "Fähigkeit in geringem Maße vorhanden" },
+        { "wert": 3, "label": "Fähigkeit nicht vorhanden", "marke": "Fähigkeit nicht vorhanden" }
+      ]
+    },
+    "haeufigkeit_m3": {
+      "titel": "Häufigkeit des Unterstützungsbedarfs",
+      "seite": 68,
+      "stufen": [
+        { "wert": 0, "label": "nie oder sehr selten", "punkte": 0 },
+        { "wert": 1, "label": "selten (ein- bis dreimal innerhalb von zwei Wochen)", "punkte": 1 },
+        { "wert": 2, "label": "häufig (zweimal bis mehrmals wöchentlich, aber nicht täglich)", "punkte": 3 },
+        { "wert": 3, "label": "täglich", "punkte": 5 }
+      ]
+    },
+    "sonde": {
+      "titel": "Ernährung parenteral oder über Sonde",
+      "seite": 105,
+      "stufen": [
+        { "wert": 0, "label": "keine bzw. Versorgung selbständig", "punkte": 0 },
+        { "wert": 1, "label": "mit Hilfe: nicht täglich, nicht auf Dauer", "punkte": 0 },
+        { "wert": 2, "label": "mit Hilfe: täglich, zusätzlich zu oraler Ernährung", "punkte": 6 },
+        { "wert": 3, "label": "mit Hilfe: ausschließlich oder nahezu ausschließlich", "punkte": 3 }
+      ]
+    },
+    "haeufigkeit_m5": {
+      "titel": "Häufigkeit der Hilfe (Anzahl pro Tag, Woche oder Monat)",
+      "seite": 83,
+      "notation": "\"entfällt\", \"selbständig\" oder Anzahl mit Bezug, z. B. \"3/Tag\", \"2/Woche\", \"1/Monat\"",
+      "regel": "Zu jedem Kriterium ist nur ein Eintrag möglich: entfällt oder selbständig oder Häufigkeit der Hilfe mit einer vollen Zahl pro Tag, pro Woche oder pro Monat. Wöchentliche Maßnahmen werden für die Umrechnung auf den Monat mit vier multipliziert."
+    },
+    "diaet": {
+      "titel": "Einhalten einer Diät und anderer Verhaltensvorschriften",
+      "seite": 240,
+      "stufen": [
+        { "wert": 0, "label": "entfällt/nicht erforderlich oder selbständig (Bereitstellen einer Diät reicht aus)" },
+        { "wert": 1, "label": "überwiegend selbständig (Erinnerung/Anleitung ist maximal einmal täglich notwendig)" },
+        { "wert": 2, "label": "überwiegend unselbständig (benötigt meistens Anleitung/Beaufsichtigung, mehrmals täglich)" },
+        { "wert": 3, "label": "unselbständig (benötigt immer Anleitung/Beaufsichtigung)" }
+      ]
+    },
+    "ja_nein": {
+      "titel": "ja/nein",
+      "stufen": [
+        { "wert": 0, "label": "nein" },
+        { "wert": 1, "label": "ja" }
+      ]
+    },
+    "selbstaendig_nicht": {
+      "titel": "selbständig/nicht selbständig",
+      "seite": 245,
+      "stufen": [
+        { "wert": 0, "label": "selbständig" },
+        { "wert": 1, "label": "nicht selbständig" }
+      ]
+    }
+  },
+  "module": [
+    {
+      "nr": 1, "titel": "Mobilität", "gewichtung": 10, "seite": 55, "seite_kinder": 155,
+      "skala": "selbstaendigkeit",
+      "schwellen": [[0, 1, 0], [2, 3, 2.5], [4, 5, 5], [6, 9, 7.5], [10, 15, 10]],
+      "kriterien": [
+        { "nr": "4.1.1", "titel": "Positionswechsel im Bett", "seite": 56, "seite_kinder": 156, "alter": [[0, 3], [1, 2], [3, 1], [9, 0]] },
+        { "nr": "4.1.2", "titel": "Halten einer stabilen Sitzposition", "seite": 56, "seite_kinder": 156, "alter": [[0, 3], [6, 2], [8, 1], [9, 0]] },
+        { "nr": "4.1.3", "titel": "Umsetzen", "seite": 57, "seite_kinder": 157, "alter": [[0, 3], [8, 2], [9, 1], [11, 0]] },
+        { "nr": "4.1.4", "titel": "Fortbewegen innerhalb des Wohnbereichs", "seite": 57, "seite_kinder": 158, "alter": [[0, 3], [12, 2], [13, 1], [18, 0]] },
+        { "nr": "4.1.5", "titel": "Treppensteigen", "seite": 58, "seite_kinder": 158, "alter": [[0, 3], [15, 2], [18, 1], [30, 0]] },
+        { "nr": "4.1.B", "titel": "Besondere Bedarfskonstellation: Gebrauchsunfähigkeit beider Arme und beider Beine", "skala": "ja_nein", "seite": 58, "seite_kinder": 159, "punktrelevant": false, "sonderregel": "Liegt sie vor, wird unabhängig von den Gesamtpunkten Pflegegrad 5 zugeordnet. Bei Kindern altersunabhängig immer zu beurteilen." }
+      ]
+    },
+    {
+      "nr": 2, "titel": "Kognitive und kommunikative Fähigkeiten", "gewichtung": 15, "seite": 59, "seite_kinder": 160,
+      "skala": "faehigkeit",
+      "schwellen": [[0, 1, 0], [2, 5, 3.75], [6, 10, 7.5], [11, 16, 11.25], [17, 33, 15]],
+      "hinweis_gewichtung": "Aus den Modulen 2 und 3 geht nur der höhere gewichtete Punktwert in die Gesamtpunkte ein (§ 15 Absatz 3 Satz 2 SGB XI).",
+      "kriterien": [
+        { "nr": "4.2.1", "titel": "Erkennen von Personen aus dem näheren Umfeld", "seite": 60, "seite_kinder": 162, "alter": [[0, 3], [1.5, 2], [9, 1], [15, 0]] },
+        { "nr": "4.2.2", "titel": "Örtliche Orientierung", "seite": 61, "seite_kinder": 162, "alter": [[0, 3], [13, 2], [18, 1], [72, 0]] },
+        { "nr": "4.2.3", "titel": "Zeitliche Orientierung", "seite": 61, "seite_kinder": 163, "beurteilung_ab_monaten": 30, "alter": [[0, 3], [30, 2], [60, 1], [84, 0]] },
+        { "nr": "4.2.4", "titel": "Erinnern an wesentliche Ereignisse oder Beobachtungen", "seite": 62, "seite_kinder": 164, "alter": [[0, 3], [9, 2], [36, 1], [66, 0]] },
+        { "nr": "4.2.5", "titel": "Steuern von mehrschrittigen Alltagshandlungen", "seite": 63, "seite_kinder": 165, "alter": [[0, 3], [5, 2], [12, 1], [15, 0]] },
+        { "nr": "4.2.6", "titel": "Treffen von Entscheidungen im Alltag", "seite": 63, "seite_kinder": 166, "alter": [[0, 3], [18, 2], [30, 1], [54, 0]] },
+        { "nr": "4.2.7", "titel": "Verstehen von Sachverhalten und Informationen", "seite": 64, "seite_kinder": 167, "beurteilung_ab_monaten": 48, "alter": [[0, 3], [48, 2], [60, 1], [72, 0]] },
+        { "nr": "4.2.8", "titel": "Erkennen von Risiken und Gefahren", "seite": 65, "seite_kinder": 168, "beurteilung_ab_monaten": 30, "alter": [[0, 3], [30, 2], [78, 1], [120, 0]] },
+        { "nr": "4.2.9", "titel": "Mitteilen von elementaren Bedürfnissen", "seite": 66, "seite_kinder": 168, "alter": [[0, 3], [3, 2], [13, 1], [48, 0]] },
+        { "nr": "4.2.10", "titel": "Verstehen von Aufforderungen", "seite": 66, "seite_kinder": 169, "alter": [[0, 3], [16, 2], [18, 1], [30, 0]] },
+        { "nr": "4.2.11", "titel": "Beteiligen an einem Gespräch", "seite": 67, "seite_kinder": 170, "alter": [[0, 3], [15, 2], [24, 1], [48, 0]] }
+      ]
+    },
+    {
+      "nr": 3, "titel": "Verhaltensweisen und psychische Problemlagen", "gewichtung": 15, "seite": 68, "seite_kinder": 170,
+      "skala": "haeufigkeit_m3",
+      "schwellen": [[0, 0, 0], [1, 2, 3.75], [3, 4, 7.5], [5, 6, 11.25], [7, 65, 15]],
+      "hinweis_gewichtung": "Aus den Modulen 2 und 3 geht nur der höhere gewichtete Punktwert in die Gesamtpunkte ein (§ 15 Absatz 3 Satz 2 SGB XI).",
+      "altersunabhaengig": true,
+      "besonderheit": "Anders als in den übrigen Modulen sind die Kriterien nicht abschließend definiert, sondern beispielhaft erläutert. Bei Kombination verschiedener Verhaltensweisen wird die Häufigkeit von Ereignissen mit personellem Unterstützungsbedarf nur einmal erfasst.",
+      "kriterien": [
+        { "nr": "4.3.1", "titel": "Motorisch geprägte Verhaltensauffälligkeiten", "seite": 69, "seite_kinder": 172 },
+        { "nr": "4.3.2", "titel": "Nächtliche Unruhe", "seite": 69, "seite_kinder": 172 },
+        { "nr": "4.3.3", "titel": "Selbstschädigendes und autoaggressives Verhalten", "seite": 69, "seite_kinder": 172 },
+        { "nr": "4.3.4", "titel": "Beschädigen von Gegenständen", "seite": 69, "seite_kinder": 172 },
+        { "nr": "4.3.5", "titel": "Physisch aggressives Verhalten gegenüber anderen Personen", "seite": 69, "seite_kinder": 172 },
+        { "nr": "4.3.6", "titel": "Verbale Aggression", "seite": 70, "seite_kinder": 173 },
+        { "nr": "4.3.7", "titel": "Andere pflegerelevante vokale Auffälligkeiten", "seite": 70, "seite_kinder": 173 },
+        { "nr": "4.3.8", "titel": "Abwehr pflegerischer und anderer unterstützender Maßnahmen", "seite": 70, "seite_kinder": 173 },
+        { "nr": "4.3.9", "titel": "Wahnvorstellungen", "seite": 70, "seite_kinder": 173 },
+        { "nr": "4.3.10", "titel": "Ängste", "seite": 70, "seite_kinder": 173 },
+        { "nr": "4.3.11", "titel": "Antriebslosigkeit bei depressiver Stimmungslage", "seite": 71, "seite_kinder": 174 },
+        { "nr": "4.3.12", "titel": "Sozial inadäquate Verhaltensweisen", "seite": 71, "seite_kinder": 174 },
+        { "nr": "4.3.13", "titel": "Sonstige pflegerelevante inadäquate Handlungen", "seite": 71, "seite_kinder": 174 }
+      ]
+    },
+    {
+      "nr": 4, "titel": "Selbstversorgung", "gewichtung": 40, "seite": 72, "seite_kinder": 175,
+      "skala": "selbstaendigkeit",
+      "schwellen": [[0, 2, 0], [3, 7, 10], [8, 18, 20], [19, 36, 30], [37, 54, 40]],
+      "kriterien": [
+        { "nr": "4.4.0", "titel": "Bestehen gravierende Probleme bei der Nahrungsaufnahme, die einen außergewöhnlich pflegeintensiven Hilfebedarf im Bereich der Ernährung auslösen?", "skala": "ja_nein", "nur": "kinder", "seite_kinder": 178, "punkte_ja": 20, "sonderregel": "Nur bei Kindern im Alter bis zu 18 Monaten; ersetzt dann die Kriterien 4.4.1 bis 4.4.13. Wird die Frage bejaht, werden pauschal 20 Einzelpunkte berücksichtigt (S. 148, 268)." },
+        { "nr": "4.4.1", "titel": "Waschen des vorderen Oberkörpers", "seite": 74, "seite_kinder": 178, "beurteilung_ab_monaten": 24, "alter": [[0, 3], [24, 2], [48, 1], [72, 0]] },
+        { "nr": "4.4.2", "titel": "Körperpflege im Bereich des Kopfes", "seite": 74, "seite_kinder": 179, "alter": [[0, 3], [18, 2], [42, 1], [60, 0]] },
+        { "nr": "4.4.3", "titel": "Waschen des Intimbereichs", "seite": 75, "seite_kinder": 180, "beurteilung_ab_monaten": 24, "alter": [[0, 3], [24, 2], [48, 1], [72, 0]] },
+        { "nr": "4.4.4", "titel": "Duschen und Baden einschließlich Waschen der Haare", "seite": 75, "seite_kinder": 180, "beurteilung_ab_monaten": 42, "alter": [[0, 3], [42, 2], [48, 1], [96, 0]] },
+        { "nr": "4.4.5", "titel": "An- und Auskleiden des Oberkörpers", "seite": 76, "seite_kinder": 181, "alter": [[0, 3], [18, 2], [42, 1], [72, 0]] },
+        { "nr": "4.4.6", "titel": "An- und Auskleiden des Unterkörpers", "seite": 76, "seite_kinder": 182, "alter": [[0, 3], [18, 2], [42, 1], [72, 0]] },
+        { "nr": "4.4.7", "titel": "Mundgerechtes Zubereiten der Nahrung und Eingießen von Getränken", "seite": 77, "seite_kinder": 182, "beurteilung_ab_monaten": 24, "alter": [[0, 3], [24, 2], [66, 1], [96, 0]] },
+        { "nr": "4.4.8", "titel": "Essen", "seite": 78, "seite_kinder": 183, "faktor": 3, "alter": [[0, 3], [7, 2], [20, 1], [30, 0]] },
+        { "nr": "4.4.9", "titel": "Trinken", "seite": 78, "seite_kinder": 184, "faktor": 2, "alter": [[0, 3], [8, 2], [11, 1], [24, 0]] },
+        { "nr": "4.4.10", "titel": "Benutzen einer Toilette oder eines Toilettenstuhls", "seite": 79, "seite_kinder": 185, "faktor": 2, "alter": [[0, 3], [18, 2], [42, 1], [72, 0]] },
+        { "nr": "4.4.11", "titel": "Bewältigen der Folgen einer Harninkontinenz und Umgang mit Dauerkatheter und Urostoma", "seite": 80, "seite_kinder": 186, "beurteilung_ab_monaten": 60, "alter": [[0, 3], [60, 0]], "bedingung": "harn", "sonderregel": "Geht nur in die Summe ein, wenn die Person überwiegend oder komplett harninkontinent ist oder eine künstliche Ableitung (Dauerkatheter, Urostoma) besteht (S. 105)." },
+        { "nr": "4.4.12", "titel": "Bewältigen der Folgen einer Stuhlinkontinenz und Umgang mit Stoma", "seite": 80, "seite_kinder": 187, "beurteilung_ab_monaten": 60, "alter": [[0, 3], [60, 0]], "bedingung": "stuhl", "sonderregel": "Geht nur in die Summe ein, wenn die Person überwiegend oder komplett stuhlinkontinent ist oder ein Stoma besteht (S. 105)." },
+        { "nr": "4.4.13", "titel": "Ernährung parenteral oder über Sonde", "skala": "sonde", "seite": 81, "seite_kinder": 188, "sonderregel": "Punkte nach Anteil der künstlichen Ernährung: 0 / 0 / 6 / 3. Kann die künstliche Ernährung ohne Hilfe selbständig durchgeführt werden, werden keine Punkte berücksichtigt (S. 105)." }
+      ]
+    },
+    {
+      "nr": 5, "titel": "Bewältigung von und selbständiger Umgang mit krankheits- oder therapiebedingten Anforderungen und Belastungen", "gewichtung": 20, "seite": 82, "seite_kinder": 188,
+      "skala": "haeufigkeit_m5",
+      "altersunabhaengig": true,
+      "schwellen": [[0, 0, 0], [1, 1, 5], [2, 3, 10], [4, 5, 15], [6, 15, 20]],
+      "besonderheit": "In die Bewertung gehen nur ärztlich angeordnete Maßnahmen ein, die gezielt auf eine bestehende Erkrankung ausgerichtet und für voraussichtlich mindestens sechs Monate erforderlich sind (S. 83).",
+      "gruppen": [
+        { "id": "A", "kriterien": ["4.5.1", "4.5.2", "4.5.3", "4.5.4", "4.5.5", "4.5.6", "4.5.7"], "art": "pro_tag", "stufen": [[0, 1, 0, "keine oder seltener als einmal täglich"], [1, 3, 1, "mindestens einmal bis maximal dreimal täglich"], [3, 8, 2, "mehr als dreimal bis maximal achtmal täglich"], [8, null, 3, "mehr als achtmal täglich"]], "seite": 108 },
+        { "id": "B", "kriterien": ["4.5.8", "4.5.9", "4.5.10", "4.5.11"], "art": "pro_tag", "stufen": [[0, 0.1429, 0, "nie oder seltener als einmal wöchentlich"], [0.1429, 1, 1, "ein- bis mehrmals wöchentlich"], [1, 3, 2, "ein- bis unter dreimal täglich"], [3, null, 3, "mindestens dreimal täglich"]], "seite": 109 },
+        { "id": "C", "kriterien": ["4.5.12", "4.5.13", "4.5.14", "4.5.15", "4.5.K"], "art": "punkte_pro_monat", "stufen": [[0, 4.3, 0], [4.3, 8.6, 1], [8.6, 12.9, 2], [12.9, 60, 3], [60, null, 6]], "seite": 110 },
+        { "id": "D", "kriterien": ["4.5.16"], "art": "stufe", "seite": 110 }
+      ],
+      "kriterien": [
+        { "nr": "4.5.1", "titel": "Medikation", "seite": 84, "seite_kinder": 190, "gruppe": "A" },
+        { "nr": "4.5.2", "titel": "Injektionen", "seite": 84, "seite_kinder": 190, "gruppe": "A" },
+        { "nr": "4.5.3", "titel": "Versorgung intravenöser Zugänge (zum Beispiel Port)", "seite": 84, "seite_kinder": 191, "gruppe": "A" },
+        { "nr": "4.5.4", "titel": "Absaugen und Sauerstoffgabe", "seite": 84, "seite_kinder": 191, "gruppe": "A" },
+        { "nr": "4.5.5", "titel": "Einreibungen sowie Kälte- und Wärmeanwendungen", "seite": 85, "seite_kinder": 191, "gruppe": "A" },
+        { "nr": "4.5.6", "titel": "Messung und Deutung von Körperzuständen", "seite": 85, "seite_kinder": 191, "gruppe": "A" },
+        { "nr": "4.5.7", "titel": "Körpernahe Hilfsmittel", "seite": 85, "seite_kinder": 192, "gruppe": "A" },
+        { "nr": "4.5.8", "titel": "Verbandswechsel und Wundversorgung", "seite": 86, "seite_kinder": 192, "gruppe": "B" },
+        { "nr": "4.5.9", "titel": "Versorgung mit Stoma", "seite": 86, "seite_kinder": 192, "gruppe": "B" },
+        { "nr": "4.5.10", "titel": "Regelmäßige Einmalkatheterisierung und Nutzung von Abführmethoden", "seite": 86, "seite_kinder": 192, "gruppe": "B" },
+        { "nr": "4.5.11", "titel": "Therapiemaßnahmen in häuslicher Umgebung", "seite": 86, "seite_kinder": 193, "gruppe": "B" },
+        { "nr": "4.5.12", "titel": "Zeit- und technikintensive Maßnahmen in häuslicher Umgebung", "seite": 87, "seite_kinder": 193, "gruppe": "C", "punkte_je": { "Tag": 60, "Woche": 8.6, "Monat": 2 } },
+        { "nr": "4.5.13", "titel": "Arztbesuche", "seite": 87, "seite_kinder": 193, "gruppe": "C", "punkte_je": { "Woche": 4.3, "Monat": 1 } },
+        { "nr": "4.5.14", "titel": "Besuche anderer medizinischer oder therapeutischer Einrichtungen (bis zu 3 Stunden)", "seite": 87, "seite_kinder": 194, "gruppe": "C", "punkte_je": { "Woche": 4.3, "Monat": 1 } },
+        { "nr": "4.5.15", "titel": "Zeitlich ausgedehnte Besuche anderer medizinischer oder therapeutischer Einrichtungen (länger als 3 Stunden)", "seite": 88, "seite_kinder": 194, "gruppe": "C", "punkte_je": { "Woche": 8.6, "Monat": 2 } },
+        { "nr": "4.5.K", "titel": "Besuche von Einrichtungen zur Frühförderung bei Kindern", "nur": "kinder", "seite_kinder": 194, "gruppe": "C", "punkte_je": { "Woche": 4.3, "Monat": 1 } },
+        { "nr": "4.5.16", "titel": "Einhalten einer Diät und anderer krankheits- oder therapiebedingter Verhaltensvorschriften", "skala": "diaet", "seite": 88, "seite_kinder": 194, "gruppe": "D" }
+      ]
+    },
+    {
+      "nr": 6, "titel": "Gestaltung des Alltagslebens und sozialer Kontakte", "gewichtung": 15, "seite": 90, "seite_kinder": 196,
+      "skala": "selbstaendigkeit",
+      "schwellen": [[0, 0, 0], [1, 3, 3.75], [4, 6, 7.5], [7, 11, 11.25], [12, 18, 15]],
+      "kriterien": [
+        { "nr": "4.6.1", "titel": "Gestaltung des Tagesablaufs und Anpassung an Veränderungen", "seite": 90, "seite_kinder": 197, "beurteilung_ab_monaten": 30, "alter": [[0, 3], [30, 2], [60, 1], [84, 0]] },
+        { "nr": "4.6.2", "titel": "Ruhen und Schlafen", "seite": 91, "seite_kinder": 198, "alter": [[0, 3], [6, 2], [60, 1], [132, 0]] },
+        { "nr": "4.6.3", "titel": "Sichbeschäftigen", "seite": 92, "seite_kinder": 199, "alter": [[0, 3], [6, 2], [36, 1], [60, 0]] },
+        { "nr": "4.6.4", "titel": "Vornehmen von in die Zukunft gerichteten Planungen", "seite": 93, "seite_kinder": 200, "beurteilung_ab_monaten": 30, "alter": [[0, 3], [30, 2], [36, 1], [60, 0]] },
+        { "nr": "4.6.5", "titel": "Interaktion mit Personen im direkten Kontakt", "seite": 94, "seite_kinder": 201, "alter": [[0, 3], [1.5, 2], [9, 1], [12, 0]] },
+        { "nr": "4.6.6", "titel": "Kontaktpflege zu Personen außerhalb des direkten Umfelds", "seite": 95, "seite_kinder": 202, "alter": [[0, 3], [12, 2], [36, 1], [60, 0]] }
+      ]
+    }
+  ],
+  "pflegegrade": {
+    "seite": 98,
+    "stufen": [
+      { "grad": 0, "ab": 0, "label": "kein Pflegegrad (unter 12,5 Gesamtpunkte)" },
+      { "grad": 1, "ab": 12.5, "label": "Pflegegrad 1: geringe Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten" },
+      { "grad": 2, "ab": 27, "label": "Pflegegrad 2: erhebliche Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten" },
+      { "grad": 3, "ab": 47.5, "label": "Pflegegrad 3: schwere Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten" },
+      { "grad": 4, "ab": 70, "label": "Pflegegrad 4: schwerste Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten" },
+      { "grad": 5, "ab": 90, "label": "Pflegegrad 5: schwerste Beeinträchtigungen der Selbständigkeit oder der Fähigkeiten mit besonderen Anforderungen an die pflegerische Versorgung" }
+    ],
+    "besondere_bedarfskonstellation": "Pflegebedürftige mit einer besonderen Bedarfskonstellation (4.1.B) werden auch unter 90 Gesamtpunkten dem Pflegegrad 5 zugeordnet.",
+    "kinder_bis_18_monate": {
+      "seite": 206,
+      "regel": "Kinder im Alter bis zu 18 Monaten werden einen Pflegegrad höher eingestuft (§ 15 Absatz 7 SGB XI): ab 12,5 Punkten Pflegegrad 2, ab 27 Pflegegrad 3, ab 47,5 Pflegegrad 4, ab 70 Pflegegrad 5. Mit besonderer Bedarfskonstellation Pflegegrad 5.",
+      "module": "Bewertet werden nur 4.1.B, Modul 3, Modul 5 und statt Modul 4 die Frage 4.4.0 (bejaht: 20 Einzelpunkte).",
+      "stufen": [
+        { "grad": 0, "ab": 0 },
+        { "grad": 2, "ab": 12.5 },
+        { "grad": 3, "ab": 27 },
+        { "grad": 4, "ab": 47.5 },
+        { "grad": 5, "ab": 70 }
+      ]
+    },
+    "kinder_unter_11": {
+      "seite": 148,
+      "regel": "In den Modulen 1, 2, 4 und 6 werden Punkte nur für die Abweichung vom altersentsprechend entwickelten Kind vergeben: Punkte = Stufe des Kindes minus altersentsprechende Stufe (mindestens 0), bei 4.4.8 dreifach und bei 4.4.9/4.4.10 doppelt gewichtet. Mit vollendetem 11. Lebensjahr gilt die Punktesystematik für Erwachsene. Es gilt das Alter am Tag der Begutachtung.",
+      "ab_monaten_erwachsenensystematik": 132
+    },
+    "rundung": "Bei allen Rechenschritten in Modul 5 wird auf die 4. Stelle nach dem Komma gerundet (S. 108, Fußnote 13)."
+  },
+  "formular": {
+    "seite_erwachsene": 225,
+    "seite_kinder": 256,
+    "hinweis": "Die Darstellung des Formulargutachtens bildet nicht unmittelbar ab, wie das Gutachten elektronisch auszufüllen ist (S. 225). Die Formularkopf-Felder haben in den BRi keine Ziffer; die Kennungen K.1 bis K.6 sind hier vergeben.",
+    "felder": [
+      { "nr": "K", "titel": "Angaben zum Auftrag (Formularkopf)", "typ": "abschnitt", "seite": 225, "seite_kinder": 256 },
+      { "nr": "K.1", "titel": "Anlass des Antrags/Auftrags", "typ": "auswahl", "seite": 225, "optionen": [
+        ["pflegegeld", "Pflegegeld (§ 37 SGB XI)"],
+        ["sachleistung", "Ambulante Pflegesachleistungen (§ 36 SGB XI)"],
+        ["kombination", "Kombination von Geld- und Sachleistung (§ 38 SGB XI)"],
+        ["kurzzeitpflege", "Kurzzeitpflege (§ 42 SGB XI)"],
+        ["tages_nachtpflege", "Tagespflege und Nachtpflege (§ 41 SGB XI)"],
+        ["vollstationaer", "Vollstationäre Pflege (§ 43 SGB XI)"],
+        ["pauschal_43a", "Pauschalleistungen für Pflege von Menschen mit Behinderungen (§ 43a SGB XI)"] ] },
+      { "nr": "K.2", "titel": "Art des Antrags/Gutachtenart", "typ": "auswahl", "seite": 226, "optionen": [
+        ["erstantrag", "Erstantrag"],
+        ["erstantrag_eil", "Erstantrag nach Eilbegutachtung"],
+        ["rueckstufung", "Rückstufungsantrag"],
+        ["hoeherstufung", "Höherstufungsantrag"],
+        ["wiederholung", "Wiederholungsbegutachtung"],
+        ["widerspruch", "Widerspruch"] ] },
+      { "nr": "K.3", "titel": "Bisheriger Pflegegrad", "typ": "auswahl", "seite": 226, "zusatz": "seit (MMJJJJ), befristet bis (MMJJJJ)", "optionen": [
+        ["kein", "kein"], ["1", "Pflegegrad 1"], ["2", "Pflegegrad 2"], ["3", "Pflegegrad 3"], ["4", "Pflegegrad 4"], ["5", "Pflegegrad 5"] ] },
+      { "nr": "K.4", "titel": "Verzögerungen im Verfahren", "typ": "mehrfach", "seite": 226, "seite_text": 32, "optionen": [
+        ["krankenhaus_reha", "Antragstellende Person befindet sich im Krankenhaus oder in einer Rehabilitationseinrichtung"],
+        ["behandlungstermin", "Wichtiger Behandlungstermin der antragstellenden Person"],
+        ["termin_abgesagt", "Termin wurde von antragstellender Person abgesagt (sonstige Gründe)"],
+        ["umgezogen", "Antragstellende Person ist umgezogen"],
+        ["ausland", "Antragstellende Person wohnt im Ausland"],
+        ["verstorben", "Antragstellende Person ist verstorben"],
+        ["nicht_angetroffen", "Antragstellende Person wurde beim angekündigten Termin nicht erreicht beziehungsweise im Wohnbereich nicht angetroffen"],
+        ["abbruch_gewalt", "Begutachtung musste abgebrochen werden wegen Gewaltandrohung"],
+        ["abbruch_diskriminierung", "Begutachtung musste abgebrochen werden wegen Diskriminierung oder Beleidigung"],
+        ["abbruch_infektion", "Begutachtung musste abgebrochen werden wegen schwerwiegender Gründe (zum Beispiel eine akute hochinfektiöse Erkrankung)"],
+        ["abbruch_unterbrechung", "Begutachtung musste abgebrochen werden wegen schwerwiegender Gründe (zum Beispiel wiederholte, vorsätzliche und unzumutbare Unterbrechungen)"],
+        ["abbruch_verstaendigung", "Begutachtung musste abgebrochen werden wegen Verständigungsschwierigkeiten (zum Beispiel Muttersprache)"],
+        ["unterlagen_fehlen", "Nach Erteilung des Begutachtungsauftrags fehlende, für die Begutachtung erforderliche Unterlagen, soweit deren Nichtvorliegen die antragstellende Person zu vertreten hat"] ] },
+      { "nr": "K.5", "titel": "Erledigungsart", "typ": "auswahl", "seite": 227, "seite_text": 221, "optionen": [
+        ["hausbesuch", "Persönliche Befunderhebung durch Hausbesuch"],
+        ["telefon", "Strukturiertes Telefoninterview (Einwilligung liegt vor)"],
+        ["video", "Videotelefonie (Einwilligung liegt vor)"],
+        ["akte_verstorben", "Aktenlage, da antragstellende Person verstorben"],
+        ["akte_unzumutbar", "Aktenlage, da persönliche Befunderhebung nicht zumutbar"],
+        ["akte_sonstige", "Aktenlage aus sonstigen Gründen (mit Begründung)"] ],
+        "zusatz": "Bei Telefoninterview und Videotelefonie: ggf. unter Anwesenheit einer Unterstützungsperson (bei Kindern immer)." },
+      { "nr": "K.6", "titel": "Erledigungsort", "typ": "auswahl", "seite": 227, "optionen": [
+        ["haeuslich", "Häusliches Wohnumfeld der antragstellenden Person"],
+        ["vollstationaer", "Vollstationäre Pflegeeinrichtung"],
+        ["kurzzeitpflege", "Kurzzeitpflegeeinrichtung"],
+        ["teilstationaer", "Teilstationäre Pflegeeinrichtung"],
+        ["einrichtung_43a", "Einrichtung der Hilfe für Menschen mit Behinderungen (§ 43a SGB XI)"],
+        ["hospiz", "Hospiz"],
+        ["reha", "Rehabilitationseinrichtung"],
+        ["krankenhaus", "Krankenhaus"],
+        ["sonstiges", "Sonstiges"] ] },
+
+      { "nr": "1", "titel": "Pflegerelevante Vorgeschichte und derzeitige Versorgungssituation", "typ": "abschnitt", "seite": 228, "seite_kinder": 259 },
+      { "nr": "1.1", "titel": "Pflegerelevante Fremdbefunde", "typ": "freitext", "seite": 228, "optionen": [["keine", "keine"]] },
+      { "nr": "1.2", "titel": "Pflegerelevante Vorgeschichte (Anamnese), medizinische und pflegerische Angaben unter Berücksichtigung der Auswirkungen auf die Selbständigkeit oder die Fähigkeiten", "typ": "freitext", "seite": 228 },
+      { "nr": "1.2.R", "titel": "Leistungen der medizinischen Rehabilitation", "typ": "mehrfach", "seite": 228, "seite_kinder": 259, "optionen": [
+        ["keine", "keine"],
+        ["letztes_jahr", "im letzten Jahr vor der Begutachtung"],
+        ["ein_bis_vier_jahre", "mehr als ein Jahr, aber weniger als vier Jahre vor der Begutachtung"],
+        ["ambulant", "ambulant", "erwachsene"],
+        ["mobil", "mobil (im gewohnten oder ständigen Wohnumfeld)", "erwachsene"],
+        ["stationaer", "stationär", "erwachsene"],
+        ["geriatrisch", "geriatrische Rehabilitation", "erwachsene"],
+        ["indikationsspezifisch", "indikationsspezifische, zum Beispiel neurologische, orthopädische, kardiologische Rehabilitation", "erwachsene"],
+        ["stationaer_kinder", "stationäre Rehabilitation (zum Beispiel mit Schwerpunkt Atemwegserkrankungen, neuropädiatrische Erkrankungen, psychische/psychosomatische Störungen und Verhaltensauffälligkeiten, Adipositas, Hauterkrankungen)", "kinder"] ] },
+      { "nr": "1.2.A", "titel": "Ist aktuell ein Rehabilitationsantrag gestellt?", "typ": "auswahl", "seite": 228, "optionen": [
+        ["nein", "nein"], ["nicht_genehmigt", "ja, aber noch nicht genehmigt"], ["genehmigt", "ja, Genehmigung liegt vor"] ] },
+      { "nr": "1.3", "titel": "Vorhandene Hilfsmittel, Pflegehilfsmittel, Nutzung", "typ": "freitext", "seite": 229, "optionen": [["keine", "keine"]] },
+      { "nr": "1.4", "titel": "Pflegerelevante Aspekte der Versorgungs- und Wohnsituation", "typ": "mehrfach", "seite": 229, "optionen": [
+        ["vollstationaer", "lebt in einer vollstationären Pflegeeinrichtung"],
+        ["einrichtung_43a", "lebt in einer Einrichtung der Hilfe für Menschen mit Behinderungen (§ 43a SGB XI)"],
+        ["teilweise_zuhause", "wohnt teilweise zu Hause (mit Umfang)"],
+        ["ambulant_allein", "lebt in ambulanter Wohnsituation alleine", "erwachsene"],
+        ["ambulant_mit_personen", "lebt in ambulanter Wohnsituation mit folgenden Personen"],
+        ["wohngruppe", "lebt in einer ambulant betreuten Wohngruppe mit mindestens zwei weiteren pflegebedürftigen Personen"],
+        ["pflegedienst_ambulant", "Pflege durch Pflegeeinrichtung nach SGB XI: ambulant"],
+        ["tages_nachtpflege", "Pflege durch Pflegeeinrichtung nach SGB XI: Tagespflege und Nachtpflege"],
+        ["kurzzeitpflege", "Pflege durch Pflegeeinrichtung nach SGB XI: Kurzzeitpflege"],
+        ["angebote_45a", "Angebote zur Unterstützung im Alltag nach § 45a SGB XI"],
+        ["tagsueber_einrichtung", "besucht tagsüber Werkstatt für Menschen mit Behinderungen, Schule (bei Kindern auch Kindergarten)"] ],
+        "zusatz": "Beschreibung der aktuellen Versorgungssituation; Angaben zum Pflegeaufwand der Pflegepersonen (Pflegetage und -stunden pro Woche, weitere gepflegte Pflegebedürftige); Beschreibung der Wohnsituation (nur ambulant). Mindeststundenzahl: 10 Stunden wöchentlich, verteilt auf regelmäßig mindestens 2 Tage." },
+      { "nr": "2", "titel": "Gutachterlicher Befund", "typ": "freitext", "seite": 230, "seite_kinder": 262 },
+      { "nr": "3", "titel": "Pflegebegründende Diagnose(n)", "typ": "icd10", "seite": 231, "seite_kinder": 262, "zusatz": "Pflegebegründende Diagnosen als ICD-10-Kodes, dazu weitere Diagnosen." },
+
+      { "nr": "4", "titel": "Module des Begutachtungsinstruments", "typ": "abschnitt", "seite": 231, "seite_kinder": 262 },
+      { "nr": "4.4.V1", "titel": "Ernährung parenteral oder über Sonde (Angaben zur Versorgung)", "typ": "mehrfach", "seite": 235, "modul": 4, "optionen": [
+        ["entfaellt", "entfällt (4.4.13 entfällt)"],
+        ["parenteral", "parenteral (zum Beispiel Port)"],
+        ["peg", "perkutane endoskopische Gastrostomie (PEG)"],
+        ["pej", "perkutane endoskopische Jejunostomie (PEJ)"],
+        ["magensonde", "(nasale) Magensonde"],
+        ["pumpe", "Art der Gabe: Pumpe"],
+        ["schwerkraft", "Art der Gabe: Schwerkraft"],
+        ["bolus", "Art der Gabe: Bolusgabe"] ] },
+      { "nr": "4.4.V2", "titel": "Blasenkontrolle/Harnkontinenz (Angaben zur Versorgung)", "typ": "auswahl", "seite": 235, "modul": 4, "steuert": "4.4.11", "optionen": [
+        ["staendig_kontinent", "ständig kontinent (4.4.11 entfällt)", null, false],
+        ["ueberwiegend_kontinent", "überwiegend kontinent (maximal 1x täglich inkontinent oder Tröpfcheninkontinenz) (4.4.11 entfällt)", null, false],
+        ["ueberwiegend_inkontinent", "überwiegend inkontinent (mehrmals täglich)", null, true],
+        ["komplett_inkontinent", "komplett inkontinent", null, true],
+        ["dk_suprapubisch", "suprapubischer Dauerkatheter", null, true],
+        ["dk_transurethral", "transurethraler Dauerkatheter", null, true],
+        ["urostoma", "Urostoma", null, true] ] },
+      { "nr": "4.4.V3", "titel": "Darmkontrolle/Stuhlkontinenz (Angaben zur Versorgung)", "typ": "auswahl", "seite": 235, "modul": 4, "steuert": "4.4.12", "optionen": [
+        ["staendig_kontinent", "ständig kontinent (4.4.12 entfällt)", null, false],
+        ["ueberwiegend_kontinent", "überwiegend kontinent (4.4.12 entfällt)", null, false],
+        ["ueberwiegend_inkontinent", "überwiegend inkontinent, selten gesteuerte Darmentleerung", null, true],
+        ["komplett_inkontinent", "komplett inkontinent", null, true],
+        ["stoma", "Colo-/Ileostoma", null, true] ] },
+      { "nr": "4.5.V", "titel": "Angaben zur Versorgung in Modul 5 (ärztliche und medikamentöse Versorgung, Heilmittel, behandlungspflegerische Maßnahmen)", "typ": "mehrfach", "seite": 237, "modul": 5, "optionen": [
+        ["physiotherapie", "Physiotherapie"],
+        ["ergotherapie", "Ergotherapie"],
+        ["logopaedie", "Stimm-, Sprech-, Sprach- und Schlucktherapie"],
+        ["podologie", "Podologische Therapie"],
+        ["ernaehrungstherapie", "Ernährungstherapie"] ],
+        "zusatz": "Arztbesuche und Medikamente nach Art und Häufigkeit; Heilmittel nach Art, Häufigkeit und Dauer; behandlungspflegerische und andere therapeutische Maßnahmen nach Art und Umfang. Aufzunehmen sind auch Maßnahmen unter sechs Monaten, die nicht in die Bewertung eingehen (S. 82)." },
+
+      { "nr": "5", "titel": "Ergebnis der Begutachtung", "typ": "abschnitt", "seite": 242, "seite_kinder": 274 },
+      { "nr": "5.1", "titel": "Pflegegrad", "typ": "auswahl", "seite": 242, "seite_text": 96, "optionen": [
+        ["nein", "Nein (unter 12,5 Gesamtpunkte)"], ["1", "Pflegegrad 1"], ["2", "Pflegegrad 2"], ["3", "Pflegegrad 3"], ["4", "Pflegegrad 4"], ["5", "Pflegegrad 5"] ],
+        "zusatz": "Seit wann (TT MM JJJJ); Befristung empfohlen: nein / ja, bis (TT MM JJJJ); Begründung." },
+      { "nr": "5.1.W", "titel": "Widerspruchsbegutachtung: Wird mit diesem Gutachten das Ergebnis des Vorgutachtens bestätigt?", "typ": "auswahl", "seite": 243, "optionen": [
+        ["ja_gleich", "Ja, aktuell wird der gleiche Pflegegrad empfohlen."],
+        ["ja_veraenderung", "Ja, aber aufgrund einer zwischenzeitlich eingetretenen Veränderung der Selbständigkeit oder der Fähigkeiten wird ein anderer Pflegegrad empfohlen."],
+        ["nein_bereits", "Nein, zum Zeitpunkt der Vorbegutachtung bestanden bereits die Voraussetzungen für den aktuell empfohlenen Pflegegrad."] ] },
+      { "nr": "5.2", "titel": "Pflegeaufwand der Pflegeperson", "typ": "tabelle", "seite": 243, "seite_text": 112, "zusatz": "Je Pflegeperson: Pflegetage und Pflegestunden pro Woche; liegt der Pflegeaufwand nachvollziehbar bei wenigstens 10 Stunden verteilt auf regelmäßig mindestens 2 Tage pro Woche (ja/nein); wenn nein: sind die Angaben nachvollziehbar (ja/nein); Anzahl weiterer gepflegter Pflegebedürftiger." },
+      { "nr": "5.3", "titel": "Ist die Pflege in geeigneter Weise sichergestellt?", "typ": "ja_nein", "seite": 244, "seite_text": 112 },
+      { "nr": "5.4", "titel": "Liegen Hinweise auf folgende Ursachen der Pflegebedürftigkeit vor?", "typ": "mehrfach", "seite": 244, "seite_text": 114, "optionen": [
+        ["keine", "keine"], ["unfall", "Unfall"], ["berufskrankheit", "Berufskrankheit/Arbeitsunfall"], ["versorgungsleiden", "Versorgungsleiden"] ] },
+
+      { "nr": "6", "titel": "Erhebung weiterer versorgungsrelevanter Informationen", "typ": "abschnitt", "seite": 245, "seite_kinder": 277, "zusatz": "Die Bereiche gehen nicht in die Ermittlung des Pflegegrades ein." },
+      { "nr": "6.1", "titel": "Außerhäusliche Aktivitäten", "typ": "abschnitt", "seite": 245, "seite_text": 114, "kinder": "Entfällt bei Kindern unter drei Jahren." },
+      { "nr": "6.1.1", "titel": "Verlassen des Bereichs der Wohnung oder der Einrichtung", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 245 },
+      { "nr": "6.1.2", "titel": "Fortbewegen außerhalb der Wohnung oder Einrichtung", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 245 },
+      { "nr": "6.1.3", "titel": "Nutzung öffentlicher Verkehrsmittel im Nahverkehr", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 245 },
+      { "nr": "6.1.4", "titel": "Mitfahren in einem Kraftfahrzeug", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 245 },
+      { "nr": "6.1.5", "titel": "Teilnahme an kulturellen, religiösen oder sportlichen Veranstaltungen", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 245 },
+      { "nr": "6.1.6", "titel": "Besuch eines Arbeitsplatzes, einer Werkstatt für Menschen mit Behinderungen oder einer Einrichtung der Tages- oder Nachtpflege oder eines Tagesbetreuungsangebotes", "titel_kinder": "Besuch von Schule, Kindergarten, Werkstatt für Menschen mit Behinderungen, Tages- oder Nachtpflege oder eines Tagesbetreuungsangebotes", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 245 },
+      { "nr": "6.1.7", "titel": "Teilnahme an sonstigen Aktivitäten mit anderen Menschen", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 245 },
+      { "nr": "6.2", "titel": "Haushaltsführung (ohne Berücksichtigung von Wegstrecken)", "typ": "abschnitt", "seite": 246, "seite_text": 116, "kinder": "Entfällt bei Kindern unter 18 Jahren." },
+      { "nr": "6.2.1", "titel": "Einkaufen für den täglichen Bedarf", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 246, "nur": "erwachsene" },
+      { "nr": "6.2.2", "titel": "Zubereitung einfacher Mahlzeiten", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 246, "nur": "erwachsene" },
+      { "nr": "6.2.3", "titel": "Einfache Aufräum- und Reinigungsarbeiten", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 246, "nur": "erwachsene" },
+      { "nr": "6.2.4", "titel": "Aufwendige Aufräum- und Reinigungsarbeiten einschließlich Wäschepflege", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 246, "nur": "erwachsene" },
+      { "nr": "6.2.5", "titel": "Nutzung von Dienstleistungen", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 246, "nur": "erwachsene" },
+      { "nr": "6.2.6", "titel": "Umgang mit finanziellen Angelegenheiten", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 246, "nur": "erwachsene" },
+      { "nr": "6.2.7", "titel": "Umgang mit Behördenangelegenheiten", "typ": "kriterium", "skala": "selbstaendig_nicht", "seite": 246, "nur": "erwachsene" },
+
+      { "nr": "7", "titel": "Empfehlungen zur Förderung oder zum Erhalt der Selbständigkeit oder der Fähigkeiten, Prävention und Rehabilitation (über die bisherige Versorgung hinaus)", "typ": "abschnitt", "seite": 247, "seite_kinder": 278, "seite_text": 118 },
+      { "nr": "7.1", "titel": "Möglichkeiten zur Förderung oder zum Erhalt der festgestellten Selbständigkeit oder der Fähigkeiten", "typ": "abschnitt", "seite": 247, "seite_text": 131 },
+      { "nr": "7.1.1", "titel": "Mobilität, Selbstversorgung und Haushaltsführung", "titel_kinder": "Mobilität und Selbstversorgung", "typ": "mehrfach", "seite": 247, "optionen": [
+        ["therapeutisch", "Einleitung oder Optimierung therapeutischer Maßnahmen"],
+        ["raeumlich", "Optimierung der räumlichen Umgebung"],
+        ["hilfsmittel", "Hilfsmittel- und Pflegehilfsmitteleinsatz beziehungsweise dessen Optimierung"],
+        ["praeventiv", "Präventive Maßnahmen"],
+        ["sonstige", "Sonstige Empfehlungen"],
+        ["keine", "keine"] ] },
+      { "nr": "7.1.2", "titel": "Kognitive und kommunikative Fähigkeiten, Verhaltensweisen und psychische Problemlagen und Gestaltung des Alltagslebens und sozialer Kontakte", "typ": "mehrfach", "seite": 247, "optionen": [
+        ["therapeutisch", "Einleitung oder Optimierung therapeutischer Maßnahmen"],
+        ["raeumlich", "Optimierung der räumlichen Umgebung"],
+        ["hilfsmittel", "Hilfsmittel- und Pflegehilfsmitteleinsatz beziehungsweise dessen Optimierung"],
+        ["praeventiv", "Präventive Maßnahmen"],
+        ["sonstige", "Sonstige Empfehlungen"],
+        ["keine", "keine"] ] },
+      { "nr": "7.1.3", "titel": "Bewältigung von und selbständiger Umgang mit krankheits- oder therapiebedingten Anforderungen und Belastungen", "typ": "mehrfach", "seite": 248, "optionen": [
+        ["edukativ", "Edukative Maßnahmen (Information, Beratung, Schulung, Anleitung)"],
+        ["hilfsmittel_geraete", "Einsatz, Anleitung beziehungsweise Vermittlung von Kenntnissen und Fertigkeiten im Umgang mit Hilfs- und Pflegehilfsmitteln und medizinischen Geräten"],
+        ["praeventiv", "Präventive Maßnahmen"],
+        ["sonstige", "Sonstige Empfehlungen"],
+        ["keine", "keine"] ] },
+      { "nr": "7.2", "titel": "Empfehlungen zu therapeutischen und weiteren Einzelmaßnahmen", "typ": "ja_nein", "seite": 248, "seite_text": 136, "zusatz": "Zum Erhalt oder zur Verbesserung der Selbständigkeit und Teilhabe erscheinen die aktuellen Leistungen und die unter 7.1.1 bis 7.1.3 genannten Maßnahmen ausreichend und erfolgversprechend. Ja: weiter mit 7.2.1." },
+      { "nr": "7.2.1", "titel": "Keine Empfehlung zur Einleitung einer Leistung zur medizinischen Rehabilitation", "typ": "mehrfach", "seite": 252, "seite_text": 138, "optionen": [
+        ["A", "Die aktuellen Leistungen der vertragsärztlichen Versorgung oder pflegerischen Maßnahmen erscheinen ausreichend, um Pflegebedürftigkeit zu vermeiden, zu vermindern oder eine Verschlimmerung zu verhüten."],
+        ["B", "Es wird empfohlen, mit der behandelnden Ärztin oder dem behandelnden Arzt abzuklären, ob die unter 7.1.1 bis 7.1.3 genannten weiteren therapeutischen Maßnahmen eingeleitet werden können."],
+        ["C", "Es wird empfohlen, die anderen unter 7.1.1 bis 7.1.3 genannten Empfehlungen einzuleiten."],
+        ["D", "Es wird die Einleitung beziehungsweise Optimierung aktivierender pflegerischer Maßnahmen empfohlen."],
+        ["E", "Es ergeben sich zwar Hinweise für die Empfehlung einer Leistung zur medizinischen Rehabilitation, aktuell liegt jedoch keine ausreichende Rehabilitationsfähigkeit vor."],
+        ["F", "Die Wirkung/der Erfolg einer abgeschlossenen oder derzeit stattfindenden Rehabilitationsmaßnahme soll abgewartet werden."],
+        ["G", "Es wird keine realistische Möglichkeit gesehen, die Pflegebedürftigkeit zu vermindern oder eine Verschlimmerung zu verhüten."],
+        ["H", "Eine Rehabilitationsleistung wurde bereits bewilligt (Bewilligungsbescheid liegt vor)."],
+        ["I", "Weitere Abklärung empfohlen (mit Begründung)."],
+        ["J", "Sonstiges."] ] },
+      { "nr": "7.3", "titel": "Empfehlungen zur medizinischen Rehabilitation", "typ": "abschnitt", "seite": 248, "seite_text": 136 },
+      { "nr": "7.3.1", "titel": "Rehabilitationsbedürftigkeit", "typ": "ja_nein", "seite": 248, "zusatz": "Ja: weiter mit 7.3.2." },
+      { "nr": "7.3.2", "titel": "Rehabilitationsfähigkeit", "typ": "ja_nein", "seite": 249, "zusatz": "Erwachsene: mindestens eine nichtärztliche Therapieeinheit pro Tag; Kinder: mindestens zwei Therapieeinheiten pro Tag (S. 280)." },
+      { "nr": "7.3.2.G", "titel": "Wenn nein: Die aktive Teilnahmefähigkeit ist ausgeschlossen durch", "typ": "mehrfach", "seite": 249, "seite_kinder": 280, "optionen": [
+        ["schwaeche", "hochgradige körperliche Schwäche"],
+        ["belastbarkeit", "stark verminderte kardiale oder pulmonale Belastbarkeit (zum Beispiel Luftnot bereits in Ruhe)"],
+        ["wunden", "große Wunden oder Dekubitalgeschwüre"],
+        ["orientierung", "schwere Orientierungsstörungen (zum Beispiel mit Wanderungstendenz)", "erwachsene"],
+        ["psychisch", "ausgeprägte psychische Störungen (beispielsweise akute Wahnsymptomatik)", "erwachsene"],
+        ["antrieb", "Antriebsstörungen"],
+        ["gefaehrdung", "nicht beeinflussbare Fremd- oder Selbstgefährdung"],
+        ["kooperation", "fehlende Kooperations- und Einsichtsfähigkeit (Erwachsene: aufgrund psychischer oder fortgeschrittener dementieller Störungen; Kinder: aufgrund ausgeprägter mentaler Störungen)"],
+        ["krampfanfaelle", "therapieresistente Krampfanfälle", "kinder"],
+        ["abhaengigkeit", "die Therapie beeinträchtigende Abhängigkeitserkrankungen"],
+        ["op_krankenhaus", "geplante Operationen oder Krankenhausaufnahme"],
+        ["sonstige", "sonstige Gründe"] ] },
+      { "nr": "7.3.3", "titel": "Rehabilitationsziele", "typ": "freitext", "seite": 249 },
+      { "nr": "7.3.4", "titel": "Empfehlung einer Leistung zur medizinischen Rehabilitation", "typ": "mehrfach", "seite": 250, "seite_kinder": 281, "optionen": [
+        ["geriatrisch", "Zuweisungsempfehlung: geriatrische Rehabilitation", "erwachsene"],
+        ["indikationsspezifisch", "Zuweisungsempfehlung: indikationsspezifische Rehabilitation", "erwachsene"],
+        ["ambulant_einrichtung", "ambulante Durchführung in einer ambulanten Rehabilitationseinrichtung", "erwachsene"],
+        ["ambulant_mobil", "ambulante Durchführung durch mobile Rehabilitation im gewohnten oder ständigen Wohnumfeld", "erwachsene"],
+        ["stationaer_mobilitaet", "stationäre Durchführung: keine ausreichende Mobilität", "erwachsene"],
+        ["stationaer_belastbarkeit", "stationäre Durchführung: keine ausreichende physische und psychische Belastbarkeit für ambulante Rehabilitation", "erwachsene"],
+        ["stationaer_betreuung", "stationäre Durchführung: ständige ärztliche und pflegerische Betreuung (auch nachts) erforderlich", "erwachsene"],
+        ["stationaer_versorgung", "stationäre Durchführung: häusliche Versorgung nicht sichergestellt", "erwachsene"],
+        ["stationaer_distanzierung", "stationäre Durchführung: zeitweilige Distanzierung vom häuslichen Umfeld erforderlich", "erwachsene"],
+        ["stationaer_nicht_ausreichend", "stationäre Durchführung: ambulante Rehabilitation zum Erreichen der Reha-Ziele nicht ausreichend", "erwachsene"],
+        ["stationaer_sonstige", "stationäre Durchführung: sonstige Gründe", "erwachsene"],
+        ["kinder_schwerpunkt", "Rehabilitation für Kinder und Jugendliche mit Schwerpunkt", "kinder"],
+        ["kinder_for", "Familienorientierte Rehabilitation (FOR)", "kinder"] ] },
+      { "nr": "7.3.E", "titel": "Einwilligungen und Weiterleitung der Reha-Empfehlung", "typ": "mehrfach", "seite": 251, "optionen": [
+        ["einwilligung_empfehlung", "Einwilligung zur Weiterleitung der Empfehlung einer Leistung zur medizinischen Rehabilitation liegt vor (ja/nein/kann nicht eingeholt werden)"],
+        ["einwilligung_entscheidung", "Einwilligung zur Weiterleitung der Information über die Leistungsentscheidung des Rehabilitationsträgers nach § 31 Absatz 3 Satz 4 SGB XI liegt vor (ja/nein/kann nicht eingeholt werden)"],
+        ["an_pflegeperson", "Weiterleitung an benannte Pflegeperson unter 1.4"],
+        ["an_einrichtung", "Weiterleitung an Pflege- und Betreuungseinrichtungen unter 1.4"],
+        ["an_arzt", "Weiterleitung an behandelnde Ärztin oder behandelnden Arzt"],
+        ["an_weitere", "Weiterleitung an weitere Personen oder Einrichtungen"],
+        ["beratung", "Beratung zur Umsetzung der empfohlenen Leistung zur medizinischen Rehabilitation erforderlich"] ] },
+
+      { "nr": "8", "titel": "Weitere Empfehlungen und Hinweise für die Pflegekasse", "typ": "abschnitt", "seite": 253, "seite_kinder": 284, "seite_text": 140 },
+      { "nr": "8.1", "titel": "Hilfsmittel/Pflegehilfsmittel", "typ": "tabelle", "seite": 253, "seite_text": 124, "optionen": [["keine", "keine"]], "zusatz": "Je Hilfsmittel: Produktart, Produktnummer (Hilfsmittelverzeichnis), Erläuterung; Zustimmung zur Beantragung liegt vor (ja/nein/kann nicht eingeholt werden)." },
+      { "nr": "8.2", "titel": "Heilmittel oder andere therapeutische Maßnahmen", "typ": "mehrfach", "seite": 253, "seite_text": 128, "optionen": [
+        ["keine", "keine"], ["physiotherapie", "Physiotherapie"], ["ergotherapie", "Ergotherapie"], ["logopaedie", "Stimm-, Sprech-, Sprach- und Schlucktherapie"], ["podologie", "Podologische Therapie"], ["ernaehrungstherapie", "Ernährungstherapie"], ["andere", "Andere therapeutische Maßnahmen"] ],
+        "zusatz": "Einwilligung zur Weiterleitung der Mitteilung des empfohlenen Heilmittels an die behandelnde Ärztin oder den behandelnden Arzt (ja/nein/kann nicht eingeholt werden)." },
+      { "nr": "8.3", "titel": "Wohnumfeldverbessernde Maßnahmen", "typ": "freitext", "seite": 253, "seite_text": 128, "optionen": [["keine", "keine"]] },
+      { "nr": "8.4", "titel": "Edukative Maßnahmen (Information, Beratung, Schulung, Anleitung)", "typ": "freitext", "seite": 254, "seite_text": 129, "optionen": [["keine", "keine"]] },
+      { "nr": "8.5", "titel": "Präventive Maßnahmen", "typ": "freitext", "seite": 254, "seite_text": 130, "optionen": [["keine", "keine"]] },
+      { "nr": "8.6", "titel": "Beratung zu Leistungen zur verhaltensbezogenen Primärprävention nach § 20 Absatz 4 Nummer 1 SGB V", "typ": "freitext", "seite": 254, "seite_text": 140, "optionen": [["keine", "keine"]] },
+      { "nr": "8.7", "titel": "Verbesserung/Veränderung der Pflegesituation", "typ": "mehrfach", "seite": 254, "seite_text": 140, "optionen": [["keine", "keine"], ["pflegeberatung", "Pflegeberatung nach § 7a SGB XI"], ["entlastung", "Entlastung der Pflegeperson"]] },
+      { "nr": "8.8", "titel": "Beratung zur Umsetzung der empfohlenen Leistung zur medizinischen Rehabilitation erforderlich", "typ": "freitext", "seite": 254, "seite_text": 142 },
+      { "nr": "8.9", "titel": "Die antragstellende Person widerspricht der Übersendung des Gutachtens", "typ": "ja_nein", "seite": 254, "seite_text": 142 },
+      { "nr": "8.10", "titel": "Sonstige Hinweise", "typ": "freitext", "seite": 254, "seite_text": 142 },
+      { "nr": "9", "titel": "Prognose/Wiederholungsbegutachtung", "typ": "freitext", "seite": 255, "seite_kinder": 285, "seite_text": 143, "zusatz": "Prognose; Termin für Wiederholungsbegutachtung; beteiligte Gutachterinnen oder Gutachter." }
+    ]
+  }
+}
