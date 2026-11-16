@@ -75,11 +75,21 @@ claude mcp add icf-icd -e ICF_MCP_BI=0 -- node ~/GitHub/icf-icd-mcp/src/server.m
 | `bi_compare` | Grenzt zwei Kriterien ab, z. B. 4.3.2 und 4.6.2, mit den wörtlichen Abgrenzungen der BRi |
 | `bi_interpret_coding` | Prüft Kodierungen und übersetzt sie in Klartext |
 | `bi_calculate` | Summen, gewichtete Punkte, Gesamtpunkte und Pflegegrad nach Anlage 2 zu § 15 SGB XI, auch für Kinder (Altersvergleich, Sonderregel bis 18 Monate) |
+| `bi_icf_mapping` | Kuratierte Zuordnung BI ↔ ICF in beide Richtungen, mit Beziehungsart und Begründung |
 | `bi_scoring_rules` | Bewertungssystematik mit Schwellen, Modul-5-Regeln und Sonderregeln |
 
-Das Netz enthält 144 Knoten und rund 200 Kanten. Davon stammen 61 Abgrenzungen und 114 Verweise wörtlich aus dem Richtlinientext („… sind unter F 4.6.2 zu berücksichtigen“). Die übrigen Kanten bilden Regeln ab (4.4.0 ersetzt bei Kindern bis 18 Monate 4.4.1–4.4.13, aus Modul 2 und 3 zählt der höhere Wert, 4.1.B führt zu Pflegegrad 5). Jede Kante trägt ihre Herkunft (`quelle`: `richtlinie` oder `struktur`) und die Seite.
+Das Netz enthält 144 Knoten und 202 Kanten innerhalb des Instruments. Davon stammen 61 Abgrenzungen und 114 Verweise wörtlich aus dem Richtlinientext („… sind unter F 4.6.2 zu berücksichtigen“). Die übrigen Kanten bilden Regeln ab (4.4.0 ersetzt bei Kindern bis 18 Monate 4.4.1–4.4.13, aus Modul 2 und 3 zählt der höhere Wert, 4.1.B führt zu Pflegegrad 5). Jede Kante trägt ihre Herkunft (`quelle`: `richtlinie` oder `struktur`) und die Seite.
 
-**Vorbereitet für ICF/ICD:** Eigener Namensraum, gleiches `RelationGraph`, gleiches Datenformat unter `data/`. Eine amtliche Zuordnung zwischen BI und ICF gibt es nicht; eine fachlich kuratierte Zuordnung käme als eigene Kantenschicht mit `quelle: "kuratiert"` hinzu.
+**Zuordnung zur ICF (kuratiert):** Eine amtliche Zuordnung zwischen BI und ICF gibt es nicht. Das Repo enthält deshalb eine eigene, fachlich kuratierte Kantenschicht (`source/bi_icf_zuordnung.json`, in `data/bi.json` mit `quelle: "kuratiert"`): alle 81 bewertbaren Kriterien (Module 1–6, Bereiche 6.1 und 6.2) mit 176 Kanten zu 105 ICF-Kategorien. Jede Kante nennt eine Beziehung und eine Begründung:
+
+| Beziehung | Bedeutung |
+| --- | --- |
+| `entspricht` | Die ICF-Kategorie beschreibt im Kern dieselbe Aktivität oder Fähigkeit, z. B. 4.1.3 Umsetzen → d420 Sich verlagern |
+| `teilweise` | Die ICF-Kategorie deckt einen Teil ab oder ist anders zugeschnitten, z. B. 4.4.7 → d550, weil die ICF das Schneiden der Nahrung zum Essen zählt |
+| `funktion` | Zugrunde liegende Körperfunktion, z. B. 4.2.3 → b1140 Orientierung zur Zeit |
+| `umwelt` | Umweltfaktor im Kriterium, z. B. 4.5.7 → e1151 Hilfsprodukte |
+
+`bi_icf_mapping` fragt in beide Richtungen ab; von der ICF aus werden auch Ober- und Unterkategorien berücksichtigt (b1440 findet 4.2.4 über b144). `icf_get_related` nennt bei eingeschaltetem BI-Modul die zugeordneten Kriterien mit. BI-Stufen werden bewusst nicht in ICF-Beurteilungsmerkmale umgerechnet, weil beide Skalen Verschiedenes messen. Der Build prüft jede Kante gegen die ICF 2005; Kategorien aus späteren WHO-Updates (etwa d571 „Auf seine Sicherheit achten“) sind nicht verwendet.
 
 Daten neu erzeugen (der Textauszug liegt bei; das PDF wird nicht versioniert und ist nur bei einer neuen BRi-Fassung nötig, dann mit `pypdf`):
 

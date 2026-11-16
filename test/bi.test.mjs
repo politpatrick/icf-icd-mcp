@@ -15,7 +15,7 @@ test("BI-Tools sind standardmäßig aktiv", () => {
   const { tools } = handleMessage({ jsonrpc: "2.0", id: 1, method: "tools/list" }).result;
   const names = tools.map((t) => t.name).filter((n) => n.startsWith("bi_"));
   assert.deepEqual(names.sort(), [
-    "bi_calculate", "bi_compare", "bi_get_item", "bi_interpret_coding", "bi_list_structure", "bi_related", "bi_scoring_rules", "bi_search",
+    "bi_calculate", "bi_compare", "bi_get_item", "bi_icf_mapping", "bi_interpret_coding", "bi_list_structure", "bi_related", "bi_scoring_rules", "bi_search",
   ]);
   const init = handleMessage({ jsonrpc: "2.0", id: 2, method: "initialize", params: {} }).result;
   assert.match(init.instructions, /Begutachtungsinstrument nach § 15 SGB XI/);
@@ -37,7 +37,7 @@ test("Datenbestand: alle Kriterien der Module 1–6 mit verbindlicher Definition
     }
   }
   // Alle Kanten zeigen auf vorhandene Knoten
-  for (const e of data.edges) {
+  for (const e of data.edges.filter((e) => !e.to.startsWith("ICF:"))) {
     assert.ok(data.nodes[e.from], `Kante von unbekanntem Knoten ${e.from}`);
     assert.ok(data.nodes[e.to], `Kante zu unbekanntem Knoten ${e.to}`);
   }
@@ -177,5 +177,52 @@ test("ICF_MCP_BI=0 schaltet das BI-Modul ab", async () => {
       }).stdout
     ).result.tools.map((t) => t.name);
   assert.ok(run({}).includes("bi_calculate"));
+  assert.ok(run({}).includes("bi_icf_mapping"));
   assert.ok(!run({ ICF_MCP_BI: "0" }).some((n) => n.startsWith("bi_")));
+});
+
+test("ICF-Zuordnung: jedes Kriterium zugeordnet, alle Ziele existieren in der ICF 2005", () => {
+  const data = readData("bi.json");
+  const icf = readData("icf_flat.json");
+  const crit = Object.values(data.nodes).filter((n) => n.art === "kriterium");
+  const mapped = new Set(data.edges.filter((e) => e.quelle === "kuratiert").map((e) => e.from));
+  for (const n of crit) assert.ok(mapped.has(n.id), `${n.id} ohne ICF-Zuordnung`);
+  for (const e of data.edges.filter((e) => e.quelle === "kuratiert")) {
+    assert.ok(e.to.startsWith("ICF:") && icf[e.to.slice(4)], `${e.from} → ${e.to} existiert nicht`);
+    assert.ok(e.text && e.text.length > 5, `${e.from} → ${e.to} ohne Begründung`);
+    assert.match(e.type, /^icf_(entspricht|teilweise|funktion|umwelt)$/);
+  }
+});
+
+test("bi_icf_mapping: BI → ICF mit Beziehung und Begründung", () => {
+  const r = call("bi_icf_mapping", { code: "4.1.3" });
+  assert.equal(r.richtung, "BI → ICF");
+  const icf = r.zuordnungen[0].icf;
+  assert.equal(icf[0].beziehung, "entspricht");
+  assert.ok(icf.some((x) => x.icf === "d420" && x.titel === "Sich verlagern"));
+  // Abweichender Zuschnitt wird begründet: Schneiden gehört in der ICF zu d550, im BI zu 4.4.7
+  const zubereiten = call("bi_icf_mapping", { code: "4.4.7" }).zuordnungen[0].icf;
+  assert.ok(zubereiten.find((x) => x.icf === "d550").begruendung.includes("4.4.7"));
+  // Modul: alle Kriterien, optional nach Beziehung gefiltert
+  const modul = call("bi_icf_mapping", { code: "BI:4.2", beziehung: "funktion" });
+  assert.ok(modul.zuordnungen.every((z) => z.icf.every((x) => x.beziehung === "funktion")));
+  assert.match(call("bi_icf_mapping", { code: "5.4" }).error, /keine ICF-Zuordnung/);
+  // In bi_get_item enthalten
+  assert.ok(call("bi_get_item", { code: "4.4.8" }).icf_zuordnung.some((x) => x.icf === "d550"));
+});
+
+test("bi_icf_mapping: ICF → BI auch über Ober- und Unterkategorien", () => {
+  const r = call("bi_icf_mapping", { code: "d420" });
+  assert.equal(r.richtung, "ICF → BI");
+  assert.ok(r.bi_kriterien.some((k) => k.bi === "BI:4.1.3" && k.ueber === "direkt"));
+  assert.ok(r.bi_kriterien.some((k) => k.bi === "BI:4.1.1" && k.ueber === "unterkategorie" && k.icf === "d4201"));
+  const kurz = call("bi_icf_mapping", { code: "b1440" });
+  assert.ok(kurz.bi_kriterien.some((k) => k.bi === "BI:4.2.4" && k.ueber === "oberkategorie" && k.icf === "b144"));
+  assert.match(call("bi_icf_mapping", { code: "b9999" }).error, /nicht gefunden/);
+});
+
+test("icf_get_related nennt zugeordnete BI-Kriterien", () => {
+  const r = call("icf_get_related", { code: "d550" });
+  assert.equal(r.begutachtungsinstrument.quelle, "kuratiert");
+  assert.ok(r.begutachtungsinstrument.kriterien.some((k) => k.bi === "BI:4.4.8"));
 });

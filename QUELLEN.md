@@ -67,3 +67,9 @@ Geschützt sein kann die Gestaltung der Veröffentlichung, etwa das Titelfoto (�
 Satz (fountain studio). Deshalb wird nur der Textauszug weitergegeben, nicht das PDF. Es ist beim Medizinischen Dienst
 Bund erhältlich (www.md-bund.de) und wird nur gebraucht, um bei einer neuen Fassung den Textauszug neu zu erzeugen
 (`scripts/bri_extract.py`); dafür unter `source/bri_pflege_2026.pdf` ablegen.
+
+### Zuordnung Begutachtungsinstrument ↔ ICF
+
+`source/bi_icf_zuordnung.json` ist eine eigene, fachlich kuratierte Arbeitshilfe dieses Projekts (Stand 16.11.2026). Sie ist
+keine amtliche Zuordnung: Weder das BfArM noch der Medizinische Dienst Bund haben eine Zuordnung zwischen Begutachtungsinstrument
+und ICF veröffentlicht. Jede Kante ist begründet und verweist nur auf Kategorien der ICF-Fassung 2005.

@@ -4,11 +4,11 @@
 import * as icf from "./icf.mjs";
 import * as icd from "./icd.mjs";
 import { LookupError } from "./text.mjs";
-import { BI_ENABLED, BI_TOOLS, BI_INSTRUCTIONS } from "./bi_tools.mjs";
+import { BI_ENABLED, BI_TOOLS, BI_INSTRUCTIONS, withBiForIcf } from "./bi_tools.mjs";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
-const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM und Begutachtungsinstrument (Deutsch)", version: "1.3.0" };
+const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM und Begutachtungsinstrument (Deutsch)", version: "1.4.0" };
 
 const BASE_INSTRUCTIONS = `Zugriff auf die deutsche ICF (Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit, WHO/BfArM 2005)
 und die ${icd.ICD_VERSION} (Diagnosen, Systematisches Verzeichnis des BfArM).
@@ -82,10 +82,11 @@ const TOOLS = [
     name: "icf_get_related",
     title: "Verwandte ICF-Codes",
     description:
-      "Beziehungen eines ICF-Codes im amtlichen Wissensnetz: Ober- und Unterkategorien, Geschwister, eigene und von Oberkategorien geerbte Ausschlüsse sowie Rückverweise (welche Kategorien diesen Code ausschließen).",
+      "Beziehungen eines ICF-Codes im amtlichen Wissensnetz: Ober- und Unterkategorien, Geschwister, eigene und von Oberkategorien geerbte Ausschlüsse sowie Rückverweise (welche Kategorien diesen Code ausschließen)." +
+      (BI_ENABLED ? " Zusätzlich: zugeordnete Kriterien des Begutachtungsinstruments (kuratiert, nicht amtlich)." : ""),
     inputSchema: codeParam,
     annotations: readOnly,
-    run: icf.getRelated,
+    run: withBiForIcf(icf.getRelated),
   },
   {
     name: "icf_get_qualifiers",

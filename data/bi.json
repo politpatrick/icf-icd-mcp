@@ -8441,6 +8441,1414 @@
    "text": "Wurde unter F 5.3 festgestellt, dass die Pflege nicht sichergestellt ist oder auf Dauer nicht sichergestellt werden kann, sind konkrete Empfehlungen zur Veränderung der Pflegesituation ebenfalls hier zu dokumentieren.",
    "variante": "erwachsene",
    "seite": 140
+  },
+  {
+   "from": "BI:4.1.1",
+   "to": "ICF:d410",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Elementare Körperposition wechseln, im BI beschränkt auf Positionen im Bett (Drehen, Aufrichten aus dem Liegen).",
+   "icf_titel": "Eine elementare Körperposition wechseln"
+  },
+  {
+   "from": "BI:4.1.1",
+   "to": "ICF:d4201",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Sich beim Liegen verlagern (z. B. im Bett zur Seite rutschen) ist Teil des Positionswechsels im Bett.",
+   "icf_titel": "Sich beim Liegen verlagern"
+  },
+  {
+   "from": "BI:4.1.1",
+   "to": "ICF:d4100",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Sich hinlegen; das Aufstehen und Zubettgehen selbst wertet das BI unter 4.6.2.",
+   "icf_titel": "Sich hinlegen"
+  },
+  {
+   "from": "BI:4.1.2",
+   "to": "ICF:d4153",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "In sitzender Position verbleiben entspricht dem Halten einer stabilen Sitzposition.",
+   "icf_titel": "In sitzender Position verbleiben"
+  },
+  {
+   "from": "BI:4.1.2",
+   "to": "ICF:b7303",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Rumpfkontrolle hängt u. a. von der Kraft der Rumpf- und unteren Körpermuskulatur ab.",
+   "icf_titel": "Kraft der Muskeln der unteren Körperhälfte"
+  },
+  {
+   "from": "BI:4.1.3",
+   "to": "ICF:d420",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Sich verlagern von einer Sitzfläche auf eine andere, z. B. Rollstuhl – Toilette.",
+   "icf_titel": "Sich verlagern"
+  },
+  {
+   "from": "BI:4.1.3",
+   "to": "ICF:d4200",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Sich beim Sitzen verlagern ist der Kern des Umsetzens zwischen Sitzgelegenheiten.",
+   "icf_titel": "Sich beim Sitzen verlagern"
+  },
+  {
+   "from": "BI:4.1.3",
+   "to": "ICF:d4104",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Aufstehen aus dem Sitzen in den Stand ist Teil des Umsetzens.",
+   "icf_titel": "Stehen"
+  },
+  {
+   "from": "BI:4.1.4",
+   "to": "ICF:d4600",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Sich in seiner Wohnung umherbewegen; das BI legt mindestens acht Meter zugrunde und bewertet nur motorische Aspekte.",
+   "icf_titel": "Sich in seiner Wohnung umherbewegen"
+  },
+  {
+   "from": "BI:4.1.4",
+   "to": "ICF:d450",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Gehen ist die häufigste Form der Fortbewegung im Wohnbereich.",
+   "icf_titel": "Gehen"
+  },
+  {
+   "from": "BI:4.1.4",
+   "to": "ICF:d465",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Fortbewegung mit Rollator oder Rollstuhl zählt im BI als selbständig, wenn keine Personenhilfe nötig ist.",
+   "icf_titel": "Sich unter Verwendung von Geräten/Ausrüstung fortbewegen"
+  },
+  {
+   "from": "BI:4.1.5",
+   "to": "ICF:d4551",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Klettern/steigen umfasst Treppensteigen zwischen zwei Etagen.",
+   "icf_titel": "Klettern/steigen"
+  },
+  {
+   "from": "BI:4.1.B",
+   "to": "ICF:b730",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Gebrauchsunfähigkeit beider Arme und Beine, z. B. bei kompletter Lähmung aller Extremitäten.",
+   "icf_titel": "Funktionen der Muskelkraft"
+  },
+  {
+   "from": "BI:4.1.B",
+   "to": "ICF:b710",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Hochgradige Kontrakturen und Versteifungen nennt die BRi als mögliche Ursache.",
+   "icf_titel": "Funktionen der Gelenkbeweglichkeit"
+  },
+  {
+   "from": "BI:4.1.B",
+   "to": "ICF:d440",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Vollständiger Verlust der Greiffunktion.",
+   "icf_titel": "Feinmotorischer Handgebrauch"
+  },
+  {
+   "from": "BI:4.1.B",
+   "to": "ICF:d450",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Vollständiger Verlust der Steh- und Gehfunktion.",
+   "icf_titel": "Gehen"
+  },
+  {
+   "from": "BI:4.2.1",
+   "to": "ICF:b11421",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Orientierung zu anderen Personen: vertraute Personen aus dem Umfeld wiedererkennen.",
+   "icf_titel": "Orientierung zu anderen Personen"
+  },
+  {
+   "from": "BI:4.2.1",
+   "to": "ICF:b156",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Wahrnehmungsfunktionen sind Voraussetzung des Erkennens; reine Sehstörungen wertet das BI hier aber nicht.",
+   "icf_titel": "Funktionen der Wahrnehmung"
+  },
+  {
+   "from": "BI:4.2.2",
+   "to": "ICF:b1141",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Orientierung zum Ort: wissen, wo man sich befindet, und sich in der Umgebung zurechtfinden.",
+   "icf_titel": "Orientierung zum Ort"
+  },
+  {
+   "from": "BI:4.2.2",
+   "to": "ICF:d460",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Gezieltes Ansteuern anderer Orte; die motorische Fortbewegung selbst gehört zu Modul 1.",
+   "icf_titel": "Sich in verschiedenen Umgebungen fortbewegen"
+  },
+  {
+   "from": "BI:4.2.3",
+   "to": "ICF:b1140",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Orientierung zur Zeit: Tageszeit, Wochentag, Jahreszeit erkennen.",
+   "icf_titel": "Orientierung zur Zeit"
+  },
+  {
+   "from": "BI:4.2.4",
+   "to": "ICF:b144",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Erinnern an kurz und länger zurückliegende Ereignisse.",
+   "icf_titel": "Funktionen des Gedächtnisses"
+  },
+  {
+   "from": "BI:4.2.4",
+   "to": "ICF:b1440",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kurzzeitgedächtnis, z. B. was es zum Frühstück gab.",
+   "icf_titel": "Kurzzeitgedächtnis"
+  },
+  {
+   "from": "BI:4.2.4",
+   "to": "ICF:b1441",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Langzeitgedächtnis, z. B. wesentliche Ereignisse der eigenen Biografie.",
+   "icf_titel": "Langzeitgedächtnis"
+  },
+  {
+   "from": "BI:4.2.5",
+   "to": "ICF:d220",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Mehrfachaufgaben übernehmen: Handlungen mit mehreren Teilschritten in sinnvoller Reihenfolge steuern.",
+   "icf_titel": "Mehrfachaufgaben übernehmen"
+  },
+  {
+   "from": "BI:4.2.5",
+   "to": "ICF:b1641",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Organisieren und Planen als zugrunde liegende höhere kognitive Funktion.",
+   "icf_titel": "Das Organisieren und Planen betreffende Funktionen"
+  },
+  {
+   "from": "BI:4.2.5",
+   "to": "ICF:d230",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Alltagshandlungen sind Teil der täglichen Routine; die Gestaltung des Tagesablaufs selbst wertet das BI unter 4.6.1.",
+   "icf_titel": "Die tägliche Routine durchführen"
+  },
+  {
+   "from": "BI:4.2.6",
+   "to": "ICF:d177",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Entscheidungen treffen: zwischen Optionen wählen und die Wahl umsetzen.",
+   "icf_titel": "Entscheidungen treffen"
+  },
+  {
+   "from": "BI:4.2.6",
+   "to": "ICF:b1645",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Urteilsvermögen ist Voraussetzung folgerichtiger Entscheidungen.",
+   "icf_titel": "Das Urteilsvermögen betreffende Funktionen"
+  },
+  {
+   "from": "BI:4.2.7",
+   "to": "ICF:b164",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Höhere kognitive Funktionen (Abstraktion, Verständnis) als Grundlage des Verstehens von Sachverhalten.",
+   "icf_titel": "Höhere kognitive Funktionen"
+  },
+  {
+   "from": "BI:4.2.7",
+   "to": "ICF:d163",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Denken: Informationen inhaltlich einordnen und Zusammenhänge erkennen.",
+   "icf_titel": "Denken"
+  },
+  {
+   "from": "BI:4.2.7",
+   "to": "ICF:d310",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Mitteilungen verstehen; das BI bewertet das inhaltliche Verständnis, nicht das Hören.",
+   "icf_titel": "Kommunizieren als Empfänger gesprochener Mitteilungen"
+  },
+  {
+   "from": "BI:4.2.8",
+   "to": "ICF:b1645",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Urteilsvermögen: Gefahren wie Strom, Feuer oder Straßenverkehr einschätzen.",
+   "icf_titel": "Das Urteilsvermögen betreffende Funktionen"
+  },
+  {
+   "from": "BI:4.2.8",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Gesundheitsrisiken vermeiden; eine eigene ICF-Kategorie für das Achten auf die eigene Sicherheit (d571) gibt es erst in späteren WHO-Fassungen.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.2.9",
+   "to": "ICF:d330",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Bedürfnisse wie Hunger, Durst, Schmerz oder Frieren verbal mitteilen.",
+   "icf_titel": "Sprechen"
+  },
+  {
+   "from": "BI:4.2.9",
+   "to": "ICF:d335",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Bedürfnisse nonverbal mitteilen (Gestik, Mimik); das BI berücksichtigt beides.",
+   "icf_titel": "Non-verbale Mitteilungen produzieren"
+  },
+  {
+   "from": "BI:4.2.10",
+   "to": "ICF:d310",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Gesprochene Aufforderungen zu alltäglichen Grundbedürfnissen verstehen.",
+   "icf_titel": "Kommunizieren als Empfänger gesprochener Mitteilungen"
+  },
+  {
+   "from": "BI:4.2.10",
+   "to": "ICF:d315",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Aufforderungen über Gesten oder Zeichen verstehen.",
+   "icf_titel": "Kommunizieren als Empfänger non-verbaler Mitteilungen"
+  },
+  {
+   "from": "BI:4.2.11",
+   "to": "ICF:d350",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Konversation: Gesprächsinhalte aufnehmen, sinngerecht antworten, Inhalte einbringen.",
+   "icf_titel": "Konversation"
+  },
+  {
+   "from": "BI:4.3.1",
+   "to": "ICF:b147",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Psychomotorische Funktionen; Unruhe, zielloses Umhergehen und Weglauftendenz.",
+   "icf_titel": "Psychomotorische Funktionen"
+  },
+  {
+   "from": "BI:4.3.1",
+   "to": "ICF:b1470",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Psychomotorische Kontrolle (Agitiertheit).",
+   "icf_titel": "Psychomotorische Kontrolle"
+  },
+  {
+   "from": "BI:4.3.2",
+   "to": "ICF:b1344",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Schlafzyklus: Umkehr des Tag-Nacht-Rhythmus.",
+   "icf_titel": "Am Schlafzyklus beteiligte Funktionen"
+  },
+  {
+   "from": "BI:4.3.2",
+   "to": "ICF:b147",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Nächtliches Umherirren als psychomotorische Unruhe. Einschlafstörungen werden im BI nicht hier gewertet.",
+   "icf_titel": "Psychomotorische Funktionen"
+  },
+  {
+   "from": "BI:4.3.3",
+   "to": "ICF:b1304",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Impulskontrolle bei selbstschädigendem Verhalten.",
+   "icf_titel": "Impulskontrolle"
+  },
+  {
+   "from": "BI:4.3.3",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Gesundheitsrisiken vermeiden, z. B. keine ungenießbaren Substanzen zu sich nehmen.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.3.4",
+   "to": "ICF:b1304",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Aggressive, auf Gegenstände gerichtete Handlungsimpulse.",
+   "icf_titel": "Impulskontrolle"
+  },
+  {
+   "from": "BI:4.3.5",
+   "to": "ICF:d7202",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Verhalten in Beziehungen regulieren schließt physische Aggression ausdrücklich ein.",
+   "icf_titel": "Verhalten in Beziehungen regulieren"
+  },
+  {
+   "from": "BI:4.3.5",
+   "to": "ICF:b1304",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Impulskontrolle.",
+   "icf_titel": "Impulskontrolle"
+  },
+  {
+   "from": "BI:4.3.6",
+   "to": "ICF:d7202",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Verhalten in Beziehungen regulieren schließt verbale Aggression ausdrücklich ein.",
+   "icf_titel": "Verhalten in Beziehungen regulieren"
+  },
+  {
+   "from": "BI:4.3.6",
+   "to": "ICF:b1304",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Impulskontrolle.",
+   "icf_titel": "Impulskontrolle"
+  },
+  {
+   "from": "BI:4.3.7",
+   "to": "ICF:d7203",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Lautes Rufen, Schreien, Klagen oder ständiges Wiederholen widersprechen sozialen Regeln der Interaktion.",
+   "icf_titel": "Sozialen Regeln gemäß interagieren"
+  },
+  {
+   "from": "BI:4.3.7",
+   "to": "ICF:b147",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Vokale Unruhe als psychomotorisches Phänomen.",
+   "icf_titel": "Psychomotorische Funktionen"
+  },
+  {
+   "from": "BI:4.3.8",
+   "to": "ICF:d7202",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Abwehr von Pflege, Nahrung oder Medikamenten als Problem der Verhaltensregulation in der Pflegebeziehung.",
+   "icf_titel": "Verhalten in Beziehungen regulieren"
+  },
+  {
+   "from": "BI:4.3.8",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Medizinischem Rat folgen; Abwehr kann die Gesundheitserhaltung gefährden.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.3.9",
+   "to": "ICF:b1602",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Inhalt des Denkens: Wahnvorstellungen.",
+   "icf_titel": "Inhalt des Denkens"
+  },
+  {
+   "from": "BI:4.3.9",
+   "to": "ICF:b156",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Wahrnehmungsstörungen (Halluzinationen) treten oft gemeinsam auf.",
+   "icf_titel": "Funktionen der Wahrnehmung"
+  },
+  {
+   "from": "BI:4.3.10",
+   "to": "ICF:b152",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Emotionale Funktionen: Ängste, Panikattacken.",
+   "icf_titel": "Emotionale Funktionen"
+  },
+  {
+   "from": "BI:4.3.10",
+   "to": "ICF:d240",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Mit Stress und psychischen Anforderungen umgehen.",
+   "icf_titel": "Mit Stress und anderen psychischen Anforderungen umgehen"
+  },
+  {
+   "from": "BI:4.3.11",
+   "to": "ICF:b1300",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Ausmaß der psychischen Energie: Antriebslosigkeit.",
+   "icf_titel": "Ausmaß der psychischen Energie"
+  },
+  {
+   "from": "BI:4.3.11",
+   "to": "ICF:b1301",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Motivation: kaum Interesse, keine Eigeninitiative.",
+   "icf_titel": "Motivation"
+  },
+  {
+   "from": "BI:4.3.11",
+   "to": "ICF:b152",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Depressive Stimmungslage.",
+   "icf_titel": "Emotionale Funktionen"
+  },
+  {
+   "from": "BI:4.3.12",
+   "to": "ICF:d7203",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Sozialen Regeln gemäß interagieren; distanzloses, unangemessenes Verhalten.",
+   "icf_titel": "Sozialen Regeln gemäß interagieren"
+  },
+  {
+   "from": "BI:4.3.12",
+   "to": "ICF:d720",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Komplexe interpersonelle Interaktionen.",
+   "icf_titel": "Komplexe interpersonelle Interaktionen"
+  },
+  {
+   "from": "BI:4.3.13",
+   "to": "ICF:b1304",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Unangemessene Handlungen ohne Selbststeuerung, z. B. Horten, Urinieren in die Wohnung.",
+   "icf_titel": "Impulskontrolle"
+  },
+  {
+   "from": "BI:4.3.13",
+   "to": "ICF:b164",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Höhere kognitive Funktionen, wenn Handlungen nicht situationsgerecht geplant werden.",
+   "icf_titel": "Höhere kognitive Funktionen"
+  },
+  {
+   "from": "BI:4.4.0",
+   "to": "ICF:b510",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Funktionen der Nahrungsaufnahme: Trinkschwäche, Schluckstörungen.",
+   "icf_titel": "Funktionen der Nahrungsaufnahme"
+  },
+  {
+   "from": "BI:4.4.0",
+   "to": "ICF:b5105",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Schlucken.",
+   "icf_titel": "Schlucken"
+  },
+  {
+   "from": "BI:4.4.0",
+   "to": "ICF:d550",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Essen bei Säuglingen und Kleinkindern mit außergewöhnlich pflegeintensivem Hilfebedarf.",
+   "icf_titel": "Essen"
+  },
+  {
+   "from": "BI:4.4.0",
+   "to": "ICF:d560",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Trinken bei Säuglingen und Kleinkindern.",
+   "icf_titel": "Trinken"
+  },
+  {
+   "from": "BI:4.4.1",
+   "to": "ICF:d5100",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Körperteile waschen: Hände, Gesicht, Arme, Achseln, Hals und Brust.",
+   "icf_titel": "Körperteile waschen"
+  },
+  {
+   "from": "BI:4.4.1",
+   "to": "ICF:d5102",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Sich abtrocknen gehört im BI zum Waschen dazu.",
+   "icf_titel": "Sich abtrocknen"
+  },
+  {
+   "from": "BI:4.4.2",
+   "to": "ICF:d520",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Körperteile pflegen über das Waschen hinaus: Kämmen, Zahnpflege, Rasieren.",
+   "icf_titel": "Seine Körperteile pflegen"
+  },
+  {
+   "from": "BI:4.4.2",
+   "to": "ICF:d5201",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Zahnpflege und Prothesenreinigung.",
+   "icf_titel": "Die Zähne pflegen"
+  },
+  {
+   "from": "BI:4.4.2",
+   "to": "ICF:d5202",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Haare kämmen.",
+   "icf_titel": "Das Haar pflegen"
+  },
+  {
+   "from": "BI:4.4.3",
+   "to": "ICF:d5100",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Körperteile waschen, hier den Intimbereich.",
+   "icf_titel": "Körperteile waschen"
+  },
+  {
+   "from": "BI:4.4.3",
+   "to": "ICF:d5102",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Abtrocknen des Intimbereichs.",
+   "icf_titel": "Sich abtrocknen"
+  },
+  {
+   "from": "BI:4.4.4",
+   "to": "ICF:d5101",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Den ganzen Körper waschen (Duschen, Baden).",
+   "icf_titel": "Den ganzen Körper waschen"
+  },
+  {
+   "from": "BI:4.4.4",
+   "to": "ICF:d5202",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Haarwäsche ist im BI-Kriterium eingeschlossen.",
+   "icf_titel": "Das Haar pflegen"
+  },
+  {
+   "from": "BI:4.4.4",
+   "to": "ICF:d5102",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Abtrocknen.",
+   "icf_titel": "Sich abtrocknen"
+  },
+  {
+   "from": "BI:4.4.5",
+   "to": "ICF:d5400",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kleidung anziehen, hier Oberkörper.",
+   "icf_titel": "Kleidung anziehen"
+  },
+  {
+   "from": "BI:4.4.5",
+   "to": "ICF:d5401",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kleidung ausziehen, hier Oberkörper.",
+   "icf_titel": "Kleidung ausziehen"
+  },
+  {
+   "from": "BI:4.4.6",
+   "to": "ICF:d5400",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kleidung anziehen, hier Unterkörper.",
+   "icf_titel": "Kleidung anziehen"
+  },
+  {
+   "from": "BI:4.4.6",
+   "to": "ICF:d5401",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kleidung ausziehen, hier Unterkörper.",
+   "icf_titel": "Kleidung ausziehen"
+  },
+  {
+   "from": "BI:4.4.6",
+   "to": "ICF:d5402",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Schuhe und Strümpfe anziehen.",
+   "icf_titel": "Schuhwerk anziehen"
+  },
+  {
+   "from": "BI:4.4.6",
+   "to": "ICF:d5403",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Schuhe und Strümpfe ausziehen.",
+   "icf_titel": "Schuhwerk ausziehen"
+  },
+  {
+   "from": "BI:4.4.7",
+   "to": "ICF:d550",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Die ICF zählt das Schneiden der Nahrung zu d550 Essen; das BI wertet es getrennt unter 4.4.7.",
+   "icf_titel": "Essen"
+  },
+  {
+   "from": "BI:4.4.7",
+   "to": "ICF:d560",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Die ICF zählt das Eingießen von Getränken zu d560 Trinken; das BI wertet es getrennt unter 4.4.7.",
+   "icf_titel": "Trinken"
+  },
+  {
+   "from": "BI:4.4.8",
+   "to": "ICF:d550",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Bereitgestellte, mundgerecht zubereitete Speisen zum Mund führen und essen. Das Zerkleinern gehört in der ICF ebenfalls zu d550, im BI zu 4.4.7.",
+   "icf_titel": "Essen"
+  },
+  {
+   "from": "BI:4.4.8",
+   "to": "ICF:b510",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Funktionen der Nahrungsaufnahme (Kauen, Schlucken).",
+   "icf_titel": "Funktionen der Nahrungsaufnahme"
+  },
+  {
+   "from": "BI:4.4.9",
+   "to": "ICF:d560",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Bereitstehende Getränke aufnehmen und trinken. Das Eingießen gehört in der ICF ebenfalls zu d560, im BI zu 4.4.7.",
+   "icf_titel": "Trinken"
+  },
+  {
+   "from": "BI:4.4.10",
+   "to": "ICF:d530",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Die Toilette benutzen einschließlich Intimhygiene.",
+   "icf_titel": "Die Toilette benutzen"
+  },
+  {
+   "from": "BI:4.4.10",
+   "to": "ICF:d420",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Hinsetzen und Aufstehen von der Toilette.",
+   "icf_titel": "Sich verlagern"
+  },
+  {
+   "from": "BI:4.4.10",
+   "to": "ICF:d5400",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Richten der Kleidung.",
+   "icf_titel": "Kleidung anziehen"
+  },
+  {
+   "from": "BI:4.4.11",
+   "to": "ICF:d5300",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Belange der Blasenentleerung regulieren, hier Umgang mit Inkontinenzmaterial, Dauerkatheter und Urostoma.",
+   "icf_titel": "Die Belange der Blasenentleerung regulieren"
+  },
+  {
+   "from": "BI:4.4.11",
+   "to": "ICF:b6202",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Harnkontinenz; das BI-Kriterium zählt nur bei überwiegender oder kompletter Inkontinenz oder künstlicher Ableitung.",
+   "icf_titel": "Harnkontinenz"
+  },
+  {
+   "from": "BI:4.4.11",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Inkontinenzhilfsmittel und Kathetersysteme.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.4.12",
+   "to": "ICF:d5301",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Belange der Darmentleerung regulieren, hier Umgang mit Inkontinenzmaterial und Stoma.",
+   "icf_titel": "Die Belange der Darmentleerung regulieren"
+  },
+  {
+   "from": "BI:4.4.12",
+   "to": "ICF:b5253",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Stuhlkontinenz; das BI-Kriterium zählt nur bei überwiegender oder kompletter Inkontinenz oder Stoma.",
+   "icf_titel": "Stuhlkontinenz"
+  },
+  {
+   "from": "BI:4.4.12",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Inkontinenzhilfsmittel und Stomaversorgung.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.4.13",
+   "to": "ICF:b510",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Eingeschränkte orale Nahrungsaufnahme als Grund für parenterale oder Sondenernährung.",
+   "icf_titel": "Funktionen der Nahrungsaufnahme"
+  },
+  {
+   "from": "BI:4.4.13",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Ärztlich angeordnete Ernährungstherapie durchführen.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.4.13",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Port, PEG, PEJ, Magensonde und Ernährungspumpe.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.5.1",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Seine Gesundheit erhalten schließt das Befolgen ärztlicher Anordnungen ein, hier die Medikamenteneinnahme.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.2",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Ärztlich angeordnete Injektionen und subkutane Infusionen, z. B. Insulin.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.3",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Versorgung venöser Zugänge und Ports.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.3",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Port- und Kathetersysteme.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.5.4",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Absaugen, Sauerstoffgabe, Atemmasken.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.4",
+   "to": "ICF:b440",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Atmungsfunktionen.",
+   "icf_titel": "Atmungsfunktionen"
+  },
+  {
+   "from": "BI:4.5.4",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Absauggerät, Sauerstoffversorgung, Inhalationsgerät.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.5.5",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Ärztlich angeordnete Salben, Kälte- und Wärmeanwendungen.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.6",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Messung und Deutung von Körperzuständen, z. B. Blutzucker, Blutdruck.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.7",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "An- und Ablegen sowie Reinigung von Prothesen, Orthesen, Hörgeräten, Kompressionsstrümpfen.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.7",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Prothesen, Orthesen, Seh- und Hörhilfen.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.5.8",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Versorgung chronischer Wunden.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.8",
+   "to": "ICF:b820",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Heilfunktion der Haut.",
+   "icf_titel": "Heilfunktion der Haut"
+  },
+  {
+   "from": "BI:4.5.8",
+   "to": "ICF:b810",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Schutzfunktionen der Haut (z. B. Dekubitus).",
+   "icf_titel": "Schutzfunktionen der Haut"
+  },
+  {
+   "from": "BI:4.5.9",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Pflege künstlicher Körperöffnungen (Tracheostoma, PEG-Eintrittsstelle, Stoma).",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.9",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Stomaversorgung.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.5.10",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Regelmäßige Einmalkatheterisierung und Abführmethoden.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.10",
+   "to": "ICF:b620",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Miktionsfunktionen.",
+   "icf_titel": "Miktionsfunktionen"
+  },
+  {
+   "from": "BI:4.5.10",
+   "to": "ICF:b525",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Defäkationsfunktionen.",
+   "icf_titel": "Defäkationsfunktionen"
+  },
+  {
+   "from": "BI:4.5.11",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Eigenübungen aus Heilmitteltherapie, Sekretelimination, Peritonealdialyse zu Hause.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.12",
+   "to": "ICF:d5702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Zeit- und technikintensive Maßnahmen, z. B. Heimbeatmung, Hämodialyse.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.12",
+   "to": "ICF:b440",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Atmungsfunktionen bei invasiver Beatmung.",
+   "icf_titel": "Atmungsfunktionen"
+  },
+  {
+   "from": "BI:4.5.12",
+   "to": "ICF:e1151",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Beatmungs- und Dialysegeräte.",
+   "icf_titel": "Hilfsprodukte und unterstützende Technologien für den persönlichen Gebrauch im täglichen Leben"
+  },
+  {
+   "from": "BI:4.5.13",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Professionelle Hilfe in Anspruch nehmen; das BI wertet den Unterstützungsbedarf beim Arztbesuch.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.13",
+   "to": "ICF:e5800",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Dienste des Gesundheitswesens (niedergelassene Ärztinnen und Ärzte).",
+   "icf_titel": "Dienste des Gesundheitswesens"
+  },
+  {
+   "from": "BI:4.5.13",
+   "to": "ICF:d470",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Transportmittel benutzen, um die Praxis zu erreichen.",
+   "icf_titel": "Transportmittel benutzen"
+  },
+  {
+   "from": "BI:4.5.14",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Therapeutische oder medizinische Einrichtungen aufsuchen (bis drei Stunden).",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.14",
+   "to": "ICF:e5800",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Dienste des Gesundheitswesens.",
+   "icf_titel": "Dienste des Gesundheitswesens"
+  },
+  {
+   "from": "BI:4.5.15",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Zeitlich ausgedehnte Besuche, z. B. Dialyse, Chemotherapie (länger als drei Stunden).",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.15",
+   "to": "ICF:e5800",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Dienste des Gesundheitswesens.",
+   "icf_titel": "Dienste des Gesundheitswesens"
+  },
+  {
+   "from": "BI:4.5.K",
+   "to": "ICF:e5800",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Frühförderung als Dienst des Gesundheitswesens (interdisziplinäre Frühförderstellen, sozialpädiatrische Zentren).",
+   "icf_titel": "Dienste des Gesundheitswesens"
+  },
+  {
+   "from": "BI:4.5.K",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Inanspruchnahme therapeutischer Hilfe.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.16",
+   "to": "ICF:d5701",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Ernährung handhaben, hier ärztlich angeordnete Diäten.",
+   "icf_titel": "Ernährung und Fitness handhaben"
+  },
+  {
+   "from": "BI:4.5.16",
+   "to": "ICF:d5702",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Medizinischem Rat folgen, hier Verhaltensvorschriften zu vitalen Funktionen.",
+   "icf_titel": "Seine Gesundheit erhalten"
+  },
+  {
+   "from": "BI:4.5.16",
+   "to": "ICF:b1644",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Das BI bewertet die Einsichtsfähigkeit; das entspricht dem Einsichtsvermögen.",
+   "icf_titel": "Das Einsichtsvermögen betreffende Funktionen"
+  },
+  {
+   "from": "BI:4.6.1",
+   "to": "ICF:d230",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Die tägliche Routine durchführen: Tagesablauf planen und an Veränderungen anpassen.",
+   "icf_titel": "Die tägliche Routine durchführen"
+  },
+  {
+   "from": "BI:4.6.1",
+   "to": "ICF:d2301",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Die tägliche Routine planen; das BI bewertet die planerische Fähigkeit, nicht die Umsetzung.",
+   "icf_titel": "Die tägliche Routine planen"
+  },
+  {
+   "from": "BI:4.6.2",
+   "to": "ICF:b134",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Funktionen des Schlafes, Tag-Nacht-Rhythmus.",
+   "icf_titel": "Funktionen des Schlafes"
+  },
+  {
+   "from": "BI:4.6.2",
+   "to": "ICF:d2303",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Das eigene Aktivitätsniveau handhaben, Ruhephasen einhalten.",
+   "icf_titel": "Das eigene Aktivitätsniveau handhaben"
+  },
+  {
+   "from": "BI:4.6.2",
+   "to": "ICF:d4100",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Zubettgehen und Aufstehen, die das BI hier und nicht unter 4.1.1 wertet.",
+   "icf_titel": "Sich hinlegen"
+  },
+  {
+   "from": "BI:4.6.3",
+   "to": "ICF:d920",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Erholung und Freizeit: verfügbare Zeit nach eigenen Vorlieben nutzen.",
+   "icf_titel": "Erholung und Freizeit"
+  },
+  {
+   "from": "BI:4.6.4",
+   "to": "ICF:b1641",
+   "type": "icf_funktion",
+   "quelle": "kuratiert",
+   "text": "Organisieren und Planen über den Tag hinaus.",
+   "icf_titel": "Das Organisieren und Planen betreffende Funktionen"
+  },
+  {
+   "from": "BI:4.6.4",
+   "to": "ICF:d2301",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Planung; das BI meint längere Zeitabschnitte, die ICF-Kategorie die tägliche Routine.",
+   "icf_titel": "Die tägliche Routine planen"
+  },
+  {
+   "from": "BI:4.6.5",
+   "to": "ICF:d710",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Elementare interpersonelle Aktivitäten: Kontakt aufnehmen, ansprechen, auf Ansprache reagieren.",
+   "icf_titel": "Elementare interpersonelle Aktivitäten"
+  },
+  {
+   "from": "BI:4.6.6",
+   "to": "ICF:d750",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Informelle soziale Beziehungen zu Freunden, Bekannten, Nachbarn aufrechterhalten.",
+   "icf_titel": "Informelle soziale Beziehungen"
+  },
+  {
+   "from": "BI:4.6.6",
+   "to": "ICF:d760",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kontakte zu Familienangehörigen außerhalb des direkten Umfelds.",
+   "icf_titel": "Familienbeziehungen"
+  },
+  {
+   "from": "BI:4.6.6",
+   "to": "ICF:d3600",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kontaktpflege über Telefon oder andere Telekommunikation.",
+   "icf_titel": "Telekommunikationsgeräte benutzen"
+  },
+  {
+   "from": "BI:6.1.1",
+   "to": "ICF:d4602",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Von den Wohnräumen bis vor das Haus gelangen.",
+   "icf_titel": "Sich außerhalb der eigenen Wohnung und anderen Gebäuden umherbewegen"
+  },
+  {
+   "from": "BI:6.1.1",
+   "to": "ICF:d4551",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Treppen im Treppenhaus.",
+   "icf_titel": "Klettern/steigen"
+  },
+  {
+   "from": "BI:6.1.2",
+   "to": "ICF:d4602",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Sich außerhalb der Wohnung in einem Radius von etwa 500 m sicher und zielgerichtet bewegen.",
+   "icf_titel": "Sich außerhalb der eigenen Wohnung und anderen Gebäuden umherbewegen"
+  },
+  {
+   "from": "BI:6.1.2",
+   "to": "ICF:d4500",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kurze Entfernungen gehen.",
+   "icf_titel": "Kurze Entfernungen gehen"
+  },
+  {
+   "from": "BI:6.1.2",
+   "to": "ICF:d465",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Fortbewegung mit Rollator oder Rollstuhl.",
+   "icf_titel": "Sich unter Verwendung von Geräten/Ausrüstung fortbewegen"
+  },
+  {
+   "from": "BI:6.1.3",
+   "to": "ICF:d4702",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Öffentliches, motorisiertes Verkehrsmittel benutzen: ein- und an der richtigen Haltestelle aussteigen.",
+   "icf_titel": "Ein öffentliches, motorisiertes Verkehrsmittel benutzen"
+  },
+  {
+   "from": "BI:6.1.4",
+   "to": "ICF:d4701",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Privates, motorisiertes Fahrzeug benutzen, hier als Mitfahrerin oder Mitfahrer.",
+   "icf_titel": "Ein privates, motorisiertes Fahrzeug benutzen"
+  },
+  {
+   "from": "BI:6.1.5",
+   "to": "ICF:d920",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Erholung und Freizeit, insbesondere d9201 Sport und d9202 Kunst und Kultur.",
+   "icf_titel": "Erholung und Freizeit"
+  },
+  {
+   "from": "BI:6.1.5",
+   "to": "ICF:d930",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Religiöse Veranstaltungen.",
+   "icf_titel": "Religion und Spiritualität"
+  },
+  {
+   "from": "BI:6.1.6",
+   "to": "ICF:d850",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Besuch des Arbeitsplatzes.",
+   "icf_titel": "Bezahlte Tätigkeit"
+  },
+  {
+   "from": "BI:6.1.6",
+   "to": "ICF:d855",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Werkstatt für Menschen mit Behinderungen bzw. unbezahlte Beschäftigung.",
+   "icf_titel": "Unbezahlte Tätigkeit"
+  },
+  {
+   "from": "BI:6.1.6",
+   "to": "ICF:d820",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kinder: Besuch der Schule.",
+   "icf_titel": "Schulbildung"
+  },
+  {
+   "from": "BI:6.1.6",
+   "to": "ICF:d815",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kinder: Besuch des Kindergartens.",
+   "icf_titel": "Vorschulerziehung"
+  },
+  {
+   "from": "BI:6.1.7",
+   "to": "ICF:d910",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Gemeinschaftsleben: Vereine, Seniorentreffs und andere Aktivitäten mit anderen Menschen.",
+   "icf_titel": "Gemeinschaftsleben"
+  },
+  {
+   "from": "BI:6.2.1",
+   "to": "ICF:d6200",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Einkaufen für den täglichen Bedarf.",
+   "icf_titel": "Einkaufen"
+  },
+  {
+   "from": "BI:6.2.2",
+   "to": "ICF:d6300",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Einfache Mahlzeiten vorbereiten oder Fertiggerichte erwärmen.",
+   "icf_titel": "Einfache Mahlzeiten vorbereiten"
+  },
+  {
+   "from": "BI:6.2.3",
+   "to": "ICF:d6402",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Den Wohnbereich reinigen, hier körperlich leichte Tätigkeiten wie Aufräumen und Staubwischen.",
+   "icf_titel": "Den Wohnbereich reinigen"
+  },
+  {
+   "from": "BI:6.2.3",
+   "to": "ICF:d640",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Hausarbeiten erledigen.",
+   "icf_titel": "Hausarbeiten erledigen"
+  },
+  {
+   "from": "BI:6.2.4",
+   "to": "ICF:d6400",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Kleidung und Wäsche waschen und trocknen.",
+   "icf_titel": "Kleidung und Wäsche waschen und trocknen"
+  },
+  {
+   "from": "BI:6.2.4",
+   "to": "ICF:d6402",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Körperlich schwere Reinigungsarbeiten, z. B. Fenster putzen, Böden wischen.",
+   "icf_titel": "Den Wohnbereich reinigen"
+  },
+  {
+   "from": "BI:6.2.5",
+   "to": "ICF:d620",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Waren und Dienstleistungen beschaffen, hier pflegerische oder haushaltsnahe Dienste organisieren.",
+   "icf_titel": "Waren und Dienstleistungen des täglichen Bedarfs beschaffen"
+  },
+  {
+   "from": "BI:6.2.5",
+   "to": "ICF:e5750",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Dienste der allgemeinen sozialen Unterstützung.",
+   "icf_titel": "Dienste der allgemeinen sozialen Unterstützung"
+  },
+  {
+   "from": "BI:6.2.6",
+   "to": "ICF:d860",
+   "type": "icf_entspricht",
+   "quelle": "kuratiert",
+   "text": "Elementare wirtschaftliche Transaktionen: alltägliche Geldangelegenheiten.",
+   "icf_titel": "Elementare wirtschaftliche Transaktionen"
+  },
+  {
+   "from": "BI:6.2.6",
+   "to": "ICF:d865",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Komplexe wirtschaftliche Transaktionen, z. B. Bankkonto führen.",
+   "icf_titel": "Komplexe wirtschaftliche Transaktionen"
+  },
+  {
+   "from": "BI:6.2.7",
+   "to": "ICF:e570",
+   "type": "icf_umwelt",
+   "quelle": "kuratiert",
+   "text": "Dienste der sozialen Sicherheit (Sozialversicherungsträger). Eine eigene ICF-Aktivität für Behördenangelegenheiten gibt es nicht.",
+   "icf_titel": "Dienste, Systeme und Handlungsgrundsätze der sozialen Sicherheit"
+  },
+  {
+   "from": "BI:6.2.7",
+   "to": "ICF:d177",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Entscheidungen treffen, z. B. Anträge stellen und Bescheide einordnen.",
+   "icf_titel": "Entscheidungen treffen"
+  },
+  {
+   "from": "BI:6.2.7",
+   "to": "ICF:d865",
+   "type": "icf_teilweise",
+   "quelle": "kuratiert",
+   "text": "Komplexe Transaktionen wie Formulare und Verträge.",
+   "icf_titel": "Komplexe wirtschaftliche Transaktionen"
   }
  ],
  "abschnitte": {
@@ -9060,5 +10468,16 @@
     "→ Suchtmittelkonsum"
    ]
   }
+ },
+ "icf_zuordnung": {
+  "stand": "2026-11-16",
+  "icf_fassung": "ICF 2005 (BfArM). Kategorien aus späteren WHO-Updates, z. B. d571 \"Auf seine Sicherheit achten\" oder d250 \"Das eigene Verhalten steuern\", sind nicht enthalten.",
+  "beziehungen": {
+   "entspricht": "Die ICF-Kategorie beschreibt im Kern dieselbe Aktivität oder Fähigkeit wie das BI-Kriterium. Abweichungen im Zuschnitt stehen in der Begründung.",
+   "teilweise": "Die ICF-Kategorie deckt nur einen Teil des BI-Kriteriums ab oder ist deutlich breiter gefasst.",
+   "funktion": "Körperfunktion (b), deren Schädigung typischerweise der Beeinträchtigung im BI-Kriterium zugrunde liegt. Kein Ersatz für die Aktivitätsebene.",
+   "umwelt": "Umweltfaktor (e), der im BI-Kriterium als Kontext vorkommt (z. B. Hilfsmittel, Gesundheitsdienste)."
+  },
+  "beurteilungsmerkmale": "BI-Stufen und ICF-Beurteilungsmerkmale messen Verschiedenes und werden nicht umgerechnet. Das BI bewertet den Bedarf an personeller Hilfe bei praktischer Durchführung (Hilfsmittel eingeschlossen, ohne Personenhilfe). Das entspricht am ehesten dem ersten Beurteilungsmerkmal der ICF (Leistung im üblichen Umfeld), dessen Skala aber das Ausmaß des Problems in Prozent beschreibt, nicht die Art der Hilfe. Ein ICF-Wert muss im Einzelfall eigenständig begründet werden."
  }
 }

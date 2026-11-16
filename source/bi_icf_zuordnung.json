@@ -1,0 +1,358 @@
+{
+  "_hinweis": "Kuratierte Zuordnung zwischen Kriterien des Begutachtungsinstruments (BI, § 15 SGB XI) und Kategorien der ICF (Fassung 2005, BfArM). Es gibt keine amtliche Zuordnung; diese Kantenschicht ist eine fachliche Arbeitshilfe mit Begründung je Kante. Sie wird in data/bi.json als Kanten mit quelle \"kuratiert\" übernommen und gegen die ICF-Daten geprüft.",
+  "stand": "2026-11-16",
+  "icf_fassung": "ICF 2005 (BfArM). Kategorien aus späteren WHO-Updates, z. B. d571 \"Auf seine Sicherheit achten\" oder d250 \"Das eigene Verhalten steuern\", sind nicht enthalten.",
+  "beziehungen": {
+    "entspricht": "Die ICF-Kategorie beschreibt im Kern dieselbe Aktivität oder Fähigkeit wie das BI-Kriterium. Abweichungen im Zuschnitt stehen in der Begründung.",
+    "teilweise": "Die ICF-Kategorie deckt nur einen Teil des BI-Kriteriums ab oder ist deutlich breiter gefasst.",
+    "funktion": "Körperfunktion (b), deren Schädigung typischerweise der Beeinträchtigung im BI-Kriterium zugrunde liegt. Kein Ersatz für die Aktivitätsebene.",
+    "umwelt": "Umweltfaktor (e), der im BI-Kriterium als Kontext vorkommt (z. B. Hilfsmittel, Gesundheitsdienste)."
+  },
+  "beurteilungsmerkmale": "BI-Stufen und ICF-Beurteilungsmerkmale messen Verschiedenes und werden nicht umgerechnet. Das BI bewertet den Bedarf an personeller Hilfe bei praktischer Durchführung (Hilfsmittel eingeschlossen, ohne Personenhilfe). Das entspricht am ehesten dem ersten Beurteilungsmerkmal der ICF (Leistung im üblichen Umfeld), dessen Skala aber das Ausmaß des Problems in Prozent beschreibt, nicht die Art der Hilfe. Ein ICF-Wert muss im Einzelfall eigenständig begründet werden.",
+  "zuordnungen": [
+    { "bi": "4.1.1", "icf": [
+      { "code": "d410", "beziehung": "entspricht", "begruendung": "Elementare Körperposition wechseln, im BI beschränkt auf Positionen im Bett (Drehen, Aufrichten aus dem Liegen)." },
+      { "code": "d4201", "beziehung": "teilweise", "begruendung": "Sich beim Liegen verlagern (z. B. im Bett zur Seite rutschen) ist Teil des Positionswechsels im Bett." },
+      { "code": "d4100", "beziehung": "teilweise", "begruendung": "Sich hinlegen; das Aufstehen und Zubettgehen selbst wertet das BI unter 4.6.2." }
+    ] },
+    { "bi": "4.1.2", "icf": [
+      { "code": "d4153", "beziehung": "entspricht", "begruendung": "In sitzender Position verbleiben entspricht dem Halten einer stabilen Sitzposition." },
+      { "code": "b7303", "beziehung": "funktion", "begruendung": "Rumpfkontrolle hängt u. a. von der Kraft der Rumpf- und unteren Körpermuskulatur ab." }
+    ] },
+    { "bi": "4.1.3", "icf": [
+      { "code": "d420", "beziehung": "entspricht", "begruendung": "Sich verlagern von einer Sitzfläche auf eine andere, z. B. Rollstuhl – Toilette." },
+      { "code": "d4200", "beziehung": "entspricht", "begruendung": "Sich beim Sitzen verlagern ist der Kern des Umsetzens zwischen Sitzgelegenheiten." },
+      { "code": "d4104", "beziehung": "teilweise", "begruendung": "Aufstehen aus dem Sitzen in den Stand ist Teil des Umsetzens." }
+    ] },
+    { "bi": "4.1.4", "icf": [
+      { "code": "d4600", "beziehung": "entspricht", "begruendung": "Sich in seiner Wohnung umherbewegen; das BI legt mindestens acht Meter zugrunde und bewertet nur motorische Aspekte." },
+      { "code": "d450", "beziehung": "teilweise", "begruendung": "Gehen ist die häufigste Form der Fortbewegung im Wohnbereich." },
+      { "code": "d465", "beziehung": "teilweise", "begruendung": "Fortbewegung mit Rollator oder Rollstuhl zählt im BI als selbständig, wenn keine Personenhilfe nötig ist." }
+    ] },
+    { "bi": "4.1.5", "icf": [
+      { "code": "d4551", "beziehung": "entspricht", "begruendung": "Klettern/steigen umfasst Treppensteigen zwischen zwei Etagen." }
+    ] },
+    { "bi": "4.1.B", "icf": [
+      { "code": "b730", "beziehung": "funktion", "begruendung": "Gebrauchsunfähigkeit beider Arme und Beine, z. B. bei kompletter Lähmung aller Extremitäten." },
+      { "code": "b710", "beziehung": "funktion", "begruendung": "Hochgradige Kontrakturen und Versteifungen nennt die BRi als mögliche Ursache." },
+      { "code": "d440", "beziehung": "teilweise", "begruendung": "Vollständiger Verlust der Greiffunktion." },
+      { "code": "d450", "beziehung": "teilweise", "begruendung": "Vollständiger Verlust der Steh- und Gehfunktion." }
+    ] },
+
+    { "bi": "4.2.1", "icf": [
+      { "code": "b11421", "beziehung": "entspricht", "begruendung": "Orientierung zu anderen Personen: vertraute Personen aus dem Umfeld wiedererkennen." },
+      { "code": "b156", "beziehung": "funktion", "begruendung": "Wahrnehmungsfunktionen sind Voraussetzung des Erkennens; reine Sehstörungen wertet das BI hier aber nicht." }
+    ] },
+    { "bi": "4.2.2", "icf": [
+      { "code": "b1141", "beziehung": "entspricht", "begruendung": "Orientierung zum Ort: wissen, wo man sich befindet, und sich in der Umgebung zurechtfinden." },
+      { "code": "d460", "beziehung": "teilweise", "begruendung": "Gezieltes Ansteuern anderer Orte; die motorische Fortbewegung selbst gehört zu Modul 1." }
+    ] },
+    { "bi": "4.2.3", "icf": [
+      { "code": "b1140", "beziehung": "entspricht", "begruendung": "Orientierung zur Zeit: Tageszeit, Wochentag, Jahreszeit erkennen." }
+    ] },
+    { "bi": "4.2.4", "icf": [
+      { "code": "b144", "beziehung": "entspricht", "begruendung": "Erinnern an kurz und länger zurückliegende Ereignisse." },
+      { "code": "b1440", "beziehung": "teilweise", "begruendung": "Kurzzeitgedächtnis, z. B. was es zum Frühstück gab." },
+      { "code": "b1441", "beziehung": "teilweise", "begruendung": "Langzeitgedächtnis, z. B. wesentliche Ereignisse der eigenen Biografie." }
+    ] },
+    { "bi": "4.2.5", "icf": [
+      { "code": "d220", "beziehung": "entspricht", "begruendung": "Mehrfachaufgaben übernehmen: Handlungen mit mehreren Teilschritten in sinnvoller Reihenfolge steuern." },
+      { "code": "b1641", "beziehung": "funktion", "begruendung": "Organisieren und Planen als zugrunde liegende höhere kognitive Funktion." },
+      { "code": "d230", "beziehung": "teilweise", "begruendung": "Alltagshandlungen sind Teil der täglichen Routine; die Gestaltung des Tagesablaufs selbst wertet das BI unter 4.6.1." }
+    ] },
+    { "bi": "4.2.6", "icf": [
+      { "code": "d177", "beziehung": "entspricht", "begruendung": "Entscheidungen treffen: zwischen Optionen wählen und die Wahl umsetzen." },
+      { "code": "b1645", "beziehung": "funktion", "begruendung": "Urteilsvermögen ist Voraussetzung folgerichtiger Entscheidungen." }
+    ] },
+    { "bi": "4.2.7", "icf": [
+      { "code": "b164", "beziehung": "funktion", "begruendung": "Höhere kognitive Funktionen (Abstraktion, Verständnis) als Grundlage des Verstehens von Sachverhalten." },
+      { "code": "d163", "beziehung": "teilweise", "begruendung": "Denken: Informationen inhaltlich einordnen und Zusammenhänge erkennen." },
+      { "code": "d310", "beziehung": "teilweise", "begruendung": "Mitteilungen verstehen; das BI bewertet das inhaltliche Verständnis, nicht das Hören." }
+    ] },
+    { "bi": "4.2.8", "icf": [
+      { "code": "b1645", "beziehung": "funktion", "begruendung": "Urteilsvermögen: Gefahren wie Strom, Feuer oder Straßenverkehr einschätzen." },
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Gesundheitsrisiken vermeiden; eine eigene ICF-Kategorie für das Achten auf die eigene Sicherheit (d571) gibt es erst in späteren WHO-Fassungen." }
+    ] },
+    { "bi": "4.2.9", "icf": [
+      { "code": "d330", "beziehung": "teilweise", "begruendung": "Bedürfnisse wie Hunger, Durst, Schmerz oder Frieren verbal mitteilen." },
+      { "code": "d335", "beziehung": "teilweise", "begruendung": "Bedürfnisse nonverbal mitteilen (Gestik, Mimik); das BI berücksichtigt beides." }
+    ] },
+    { "bi": "4.2.10", "icf": [
+      { "code": "d310", "beziehung": "entspricht", "begruendung": "Gesprochene Aufforderungen zu alltäglichen Grundbedürfnissen verstehen." },
+      { "code": "d315", "beziehung": "teilweise", "begruendung": "Aufforderungen über Gesten oder Zeichen verstehen." }
+    ] },
+    { "bi": "4.2.11", "icf": [
+      { "code": "d350", "beziehung": "entspricht", "begruendung": "Konversation: Gesprächsinhalte aufnehmen, sinngerecht antworten, Inhalte einbringen." }
+    ] },
+
+    { "bi": "4.3.1", "icf": [
+      { "code": "b147", "beziehung": "funktion", "begruendung": "Psychomotorische Funktionen; Unruhe, zielloses Umhergehen und Weglauftendenz." },
+      { "code": "b1470", "beziehung": "funktion", "begruendung": "Psychomotorische Kontrolle (Agitiertheit)." }
+    ] },
+    { "bi": "4.3.2", "icf": [
+      { "code": "b1344", "beziehung": "funktion", "begruendung": "Schlafzyklus: Umkehr des Tag-Nacht-Rhythmus." },
+      { "code": "b147", "beziehung": "funktion", "begruendung": "Nächtliches Umherirren als psychomotorische Unruhe. Einschlafstörungen werden im BI nicht hier gewertet." }
+    ] },
+    { "bi": "4.3.3", "icf": [
+      { "code": "b1304", "beziehung": "funktion", "begruendung": "Impulskontrolle bei selbstschädigendem Verhalten." },
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Gesundheitsrisiken vermeiden, z. B. keine ungenießbaren Substanzen zu sich nehmen." }
+    ] },
+    { "bi": "4.3.4", "icf": [
+      { "code": "b1304", "beziehung": "funktion", "begruendung": "Aggressive, auf Gegenstände gerichtete Handlungsimpulse." }
+    ] },
+    { "bi": "4.3.5", "icf": [
+      { "code": "d7202", "beziehung": "entspricht", "begruendung": "Verhalten in Beziehungen regulieren schließt physische Aggression ausdrücklich ein." },
+      { "code": "b1304", "beziehung": "funktion", "begruendung": "Impulskontrolle." }
+    ] },
+    { "bi": "4.3.6", "icf": [
+      { "code": "d7202", "beziehung": "entspricht", "begruendung": "Verhalten in Beziehungen regulieren schließt verbale Aggression ausdrücklich ein." },
+      { "code": "b1304", "beziehung": "funktion", "begruendung": "Impulskontrolle." }
+    ] },
+    { "bi": "4.3.7", "icf": [
+      { "code": "d7203", "beziehung": "teilweise", "begruendung": "Lautes Rufen, Schreien, Klagen oder ständiges Wiederholen widersprechen sozialen Regeln der Interaktion." },
+      { "code": "b147", "beziehung": "funktion", "begruendung": "Vokale Unruhe als psychomotorisches Phänomen." }
+    ] },
+    { "bi": "4.3.8", "icf": [
+      { "code": "d7202", "beziehung": "teilweise", "begruendung": "Abwehr von Pflege, Nahrung oder Medikamenten als Problem der Verhaltensregulation in der Pflegebeziehung." },
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Medizinischem Rat folgen; Abwehr kann die Gesundheitserhaltung gefährden." }
+    ] },
+    { "bi": "4.3.9", "icf": [
+      { "code": "b1602", "beziehung": "funktion", "begruendung": "Inhalt des Denkens: Wahnvorstellungen." },
+      { "code": "b156", "beziehung": "funktion", "begruendung": "Wahrnehmungsstörungen (Halluzinationen) treten oft gemeinsam auf." }
+    ] },
+    { "bi": "4.3.10", "icf": [
+      { "code": "b152", "beziehung": "funktion", "begruendung": "Emotionale Funktionen: Ängste, Panikattacken." },
+      { "code": "d240", "beziehung": "teilweise", "begruendung": "Mit Stress und psychischen Anforderungen umgehen." }
+    ] },
+    { "bi": "4.3.11", "icf": [
+      { "code": "b1300", "beziehung": "funktion", "begruendung": "Ausmaß der psychischen Energie: Antriebslosigkeit." },
+      { "code": "b1301", "beziehung": "funktion", "begruendung": "Motivation: kaum Interesse, keine Eigeninitiative." },
+      { "code": "b152", "beziehung": "funktion", "begruendung": "Depressive Stimmungslage." }
+    ] },
+    { "bi": "4.3.12", "icf": [
+      { "code": "d7203", "beziehung": "entspricht", "begruendung": "Sozialen Regeln gemäß interagieren; distanzloses, unangemessenes Verhalten." },
+      { "code": "d720", "beziehung": "teilweise", "begruendung": "Komplexe interpersonelle Interaktionen." }
+    ] },
+    { "bi": "4.3.13", "icf": [
+      { "code": "b1304", "beziehung": "funktion", "begruendung": "Unangemessene Handlungen ohne Selbststeuerung, z. B. Horten, Urinieren in die Wohnung." },
+      { "code": "b164", "beziehung": "funktion", "begruendung": "Höhere kognitive Funktionen, wenn Handlungen nicht situationsgerecht geplant werden." }
+    ] },
+
+    { "bi": "4.4.0", "icf": [
+      { "code": "b510", "beziehung": "funktion", "begruendung": "Funktionen der Nahrungsaufnahme: Trinkschwäche, Schluckstörungen." },
+      { "code": "b5105", "beziehung": "funktion", "begruendung": "Schlucken." },
+      { "code": "d550", "beziehung": "teilweise", "begruendung": "Essen bei Säuglingen und Kleinkindern mit außergewöhnlich pflegeintensivem Hilfebedarf." },
+      { "code": "d560", "beziehung": "teilweise", "begruendung": "Trinken bei Säuglingen und Kleinkindern." }
+    ] },
+    { "bi": "4.4.1", "icf": [
+      { "code": "d5100", "beziehung": "entspricht", "begruendung": "Körperteile waschen: Hände, Gesicht, Arme, Achseln, Hals und Brust." },
+      { "code": "d5102", "beziehung": "teilweise", "begruendung": "Sich abtrocknen gehört im BI zum Waschen dazu." }
+    ] },
+    { "bi": "4.4.2", "icf": [
+      { "code": "d520", "beziehung": "entspricht", "begruendung": "Körperteile pflegen über das Waschen hinaus: Kämmen, Zahnpflege, Rasieren." },
+      { "code": "d5201", "beziehung": "teilweise", "begruendung": "Zahnpflege und Prothesenreinigung." },
+      { "code": "d5202", "beziehung": "teilweise", "begruendung": "Haare kämmen." }
+    ] },
+    { "bi": "4.4.3", "icf": [
+      { "code": "d5100", "beziehung": "teilweise", "begruendung": "Körperteile waschen, hier den Intimbereich." },
+      { "code": "d5102", "beziehung": "teilweise", "begruendung": "Abtrocknen des Intimbereichs." }
+    ] },
+    { "bi": "4.4.4", "icf": [
+      { "code": "d5101", "beziehung": "entspricht", "begruendung": "Den ganzen Körper waschen (Duschen, Baden)." },
+      { "code": "d5202", "beziehung": "teilweise", "begruendung": "Haarwäsche ist im BI-Kriterium eingeschlossen." },
+      { "code": "d5102", "beziehung": "teilweise", "begruendung": "Abtrocknen." }
+    ] },
+    { "bi": "4.4.5", "icf": [
+      { "code": "d5400", "beziehung": "teilweise", "begruendung": "Kleidung anziehen, hier Oberkörper." },
+      { "code": "d5401", "beziehung": "teilweise", "begruendung": "Kleidung ausziehen, hier Oberkörper." }
+    ] },
+    { "bi": "4.4.6", "icf": [
+      { "code": "d5400", "beziehung": "teilweise", "begruendung": "Kleidung anziehen, hier Unterkörper." },
+      { "code": "d5401", "beziehung": "teilweise", "begruendung": "Kleidung ausziehen, hier Unterkörper." },
+      { "code": "d5402", "beziehung": "teilweise", "begruendung": "Schuhe und Strümpfe anziehen." },
+      { "code": "d5403", "beziehung": "teilweise", "begruendung": "Schuhe und Strümpfe ausziehen." }
+    ] },
+    { "bi": "4.4.7", "icf": [
+      { "code": "d550", "beziehung": "teilweise", "begruendung": "Die ICF zählt das Schneiden der Nahrung zu d550 Essen; das BI wertet es getrennt unter 4.4.7." },
+      { "code": "d560", "beziehung": "teilweise", "begruendung": "Die ICF zählt das Eingießen von Getränken zu d560 Trinken; das BI wertet es getrennt unter 4.4.7." }
+    ] },
+    { "bi": "4.4.8", "icf": [
+      { "code": "d550", "beziehung": "entspricht", "begruendung": "Bereitgestellte, mundgerecht zubereitete Speisen zum Mund führen und essen. Das Zerkleinern gehört in der ICF ebenfalls zu d550, im BI zu 4.4.7." },
+      { "code": "b510", "beziehung": "funktion", "begruendung": "Funktionen der Nahrungsaufnahme (Kauen, Schlucken)." }
+    ] },
+    { "bi": "4.4.9", "icf": [
+      { "code": "d560", "beziehung": "entspricht", "begruendung": "Bereitstehende Getränke aufnehmen und trinken. Das Eingießen gehört in der ICF ebenfalls zu d560, im BI zu 4.4.7." }
+    ] },
+    { "bi": "4.4.10", "icf": [
+      { "code": "d530", "beziehung": "entspricht", "begruendung": "Die Toilette benutzen einschließlich Intimhygiene." },
+      { "code": "d420", "beziehung": "teilweise", "begruendung": "Hinsetzen und Aufstehen von der Toilette." },
+      { "code": "d5400", "beziehung": "teilweise", "begruendung": "Richten der Kleidung." }
+    ] },
+    { "bi": "4.4.11", "icf": [
+      { "code": "d5300", "beziehung": "teilweise", "begruendung": "Belange der Blasenentleerung regulieren, hier Umgang mit Inkontinenzmaterial, Dauerkatheter und Urostoma." },
+      { "code": "b6202", "beziehung": "funktion", "begruendung": "Harnkontinenz; das BI-Kriterium zählt nur bei überwiegender oder kompletter Inkontinenz oder künstlicher Ableitung." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Inkontinenzhilfsmittel und Kathetersysteme." }
+    ] },
+    { "bi": "4.4.12", "icf": [
+      { "code": "d5301", "beziehung": "teilweise", "begruendung": "Belange der Darmentleerung regulieren, hier Umgang mit Inkontinenzmaterial und Stoma." },
+      { "code": "b5253", "beziehung": "funktion", "begruendung": "Stuhlkontinenz; das BI-Kriterium zählt nur bei überwiegender oder kompletter Inkontinenz oder Stoma." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Inkontinenzhilfsmittel und Stomaversorgung." }
+    ] },
+    { "bi": "4.4.13", "icf": [
+      { "code": "b510", "beziehung": "funktion", "begruendung": "Eingeschränkte orale Nahrungsaufnahme als Grund für parenterale oder Sondenernährung." },
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Ärztlich angeordnete Ernährungstherapie durchführen." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Port, PEG, PEJ, Magensonde und Ernährungspumpe." }
+    ] },
+
+    { "bi": "4.5.1", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Seine Gesundheit erhalten schließt das Befolgen ärztlicher Anordnungen ein, hier die Medikamenteneinnahme." }
+    ] },
+    { "bi": "4.5.2", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Ärztlich angeordnete Injektionen und subkutane Infusionen, z. B. Insulin." }
+    ] },
+    { "bi": "4.5.3", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Versorgung venöser Zugänge und Ports." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Port- und Kathetersysteme." }
+    ] },
+    { "bi": "4.5.4", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Absaugen, Sauerstoffgabe, Atemmasken." },
+      { "code": "b440", "beziehung": "funktion", "begruendung": "Atmungsfunktionen." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Absauggerät, Sauerstoffversorgung, Inhalationsgerät." }
+    ] },
+    { "bi": "4.5.5", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Ärztlich angeordnete Salben, Kälte- und Wärmeanwendungen." }
+    ] },
+    { "bi": "4.5.6", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Messung und Deutung von Körperzuständen, z. B. Blutzucker, Blutdruck." }
+    ] },
+    { "bi": "4.5.7", "icf": [
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "An- und Ablegen sowie Reinigung von Prothesen, Orthesen, Hörgeräten, Kompressionsstrümpfen." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Prothesen, Orthesen, Seh- und Hörhilfen." }
+    ] },
+    { "bi": "4.5.8", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Versorgung chronischer Wunden." },
+      { "code": "b820", "beziehung": "funktion", "begruendung": "Heilfunktion der Haut." },
+      { "code": "b810", "beziehung": "funktion", "begruendung": "Schutzfunktionen der Haut (z. B. Dekubitus)." }
+    ] },
+    { "bi": "4.5.9", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Pflege künstlicher Körperöffnungen (Tracheostoma, PEG-Eintrittsstelle, Stoma)." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Stomaversorgung." }
+    ] },
+    { "bi": "4.5.10", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Regelmäßige Einmalkatheterisierung und Abführmethoden." },
+      { "code": "b620", "beziehung": "funktion", "begruendung": "Miktionsfunktionen." },
+      { "code": "b525", "beziehung": "funktion", "begruendung": "Defäkationsfunktionen." }
+    ] },
+    { "bi": "4.5.11", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Eigenübungen aus Heilmitteltherapie, Sekretelimination, Peritonealdialyse zu Hause." }
+    ] },
+    { "bi": "4.5.12", "icf": [
+      { "code": "d5702", "beziehung": "entspricht", "begruendung": "Zeit- und technikintensive Maßnahmen, z. B. Heimbeatmung, Hämodialyse." },
+      { "code": "b440", "beziehung": "funktion", "begruendung": "Atmungsfunktionen bei invasiver Beatmung." },
+      { "code": "e1151", "beziehung": "umwelt", "begruendung": "Beatmungs- und Dialysegeräte." }
+    ] },
+    { "bi": "4.5.13", "icf": [
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Professionelle Hilfe in Anspruch nehmen; das BI wertet den Unterstützungsbedarf beim Arztbesuch." },
+      { "code": "e5800", "beziehung": "umwelt", "begruendung": "Dienste des Gesundheitswesens (niedergelassene Ärztinnen und Ärzte)." },
+      { "code": "d470", "beziehung": "teilweise", "begruendung": "Transportmittel benutzen, um die Praxis zu erreichen." }
+    ] },
+    { "bi": "4.5.14", "icf": [
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Therapeutische oder medizinische Einrichtungen aufsuchen (bis drei Stunden)." },
+      { "code": "e5800", "beziehung": "umwelt", "begruendung": "Dienste des Gesundheitswesens." }
+    ] },
+    { "bi": "4.5.15", "icf": [
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Zeitlich ausgedehnte Besuche, z. B. Dialyse, Chemotherapie (länger als drei Stunden)." },
+      { "code": "e5800", "beziehung": "umwelt", "begruendung": "Dienste des Gesundheitswesens." }
+    ] },
+    { "bi": "4.5.K", "icf": [
+      { "code": "e5800", "beziehung": "umwelt", "begruendung": "Frühförderung als Dienst des Gesundheitswesens (interdisziplinäre Frühförderstellen, sozialpädiatrische Zentren)." },
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Inanspruchnahme therapeutischer Hilfe." }
+    ] },
+    { "bi": "4.5.16", "icf": [
+      { "code": "d5701", "beziehung": "teilweise", "begruendung": "Ernährung handhaben, hier ärztlich angeordnete Diäten." },
+      { "code": "d5702", "beziehung": "teilweise", "begruendung": "Medizinischem Rat folgen, hier Verhaltensvorschriften zu vitalen Funktionen." },
+      { "code": "b1644", "beziehung": "funktion", "begruendung": "Das BI bewertet die Einsichtsfähigkeit; das entspricht dem Einsichtsvermögen." }
+    ] },
+
+    { "bi": "4.6.1", "icf": [
+      { "code": "d230", "beziehung": "entspricht", "begruendung": "Die tägliche Routine durchführen: Tagesablauf planen und an Veränderungen anpassen." },
+      { "code": "d2301", "beziehung": "teilweise", "begruendung": "Die tägliche Routine planen; das BI bewertet die planerische Fähigkeit, nicht die Umsetzung." }
+    ] },
+    { "bi": "4.6.2", "icf": [
+      { "code": "b134", "beziehung": "funktion", "begruendung": "Funktionen des Schlafes, Tag-Nacht-Rhythmus." },
+      { "code": "d2303", "beziehung": "teilweise", "begruendung": "Das eigene Aktivitätsniveau handhaben, Ruhephasen einhalten." },
+      { "code": "d4100", "beziehung": "teilweise", "begruendung": "Zubettgehen und Aufstehen, die das BI hier und nicht unter 4.1.1 wertet." }
+    ] },
+    { "bi": "4.6.3", "icf": [
+      { "code": "d920", "beziehung": "entspricht", "begruendung": "Erholung und Freizeit: verfügbare Zeit nach eigenen Vorlieben nutzen." }
+    ] },
+    { "bi": "4.6.4", "icf": [
+      { "code": "b1641", "beziehung": "funktion", "begruendung": "Organisieren und Planen über den Tag hinaus." },
+      { "code": "d2301", "beziehung": "teilweise", "begruendung": "Planung; das BI meint längere Zeitabschnitte, die ICF-Kategorie die tägliche Routine." }
+    ] },
+    { "bi": "4.6.5", "icf": [
+      { "code": "d710", "beziehung": "entspricht", "begruendung": "Elementare interpersonelle Aktivitäten: Kontakt aufnehmen, ansprechen, auf Ansprache reagieren." }
+    ] },
+    { "bi": "4.6.6", "icf": [
+      { "code": "d750", "beziehung": "entspricht", "begruendung": "Informelle soziale Beziehungen zu Freunden, Bekannten, Nachbarn aufrechterhalten." },
+      { "code": "d760", "beziehung": "teilweise", "begruendung": "Kontakte zu Familienangehörigen außerhalb des direkten Umfelds." },
+      { "code": "d3600", "beziehung": "teilweise", "begruendung": "Kontaktpflege über Telefon oder andere Telekommunikation." }
+    ] },
+
+    { "bi": "6.1.1", "icf": [
+      { "code": "d4602", "beziehung": "teilweise", "begruendung": "Von den Wohnräumen bis vor das Haus gelangen." },
+      { "code": "d4551", "beziehung": "teilweise", "begruendung": "Treppen im Treppenhaus." }
+    ] },
+    { "bi": "6.1.2", "icf": [
+      { "code": "d4602", "beziehung": "entspricht", "begruendung": "Sich außerhalb der Wohnung in einem Radius von etwa 500 m sicher und zielgerichtet bewegen." },
+      { "code": "d4500", "beziehung": "teilweise", "begruendung": "Kurze Entfernungen gehen." },
+      { "code": "d465", "beziehung": "teilweise", "begruendung": "Fortbewegung mit Rollator oder Rollstuhl." }
+    ] },
+    { "bi": "6.1.3", "icf": [
+      { "code": "d4702", "beziehung": "entspricht", "begruendung": "Öffentliches, motorisiertes Verkehrsmittel benutzen: ein- und an der richtigen Haltestelle aussteigen." }
+    ] },
+    { "bi": "6.1.4", "icf": [
+      { "code": "d4701", "beziehung": "entspricht", "begruendung": "Privates, motorisiertes Fahrzeug benutzen, hier als Mitfahrerin oder Mitfahrer." }
+    ] },
+    { "bi": "6.1.5", "icf": [
+      { "code": "d920", "beziehung": "teilweise", "begruendung": "Erholung und Freizeit, insbesondere d9201 Sport und d9202 Kunst und Kultur." },
+      { "code": "d930", "beziehung": "teilweise", "begruendung": "Religiöse Veranstaltungen." }
+    ] },
+    { "bi": "6.1.6", "icf": [
+      { "code": "d850", "beziehung": "teilweise", "begruendung": "Besuch des Arbeitsplatzes." },
+      { "code": "d855", "beziehung": "teilweise", "begruendung": "Werkstatt für Menschen mit Behinderungen bzw. unbezahlte Beschäftigung." },
+      { "code": "d820", "beziehung": "teilweise", "begruendung": "Kinder: Besuch der Schule." },
+      { "code": "d815", "beziehung": "teilweise", "begruendung": "Kinder: Besuch des Kindergartens." }
+    ] },
+    { "bi": "6.1.7", "icf": [
+      { "code": "d910", "beziehung": "entspricht", "begruendung": "Gemeinschaftsleben: Vereine, Seniorentreffs und andere Aktivitäten mit anderen Menschen." }
+    ] },
+    { "bi": "6.2.1", "icf": [
+      { "code": "d6200", "beziehung": "entspricht", "begruendung": "Einkaufen für den täglichen Bedarf." }
+    ] },
+    { "bi": "6.2.2", "icf": [
+      { "code": "d6300", "beziehung": "entspricht", "begruendung": "Einfache Mahlzeiten vorbereiten oder Fertiggerichte erwärmen." }
+    ] },
+    { "bi": "6.2.3", "icf": [
+      { "code": "d6402", "beziehung": "teilweise", "begruendung": "Den Wohnbereich reinigen, hier körperlich leichte Tätigkeiten wie Aufräumen und Staubwischen." },
+      { "code": "d640", "beziehung": "teilweise", "begruendung": "Hausarbeiten erledigen." }
+    ] },
+    { "bi": "6.2.4", "icf": [
+      { "code": "d6400", "beziehung": "teilweise", "begruendung": "Kleidung und Wäsche waschen und trocknen." },
+      { "code": "d6402", "beziehung": "teilweise", "begruendung": "Körperlich schwere Reinigungsarbeiten, z. B. Fenster putzen, Böden wischen." }
+    ] },
+    { "bi": "6.2.5", "icf": [
+      { "code": "d620", "beziehung": "teilweise", "begruendung": "Waren und Dienstleistungen beschaffen, hier pflegerische oder haushaltsnahe Dienste organisieren." },
+      { "code": "e5750", "beziehung": "umwelt", "begruendung": "Dienste der allgemeinen sozialen Unterstützung." }
+    ] },
+    { "bi": "6.2.6", "icf": [
+      { "code": "d860", "beziehung": "entspricht", "begruendung": "Elementare wirtschaftliche Transaktionen: alltägliche Geldangelegenheiten." },
+      { "code": "d865", "beziehung": "teilweise", "begruendung": "Komplexe wirtschaftliche Transaktionen, z. B. Bankkonto führen." }
+    ] },
+    { "bi": "6.2.7", "icf": [
+      { "code": "e570", "beziehung": "umwelt", "begruendung": "Dienste der sozialen Sicherheit (Sozialversicherungsträger). Eine eigene ICF-Aktivität für Behördenangelegenheiten gibt es nicht." },
+      { "code": "d177", "beziehung": "teilweise", "begruendung": "Entscheidungen treffen, z. B. Anträge stellen und Bescheide einordnen." },
+      { "code": "d865", "beziehung": "teilweise", "begruendung": "Komplexe Transaktionen wie Formulare und Verträge." }
+    ] }
+  ]
+}
