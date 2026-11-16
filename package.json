@@ -1,6 +1,6 @@
 {
   "name": "icf-icd-mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "MCP-Server für die deutsche ICF und die ICD-10-GM",
   "private": true,
   "type": "module",

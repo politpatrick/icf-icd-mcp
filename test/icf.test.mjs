@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { handleMessage } from "../src/protocol.mjs";
 
@@ -14,6 +15,9 @@ test("initialize handelt die Protokollversion aus", () => {
   const known = handleMessage({ jsonrpc: "2.0", id: 1, method: "initialize", params: { protocolVersion: "2025-03-26" } });
   assert.equal(known.result.protocolVersion, "2025-03-26");
   assert.equal(known.result.serverInfo.name, "icf");
+  // Die gemeldete Server-Version muss zur package.json passen
+  const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8"));
+  assert.equal(known.result.serverInfo.version, pkg.version);
   const unknown = handleMessage({ jsonrpc: "2.0", id: 2, method: "initialize", params: { protocolVersion: "1999-01-01" } });
   assert.equal(unknown.result.protocolVersion, "2025-06-18");
 });
