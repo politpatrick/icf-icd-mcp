@@ -7,7 +7,7 @@ import { LookupError } from "./text.mjs";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
-const SERVER_INFO = { name: "icf", title: "ICF und ICD-10-GM (Deutsch)", version: "1.2.0" };
+const SERVER_INFO = { name: "icf", title: "ICF und ICD-10-GM (Deutsch)", version: "1.2.1" };
 
 const INSTRUCTIONS = `Zugriff auf die deutsche ICF (Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit, WHO/BfArM 2005)
 und die ${icd.ICD_VERSION} (Diagnosen, Systematisches Verzeichnis des BfArM).

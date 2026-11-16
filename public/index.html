@@ -40,9 +40,10 @@
     </ul>
 
     <h2>Tools</h2>
-    <ul>
-      <li>ICF: <code>icf_search</code>, <code>icf_get_code</code>, <code>icf_list_chapters</code>, <code>icf_get_related</code>, <code>icf_get_qualifiers</code>, <code>icf_interpret_coding</code></li>
-      <li>ICD-10-GM 2026: <code>icd_search</code>, <code>icd_get_code</code>, <code>icd_list_chapters</code>, <code>icd_check_code</code></li>
+    <p class="lead" id="version">Version wird abgerufen …</p>
+    <ul id="tools">
+      <li>ICF: <code>icf_search</code>, <code>icf_get_code</code>, <code>icf_list_chapters</code>, <code>icf_get_related</code>, <code>icf_compare</code>, <code>icf_get_qualifiers</code>, <code>icf_interpret_coding</code></li>
+      <li>ICD-10-GM 2026: <code>icd_search</code>, <code>icd_get_code</code>, <code>icd_list_chapters</code>, <code>icd_check_code</code>, <code>icd_relations</code>, <code>icd_compare</code></li>
     </ul>
 
     <footer>
@@ -57,6 +58,37 @@
     const url = location.origin + "/mcp";
     document.getElementById("endpoint").textContent = url;
     document.getElementById("cc").textContent = "claude mcp add --transport http icf-icd " + url;
+
+    // Version und Tools direkt vom Server, damit die Seite nie veraltet
+    const rpc = (id, method, params = {}) =>
+      fetch(url, {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json, text/event-stream" },
+        body: JSON.stringify({ jsonrpc: "2.0", id, method, params }),
+      }).then((r) => r.json()).then((r) => r.result);
+
+    (async () => {
+      const versionEl = document.getElementById("version");
+      try {
+        const [init, list] = await Promise.all([
+          rpc(1, "initialize", { protocolVersion: "2025-06-18" }),
+          rpc(2, "tools/list"),
+        ]);
+        versionEl.textContent = `Version ${init.serverInfo.version} · ${list.tools.length} Tools, live vom Server abgefragt`;
+        const toolsEl = document.getElementById("tools");
+        toolsEl.replaceChildren(
+          ...list.tools.map((tool) => {
+            const li = document.createElement("li");
+            const code = document.createElement("code");
+            code.textContent = tool.name;
+            li.append(code, ` – ${tool.title ?? ""}`);
+            return li;
+          })
+        );
+      } catch {
+        versionEl.textContent = "Version konnte nicht abgerufen werden.";
+      }
+    })();
   </script>
 </body>
 </html>
