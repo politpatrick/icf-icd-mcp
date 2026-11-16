@@ -1,11 +1,12 @@
 # ICF-ICD-MCP
 
-MCP-Server für zwei amtliche Klassifikationen in deutscher Fassung des BfArM:
+MCP-Server für zwei amtliche Klassifikationen in deutscher Fassung des BfArM und das Begutachtungsinstrument der Pflegeversicherung:
 
 - **ICF**: Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit (WHO, Stand 2005)
 - **ICD-10-GM 2026**: Internationale statistische Klassifikation der Krankheiten, German Modification
+- **Begutachtungsinstrument nach § 15 SGB XI**: Module, Kriterien und Formulargutachten nach den Begutachtungs-Richtlinien 2026, mit Pflegegrad-Rechner
 
-Damit können Claude und andere MCP-Clients Diagnosen und ICF-Kategorien suchen, nachschlagen und Kodierungen prüfen, etwa für Teilhabeplanung, Gesamtplanverfahren oder Berichte.
+Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien und Kriterien der Pflegebegutachtung suchen, nachschlagen und Kodierungen prüfen, etwa für Teilhabeplanung, Gesamtplanverfahren, Pflegegrad-Widersprüche oder Berichte.
 
 - Keine Abhängigkeiten, nur Node.js ≥ 18
 - Läuft lokal, sendet keine Daten nach außen
@@ -53,12 +54,12 @@ Ausschlüsse einer Oberklasse gelten für alle untergeordneten Kodes. Deshalb ze
 
 Eine amtliche Zuordnung zwischen ICD und ICF gibt es nicht. Das Netz verbindet daher nur Kodes innerhalb einer Klassifikation.
 
-## Begutachtungsinstrument nach § 15 SGB XI (optional, standardmäßig aus)
+## Begutachtungsinstrument nach § 15 SGB XI
 
-Ein drittes Wissensnetz bildet das Begutachtungsinstrument der Pflegebegutachtung ab, auf Grundlage der Begutachtungs-Richtlinien (BRi) des Medizinischen Dienstes Bund, gültig ab 01.10.2026. Es ist **standardmäßig abgeschaltet**, damit der öffentliche Endpunkt unverändert bleibt. Aktiviert wird es mit der Umgebungsvariable `ICF_MCP_BI=1`:
+Ein drittes Wissensnetz bildet das Begutachtungsinstrument der Pflegebegutachtung ab, auf Grundlage der Begutachtungs-Richtlinien (BRi) des Medizinischen Dienstes Bund, gültig ab 01.10.2026. Es ist standardmäßig eingeschaltet. Wer nur ICF und ICD-10-GM braucht, schaltet es mit der Umgebungsvariable `ICF_MCP_BI=0` ab:
 
 ```bash
-claude mcp add icf-icd -e ICF_MCP_BI=1 -- node ~/GitHub/icf-icd-mcp/src/server.mjs
+claude mcp add icf-icd -e ICF_MCP_BI=0 -- node ~/GitHub/icf-icd-mcp/src/server.mjs
 ```
 
 **Kennungen** folgen den Ziffern des Formulargutachtens mit dem Präfix `BI:`, damit sie nicht mit ICF- oder ICD-Kodes kollidieren: `BI:4.1` bis `BI:4.6` sind die Module 1–6, `BI:4.1.3` ist das Kriterium „Umsetzen“, `BI:1.1` bis `BI:9` sind die übrigen Abschnitte und Felder (F1–F9). `F 4.1.3` und `KF 4.1.3` (Kinderfassung) werden ebenfalls verstanden. Der Formularkopf hat in den BRi keine Ziffern; dort sind die Kennungen `BI:K.1` bis `BI:K.6` vergeben.
@@ -152,7 +153,7 @@ src/                 MCP-Server
   icf.mjs            ICF: Datenzugriff und Abfragelogik
   icd.mjs            ICD-10-GM: Datenzugriff und Abfragelogik
   bi.mjs             Begutachtungsinstrument SGB XI: Wissensnetz, Kodierung, Pflegegrad-Rechner
-  bi_tools.mjs       Tool-Definitionen für bi.mjs (nur mit ICF_MCP_BI=1)
+  bi_tools.mjs       Tool-Definitionen für bi.mjs (abschaltbar mit ICF_MCP_BI=0)
   data.mjs           Lädt die JSON-Daten (lokal und in Netlify Functions)
   graph.mjs          Wissensnetz: Kanten, Rückverweise, Bereiche, kürzeste Wege
   text.mjs           Gemeinsame Hilfen (Suche, Fehler)

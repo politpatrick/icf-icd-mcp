@@ -1,13 +1,13 @@
-// Tool-Definitionen für das Begutachtungsinstrument (SGB XI). Standardmäßig abgeschaltet:
-// Aktivieren mit der Umgebungsvariable ICF_MCP_BI=1. So bleibt der öffentliche Endpunkt unverändert,
-// bis entschieden ist, ob das BI dauerhaft Teil dieses Servers wird.
+// Tool-Definitionen für das Begutachtungsinstrument (SGB XI). Standardmäßig eingeschaltet;
+// abschalten lässt es sich mit der Umgebungsvariable ICF_MCP_BI=0 (dann nur ICF und ICD-10-GM).
 
-export const BI_ENABLED = ["1", "true", "ja", "on"].includes(String(process.env.ICF_MCP_BI ?? "").toLowerCase());
+import * as biModule from "./bi.mjs";
+
+export const BI_ENABLED = !["0", "false", "nein", "off"].includes(String(process.env.ICF_MCP_BI ?? "").toLowerCase());
 
 const readOnly = { readOnlyHint: true, openWorldHint: false };
 
-// Laden erst bei Aktivierung, damit der Server ohne data/bi.json startet
-const bi = BI_ENABLED ? await import("./bi.mjs") : null;
+const bi = BI_ENABLED ? biModule : null;
 
 const codeProp = {
   type: "string",

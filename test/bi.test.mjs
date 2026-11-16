@@ -1,8 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-// Das BI-Modul ist standardmäßig abgeschaltet; für diese Tests aktivieren (eigener Prozess je Testdatei)
-process.env.ICF_MCP_BI = "1";
 const { handleMessage } = await import("../src/protocol.mjs");
 const bi = await import("../src/bi.mjs");
 const { readData } = await import("../src/data.mjs");
@@ -13,7 +11,7 @@ function call(name, args) {
   return reply.result.isError ? { error: reply.result.content[0].text } : JSON.parse(reply.result.content[0].text);
 }
 
-test("BI-Tools erscheinen nur bei aktivierter Umgebungsvariable", () => {
+test("BI-Tools sind standardmäßig aktiv", () => {
   const { tools } = handleMessage({ jsonrpc: "2.0", id: 1, method: "tools/list" }).result;
   const names = tools.map((t) => t.name).filter((n) => n.startsWith("bi_"));
   assert.deepEqual(names.sort(), [
@@ -165,4 +163,19 @@ test("Kinder bis 18 Monate: 4.4.0 mit 20 Punkten und Einstufung einen Grad höhe
   // Module 1, 2 und 6 werden nicht bewertet
   const ohne = bi.calculate({ alter_monate: 10, werte: { "4.1.1": 3, "4.2.1": 3, "4.6.5": 3 } });
   assert.equal(ohne.gesamtpunkte, 0);
+});
+
+test("ICF_MCP_BI=0 schaltet das BI-Modul ab", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const run = (env) =>
+    JSON.parse(
+      spawnSync(process.execPath, ["src/server.mjs"], {
+        input: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) + "\n",
+        env: { ...process.env, ...env },
+        cwd: new URL("..", import.meta.url).pathname,
+        encoding: "utf-8",
+      }).stdout
+    ).result.tools.map((t) => t.name);
+  assert.ok(run({}).includes("bi_calculate"));
+  assert.ok(!run({ ICF_MCP_BI: "0" }).some((n) => n.startsWith("bi_")));
 });
