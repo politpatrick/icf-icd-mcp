@@ -14,7 +14,7 @@ Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien, Kriterien
 - ICF: 1.495 Kategorien (b, s, d, e) mit Beschreibungen, Ein-/Ausschlüssen und Beurteilungsmerkmalen
 - ICD-10-GM: 17.177 Klassen, darunter alle über Subklassifikationen gebildeten Kodes (z. B. E11.90, G82.30), mit Kodierregeln nach §295/§301
 - Alphabetisches Verzeichnis der ICD-10-GM: 89.304 Diagnosetexte mit Synonymen und Laienbegriffen (z. B. „Ziegenpeter“ → B26.9), 309 Verweise und 19.352 Orpha-Kennnummern für seltene Erkrankungen aus der Datei Alpha-ID-SE
-- VersMedV: 356 Abschnitte (Teile A–D), 767 GdS-Zeilen mit Pfad und Fundstelle, 6 Sondertabellen und 330 Stichwörter aus dem amtlichen Stichwortverzeichnis
+- VersMedV: 356 Abschnitte (Teile A–D), 767 GdS-Zeilen mit Pfad und Fundstelle, 6 Sondertabellen und 330 Stichwörter aus dem Stichwortverzeichnis der BMAS-Broschüre K710 (redaktionelle Beigabe, nicht Teil der Verordnung)
 
 ## Tools
 
@@ -108,7 +108,7 @@ python3 scripts/bi_to_json.py
 
 ## Versorgungsmedizinische Grundsätze (VersMedV)
 
-Ein viertes Modul gibt die Versorgungsmedizinischen Grundsätze (Anlage zu § 2 der Versorgungsmedizin-Verordnung) im amtlichen Wortlaut wieder: Teil A (gemeinsame Grundsätze), Teil B (GdS-Tabelle), Teil C (Merkzeichen) und Teil D (Hilflosigkeit, Gehbehinderung u. a.). Stand der Fassung: „Zuletzt geändert durch Art. 1 V v. 29.9.2025 I Nr. 228“. Das Modul ist standardmäßig eingeschaltet und lässt sich mit der Umgebungsvariable `ICF_MCP_VMG=0` abschalten:
+Ein viertes Modul gibt die Versorgungsmedizinischen Grundsätze (Anlage zu § 2 der Versorgungsmedizin-Verordnung) im amtlichen Wortlaut wieder: Teil A (gemeinsame Grundsätze), Teil B (GdS-Tabelle), Teil C (Begutachtung im Sozialen Entschädigungsrecht) und Teil D (Merkzeichen; Hilflosigkeit steht in Teil A Nr. 4 und 5). Stand der Fassung: „Zuletzt geändert durch Art. 1 V v. 29.9.2025 I Nr. 228“. Das Modul ist standardmäßig eingeschaltet und lässt sich mit der Umgebungsvariable `ICF_MCP_VMG=0` abschalten:
 
 ```bash
 claude mcp add icf-icd -e ICF_MCP_VMG=0 -- node ~/GitHub/icf-icd-mcp/src/server.mjs
@@ -118,7 +118,7 @@ claude mcp add icf-icd -e ICF_MCP_VMG=0 -- node ~/GitHub/icf-icd-mcp/src/server.
 
 | Tool | Zweck |
 | --- | --- |
-| `vmg_list_structure` | Gliederung der Anlage (Teile A–D mit Nummern und Titeln), optional ab einer Kennung |
+| `vmg_list_structure` | Gliederung der Anlage (Standard: Teile A–D mit obersten Nummern), optional ab einer Kennung; `tiefe` steuert die Ebenen (0 = vollständig) |
 | `vmg_get` | Abschnitt mit Wortlaut, GdS-Zeilen samt Pfad (Überschriften der Zeile), Sondertabellen, Unterabschnitten, darauf verweisenden Stichwörtern und Fundstelle |
 | `vmg_search` | Suche in Überschriften, Stichwortverzeichnis, GdS-Zeilen und Fließtext, optional auf einen Teil beschränkt; mehrere Wörter werden UND-verknüpft. Mit `icd` (z. B. `E11.90`) werden passende Stichwörter über ICD-Titel und Alphabet-Begriffe abgeleitet, getrennt von den Treffern und als „nicht amtlich“ gekennzeichnet |
 | `vmg_gesamt_gdb` | Prüfhilfe zu Teil A Nr. 3: Ausgangswert, Markierungen und die Regeln A 3.1–3.5 im Wortlaut |
@@ -128,7 +128,7 @@ Die Daten umfassen 356 Abschnitte (A 86, B 188, C 68, D 14), 767 GdS-Zeilen, 6 S
 
 **Was das Modul nicht tut:**
 
-- **Die Prüfhilfe berechnet keinen Gesamt-GdB.** Teil A Nr. 3 verbietet das Addieren und verlangt eine gutachterliche Gesamtschau. `vmg_gesamt_gdb` nennt den Ausgangswert (höchster Einzel-GdB), markiert Einzel-GdB von 10 (A 3.5) und Beeinträchtigungen im selben Funktionssystem (A 3.1, 3.2) und gibt die Regeln im Wortlaut aus, aber keinen Gesamtwert, auch keinen „voraussichtlichen“.
+- **Die Prüfhilfe berechnet keinen Gesamt-GdB.** Teil A Nr. 3 verbietet das Addieren und verlangt eine gutachterliche Gesamtschau. `vmg_gesamt_gdb` nennt den Ausgangswert (höchster Einzel-GdB), markiert Einzel-GdB von 10 und 20 (A 3.5) und Beeinträchtigungen im selben Funktionssystem (A 3.1, 3.2) und gibt die Regeln im Wortlaut aus, aber keinen Gesamtwert, auch keinen „voraussichtlichen“.
 - **Funktionssysteme:** Jedes Kapitel B 2 bis B 17 gilt als ein Funktionssystem. Kapitel B 18 (Haltungs- und Bewegungsorgane) wird nach der verwaltungsüblichen Gliederung geteilt (B 18.9 und B 18.10 → Rumpf, B 18.13 → Arme, B 18.14 → Beine). Diese Aufteilung ist verwaltungsüblich, nicht amtlich, und in der Ausgabe so gekennzeichnet. Nicht zugeordnete Abschnitte von B 18 werden bei Arm, Bein oder Rumpf nur als „möglicherweise gleiches Funktionssystem – bitte angeben“ markiert. Ein ausdrücklich angegebenes Funktionssystem hat Vorrang.
 - **Die ICD-Ableitung ist nicht amtlich.** Eine amtliche Zuordnung zwischen ICD und VersMedV gibt es nicht. `icd` vergleicht ICD-Titel und Alphabet-Begriffe per Teilstring mit dem Stichwortverzeichnis. Bekannte Grenze: Verneinungen wie „ohne Adipositas“ können lose Treffer erzeugen. Die Treffer sind Suchhilfen, keine Einstufung.
 - **Merkzeichen außerhalb der VersMedV:** aG (§ 229 Abs. 3 SGB IX) und TBl (§ 3 Abs. 1 Nr. 8 SchwbAwV) sind als Normen geprüft. Bei RF ist die genaue Vorschrift des Rundfunkbeitragsstaatsvertrags nicht verifiziert; das Tool sagt das ausdrücklich. Teil D Nr. 3 (früher aG) ist aufgehoben.

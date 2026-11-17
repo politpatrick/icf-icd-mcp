@@ -15,9 +15,11 @@ const kennungProp = {
 };
 
 export const VMG_INSTRUCTIONS = `Versorgungsmedizinische Grundsätze (VersMedV, Anlage zu § 2)${vmg ? `: ${vmg.VMG_VERSION}` : ""}. Amtlicher Wortlaut für GdS/GdB und Hilflosigkeit.
-Kennungen: VMG:A = Teil A (gemeinsame Grundsätze), VMG:B = Teil B (GdS-Tabelle, z. B. VMG:B 3.7), VMG:C = Teil C (Merkzeichen), VMG:D = Teil D (Hilflosigkeit u. a.).
+Kennungen: VMG:A = Teil A (gemeinsame Grundsätze), VMG:B = Teil B (GdS-Tabelle, z. B. VMG:B 3.7), VMG:C = Teil C (Begutachtung im Sozialen Entschädigungsrecht), VMG:D = Teil D (Merkzeichen); Hilflosigkeit steht in Teil A Nr. 4 und 5.
 GdS-Werte stehen immer mit ihrem Pfad (Überschriften der Zeile) und der Fundstelle; ein Wert ohne diesen Kontext darf nicht zitiert werden.
 Teil B nennt typische Werte; Abweichung ist nach Teil A Nr. 1.4 mit Begründung im Einzelfall möglich. Abschnitte ohne amtliche Überschrift tragen eine abgeleitete Bezeichnung (titel_abgeleitet).
+Der GdB bleibt eine gutachterliche Entscheidung; die Tools liefern Wortlaut und Fundstellen, keine Einstufung.
+vmg_gesamt_gdb ist eine Prüfhilfe zu Teil A Nr. 3 (zeigt Regeln, Funktionssysteme und Markierungen, bildet keinen Gesamt-GdB); vmg_merkzeichen nennt die Fundstellen der Merkzeichen (G, aG, B, H, Bl, Gl, RF, TBl).
 Ablauf: vmg_search findet Abschnitte über Wortlaut und Stichwörter (oder leitet über icd="E11.90" Stichwörter ab, nicht amtlich), vmg_get liefert den Abschnitt, vmg_list_structure die Gliederung.`;
 
 export const VMG_TOOLS = !vmg
@@ -27,8 +29,14 @@ export const VMG_TOOLS = !vmg
         name: "vmg_list_structure",
         title: "VersMedV: Gliederung",
         description:
-          "Gliederung der Versorgungsmedizinischen Grundsätze (Anlage zu § 2 VersMedV): Teile A–D mit allen Abschnitten. Optional nur der Teilbaum einer Kennung. Abschnitte ohne amtliche Überschrift zeigen eine abgeleitete Bezeichnung.",
-        inputSchema: { type: "object", properties: { kennung: { ...kennungProp, description: "Optional: Teilbaum ab dieser Kennung, z. B. \"B 3\" oder \"A\"" } } },
+          "Gliederung der Versorgungsmedizinischen Grundsätze (Anlage zu § 2 VersMedV): Teile A–D. Standardmäßig Teile mit den obersten Nummern (tiefe 1); mit kennung die direkten Unterabschnitte; mit tiefe mehr Ebenen, tiefe 0 = vollständig (sehr umfangreich). Gekappte Äste zeigen weitere_unterabschnitte. Abschnitte ohne amtliche Überschrift zeigen eine abgeleitete Bezeichnung.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kennung: { ...kennungProp, description: "Optional: Teilbaum ab dieser Kennung, z. B. \"B 18\" oder \"A\"" },
+            tiefe: { type: "integer", minimum: 0, default: 1, description: "Anzahl Ebenen unter dem Ausgangsknoten (Standard 1); 0 = vollständig" },
+          },
+        },
         annotations: readOnly,
         run: vmg.listStructure,
       },
@@ -45,7 +53,7 @@ export const VMG_TOOLS = !vmg
         name: "vmg_search",
         title: "VersMedV durchsuchen",
         description:
-          "Sucht in den Versorgungsmedizinischen Grundsätzen (Überschriften, amtliches Stichwortverzeichnis, GdS-Zeilen, Fließtext); mehrere Wörter werden UND-verknüpft, Umlaute egal. Mit icd (ICD-10-GM-Kode) werden passende Stichwörter über ICD-Titel und Alphabet-Begriffe abgeleitet (nicht amtlich, getrennt von den Treffern ausgewiesen). Mindestens query oder icd angeben.",
+          "Sucht in den Versorgungsmedizinischen Grundsätzen (Überschriften, Stichwortverzeichnis der BMAS-Broschüre K710 (redaktionelle Beigabe, nicht Teil der Verordnung), GdS-Zeilen, Fließtext); mehrere Wörter werden UND-verknüpft, Umlaute egal. Mit icd (ICD-10-GM-Kode) werden passende Stichwörter über ICD-Titel und Alphabet-Begriffe abgeleitet (nicht amtlich, getrennt von den Treffern ausgewiesen). Mindestens query oder icd angeben.",
         inputSchema: {
           type: "object",
           properties: {

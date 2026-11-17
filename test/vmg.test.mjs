@@ -292,3 +292,77 @@ test("vmg_gesamt_gdb: GdB 20, Kennung außerhalb Teil B, weggefallenes Kapitel",
     assert.match(r.eintraege[i].hinweis, /nicht bestimmbar/);
   }
 });
+
+// ---------------------------------------------------------------------------
+// Abschluss-Review
+// ---------------------------------------------------------------------------
+
+test("Instructions benennen Teil C/D richtig und nennen die Prüfhilfen", () => {
+  const ins = handleMessage({ jsonrpc: "2.0", id: 9001, method: "initialize", params: {} }).result.instructions;
+  assert.match(ins, /Teil D[^.]*Merkzeichen/);
+  assert.ok(!/Teil C \(Merkzeichen\)/.test(ins));
+  assert.match(ins, /Sozialen Entschädigungsrecht/);
+  assert.match(ins, /vmg_gesamt_gdb/);
+  assert.match(ins, /vmg_merkzeichen/);
+  assert.match(ins, /gutachterliche Entscheidung/);
+});
+
+test("Stichwortverzeichnis wird als redaktionelle Beigabe gekennzeichnet", () => {
+  const g = call("vmg_get", { kennung: "B 15.1" });
+  assert.ok(g.stichwoerter.length > 0);
+  assert.match(g.stichwoerter_hinweis, /K710/);
+  assert.equal(call("vmg_get", { kennung: "A 3.5" }).stichwoerter_hinweis, undefined);
+  const s = call("vmg_search", { query: "Drogenabhängigkeit" });
+  assert.ok(s.results.some((r) => r.stichwort));
+  assert.match(s.stichwoerter_hinweis, /K710/);
+  const ohneStichwort = call("vmg_search", { query: "Hilflosigkeit", teil: "A" });
+  assert.equal(ohneStichwort.stichwoerter_hinweis !== undefined, ohneStichwort.results.some((r) => r.stichwort));
+  const nur = call("vmg_search", { query: "Persönlichkeitsstörungen" });
+  assert.equal(nur.stichwoerter_hinweis !== undefined, nur.results.some((r) => r.stichwort));
+});
+
+test("aG und TBl: Paraphrase wird nicht als Wortlaut ausgegeben", () => {
+  for (const z of ["aG", "TBl"]) {
+    const h = call("vmg_merkzeichen", { merkzeichen: z }).merkzeichen[0].hinweis;
+    assert.ok(!/Wortlaut:/.test(h), z);
+    assert.match(h, /sinngemäß/);
+    assert.match(h, /maßgeblich ist der Gesetzeswortlaut/);
+  }
+});
+
+test("vmg_list_structure: Tiefe begrenzt die Ausgabe", () => {
+  const all = JSON.stringify(call("vmg_list_structure", {}));
+  assert.ok(all.length < 10000, `Größe ${all.length}`);
+  assert.ok(all.includes("VMG:B 18"));
+  const b18 = JSON.stringify(call("vmg_list_structure", { kennung: "B 18" }));
+  assert.ok(b18.includes("VMG:B 18.13") && b18.includes("VMG:B 18.14"));
+  assert.ok(b18.length < 10000, `Größe ${b18.length}`);
+  const full = JSON.stringify(call("vmg_list_structure", { tiefe: 0 }));
+  assert.ok(full.includes("VMG:B 3.7") && full.length > all.length);
+  const n = call("vmg_list_structure", { kennung: "B 3" }).knoten[0];
+  assert.equal(n.bezeichnung, undefined);
+  assert.ok(n.children.every((c) => c.children === undefined || c.children.length > 0));
+});
+
+test("Leere Ergebnisse tragen einen Hinweis", () => {
+  assert.match(call("vmg_search", { icd: "F32.1" }).hinweis_leer, /Keine Treffer/);
+  assert.match(call("vmg_search", { query: "qqqxyzqq" }).hinweis_leer, /Keine Treffer/);
+  assert.equal(call("vmg_search", { query: "Niere" }).hinweis_leer, undefined);
+});
+
+test("ICD-Ableitung ignoriert verneinte Teile (E11.90 ohne Adipositas)", () => {
+  const w = call("vmg_search", { icd: "E11.90" }).abgeleitet_icd.stichwoerter.map((s) => s.wort);
+  assert.ok(w.includes("Diabetes mellitus"));
+  assert.ok(!w.includes("Adipositas"), w.join(", "));
+});
+
+test("normalizeVmgId akzeptiert das eigene Fundstellen-Format", () => {
+  for (const k of ["Teil B Nr. 3.7", "Anlage zu § 2 VersMedV, Teil B Nr. 3.7"]) assert.equal(call("vmg_get", { kennung: k }).id, "VMG:B 3.7");
+  assert.equal(call("vmg_get", { kennung: "Anlage zu § 2 VersMedV, Teil A" }).id, "VMG:A");
+});
+
+test("gdb 25 wird mit Begründung abgelehnt", () => {
+  const e = call("vmg_gesamt_gdb", { einzel: [{ bezeichnung: "x", gdb: 25 }] }).error;
+  assert.match(e, /Nr\. 1\.1/);
+  assert.match(e, /Zehnergrad/);
+});

@@ -13,6 +13,9 @@ export const VMG_VERSION = `${data.meta.titel}, ${data.meta.stand}`;
 
 const ABWEICHUNG_HINWEIS =
   "Teil B nennt typische GdS-Werte; eine Abweichung ist nach Teil A Nr. 1.4 mit besonderer Begründung im Einzelfall möglich.";
+const STICHWORT_HINWEIS = "Stichwörter stammen aus dem Stichwortverzeichnis der BMAS-Broschüre K710 (redaktionelle Beigabe, nicht Teil der Verordnung).";
+const LEER_HINWEIS =
+  "Keine Treffer. Mit anderem Wortstamm suchen (z. B. „depressiv“ statt „Depression“) oder die Gliederung mit vmg_list_structure durchgehen.";
 const ICD_HINWEIS = "abgeleitet über ICD-Titel und Alphabet-Begriffe, nicht amtlich";
 const TEILE = ["A", "B", "C", "D"];
 const MAX_ZEILEN = 5;
@@ -27,7 +30,12 @@ const byLoose = new Map(order.map((id) => [squash(id.slice(4)), id]));
 
 /** "b3.7", "B 3.7", "VMG:B 3.7", "A 5 d jj" → "VMG:B 3.7", "VMG:A 5d jj" (unbekannte Kennungen nur sauber formatiert). */
 export function normalizeVmgId(raw) {
-  const s = String(raw ?? "").trim().replace(/^vmg\s*:?\s*/i, "");
+  const s = String(raw ?? "")
+    .trim()
+    .replace(/^anlage\s+zu\s+§\s*2\s+versmedv\s*,?\s*/i, "")
+    .replace(/^teil\s+([A-D])\b\s*(?:nr\.?\s*)?/i, "$1 ")
+    .trim()
+    .replace(/^vmg\s*:?\s*/i, "");
   const known = byLoose.get(squash(s));
   if (known) return known;
   const t = s.replace(/\s+/g, " ");
@@ -73,13 +81,27 @@ for (const s of data.stichwoerter) for (const id of s.ids) (stichwoerterOf[id] ?
 // Gliederung und Abruf
 // ---------------------------------------------------------------------------
 
-function tree(n) {
-  return { id: n.id, ...label(n), ...(n.status ? { status: n.status } : {}), children: (n.children ?? []).map((c) => tree(nodes[c])) };
+/** Teilbaum mit `depth` Ebenen unter dem Knoten (Infinity = vollständig); gekappte Äste tragen `weitere_unterabschnitte`. */
+function tree(n, depth) {
+  const { bezeichnung, ...rest } = label(n);
+  const kids = n.children ?? [];
+  const out = { id: n.id, ...rest, ...(bezeichnung !== n.titel ? { bezeichnung } : {}), ...(n.status ? { status: n.status } : {}) };
+  if (kids.length && depth > 0) out.children = kids.map((c) => tree(nodes[c], depth - 1));
+  else if (kids.length) out.weitere_unterabschnitte = kids.length;
+  return out;
 }
 
-export function listStructure({ kennung } = {}) {
-  const roots = kennung === undefined || String(kennung).trim() === "" ? order.filter((id) => !nodes[id].parent) : [requireNode(kennung).id];
-  return { version: VMG_VERSION, knoten: roots.map((id) => tree(nodes[id])) };
+export function listStructure({ kennung, tiefe } = {}) {
+  const hasKennung = kennung !== undefined && String(kennung).trim() !== "";
+  const roots = hasKennung ? [requireNode(kennung).id] : order.filter((id) => !nodes[id].parent);
+  let depth;
+  if (tiefe === undefined || tiefe === null || tiefe === "") depth = 1;
+  else {
+    const t = Math.trunc(Number(tiefe));
+    if (!Number.isFinite(t) || t < 0) throw new LookupError("tiefe muss eine ganze Zahl ≥ 0 sein (0 = vollständige Gliederung).");
+    depth = t === 0 ? Infinity : t;
+  }
+  return { version: VMG_VERSION, tiefe: depth === Infinity ? 0 : depth, knoten: roots.map((id) => tree(nodes[id], depth)) };
 }
 
 export function get({ kennung }) {
@@ -96,6 +118,7 @@ export function get({ kennung }) {
     children: (n.children ?? []).map((c) => ({ id: c, ...label(nodes[c]) })),
     parent: n.parent ?? null,
     stichwoerter: stichwoerterOf[n.id] ?? [],
+    ...(stichwoerterOf[n.id]?.length ? { stichwoerter_hinweis: STICHWORT_HINWEIS } : {}),
     ...(n.teil === "B" && n.nummer ? { hinweis: ABWEICHUNG_HINWEIS } : {}),
   };
 }
@@ -165,7 +188,11 @@ const ICD_STOP = ["nicht naher bezeichnet", "nicht naher bezeichnete", "sonstige
 
 function deriveFromIcd(raw) {
   const { code, title, begriffe } = alphabetTerms(raw);
-  let hay = [title, ...begriffe].map((t) => compact(t));
+  // Verneinte Teile („… ohne Adipositas“) tragen keine Ableitung: ab „ohne“ bis zum nächsten Komma, Semikolon, Doppelpunkt oder Satzende entfernen.
+  // In Alphabet-Begriffen zusätzlich Begleitumstände „mit/bei …“ (z. B. „Typ-2-Diabetes mellitus bei Adipositas“); im Titel bleibt „Mit …“ (Komplikationen) erhalten.
+  const NEG = /\bohne\b[^,;:.]*/gi;
+  const BEGLEIT = /\b(?:mit|bei)\b[^,;:.]*/gi;
+  let hay = [compact(title.replace(NEG, " ")), ...begriffe.map((t) => compact(t.replace(NEG, " ").replace(BEGLEIT, " ")))];
   for (const s of ICD_STOP) hay = hay.map((h) => h.split(s).join(" "));
   const found = data.stichwoerter
     .map((s) => ({ wort: s.wort, ids: s.ids, c: compact(s.wort) }))
@@ -200,7 +227,12 @@ export function search({ query, icd, teil, limit = 20 } = {}) {
   }
   out.total = results.length;
   out.results = results.slice(0, max).map(({ _score, ...r }) => r);
-  if (hasIcd) out.abgeleitet_icd = deriveFromIcd(icd);
+  if (hasQuery && !out.results.length) out.hinweis_leer = LEER_HINWEIS;
+  if (hasIcd) {
+    out.abgeleitet_icd = deriveFromIcd(icd);
+    if (!out.abgeleitet_icd.stichwoerter.length) out.hinweis_leer = LEER_HINWEIS;
+  }
+  if (out.results.some((r) => r.stichwort)) out.stichwoerter_hinweis = STICHWORT_HINWEIS;
   return out;
 }
 
@@ -239,7 +271,7 @@ function gdbEntry(e, i) {
   if (!e || typeof e !== "object") throw new LookupError(`${pos}: Objekt mit bezeichnung und gdb erwartet.`);
   if (typeof e.bezeichnung !== "string" || e.bezeichnung.trim() === "") throw new LookupError(`${pos}: bezeichnung fehlt oder ist leer.`);
   if (!Number.isInteger(e.gdb) || e.gdb <= 0 || e.gdb > 100 || e.gdb % 10 !== 0)
-    throw new LookupError(`${pos} (${e.bezeichnung}): gdb muss eine ganze Zahl von 10 bis 100 in Zehnerschritten sein (erhalten: ${JSON.stringify(e.gdb)}).`);
+    throw new LookupError(`${pos} (${e.bezeichnung}): gdb muss eine ganze Zahl von 10 bis 100 in Zehnerschritten sein (erhalten: ${JSON.stringify(e.gdb)}). Nach Teil A Nr. 1.1 wird der GdB in Zehnergraden festgestellt; Teil B nennt teils Zwischenwerte (z. B. 25), die für die Prüfhilfe auf einen Zehnergrad zu bringen sind.`);
   return e;
 }
 
@@ -321,7 +353,7 @@ const MERKZEICHEN = [
   {
     zeichen: "aG", bezeichnung: "Außergewöhnliche Gehbehinderung",
     norm: "§ 229 Abs. 3 SGB IX",
-    hinweis: "Erheblich mobilitätsbezogene Teilhabebeeinträchtigung, die einem GdB von mindestens 80 entspricht; dauernd nur mit fremder Hilfe oder mit großer Anstrengung außerhalb des Kraftfahrzeugs fortbewegbar (Wortlaut: § 229 Abs. 3 SGB IX). Die VersMedV enthält dazu keine eigene Nummer.",
+    hinweis: "Erheblich mobilitätsbezogene Teilhabebeeinträchtigung, die einem GdB von mindestens 80 entspricht; dauernd nur mit fremder Hilfe oder mit großer Anstrengung außerhalb des Kraftfahrzeugs fortbewegbar (sinngemäß nach § 229 Abs. 3 SGB IX; maßgeblich ist der Gesetzeswortlaut). Die VersMedV enthält dazu keine eigene Nummer.",
   },
   { zeichen: "B", bezeichnung: "Berechtigung für eine ständige Begleitung", ids: ["VMG:D 2"] },
   { zeichen: "H", bezeichnung: "Hilflosigkeit", ids: ["VMG:A 4", "VMG:A 5"] },
@@ -335,7 +367,7 @@ const MERKZEICHEN = [
   {
     zeichen: "TBl", bezeichnung: "Taubblindheit",
     norm: "§ 3 Abs. 1 Nr. 8 Schwerbehindertenausweisverordnung",
-    hinweis: "Mindestens GdB 70 wegen einer Störung der Hörfunktion und GdB 100 wegen einer Störung des Sehvermögens (Wortlaut: § 3 Abs. 1 Nr. 8 SchwbAwV). Die VersMedV enthält dazu keine eigene Nummer.",
+    hinweis: "Mindestens GdB 70 wegen einer Störung der Hörfunktion und GdB 100 wegen einer Störung des Sehvermögens (sinngemäß nach § 3 Abs. 1 Nr. 8 SchwbAwV; maßgeblich ist der Gesetzeswortlaut). Die VersMedV enthält dazu keine eigene Nummer.",
   },
 ];
 
