@@ -254,3 +254,41 @@ test("vmg_merkzeichen", () => {
   assert.equal(call("vmg_merkzeichen", {}).merkzeichen.length, 8);
   assert.ok(call("vmg_merkzeichen", { merkzeichen: "XY" }).error);
 });
+
+test("vmg_merkzeichen liefert den Wortlaut der Unterabschnitte", () => {
+  const flat = (r) => JSON.stringify(r);
+  const g = call("vmg_merkzeichen", { merkzeichen: "G" }).merkzeichen[0].fundstellen[0];
+  assert.ok(g.unterabschnitte.length > 0 && g.unterabschnitte.every((u) => u.id && u.fundstelle));
+  const d1a = data.nodes["VMG:D 1a"];
+  assert.ok(flat(g.unterabschnitte).includes((d1a.absaetze ?? d1a.zeilen.map((z) => z.text))[0].slice(0, 40)));
+  const h = flat(call("vmg_merkzeichen", { merkzeichen: "H" }));
+  assert.ok(h.includes("VMG:A 5d jj"));
+  const jj = data.nodes["VMG:A 5d jj"];
+  assert.ok(h.includes((jj.absaetze ?? jj.zeilen.map((z) => z.text))[0].slice(0, 40)));
+});
+
+test("vmg_gesamt_gdb ordnet über Index, nicht über Bezeichnung", () => {
+  const r = call("vmg_gesamt_gdb", { einzel: [
+    { bezeichnung: "Knie", gdb: 30, kennung: "B 18.14" },
+    { bezeichnung: "Knie", gdb: 40, kennung: "B 3.7" },
+    { bezeichnung: "Bein", gdb: 20, kennung: "B 18.14" },
+  ] });
+  assert.deepEqual(r.eintraege.map((e) => e.index), [0, 1, 2]);
+  assert.equal(r.paare.length, 1);
+  assert.deepEqual([r.paare[0].a_index, r.paare[0].b_index], [0, 2]);
+  const has = (i) => r.eintraege[i].markierungen.some((m) => m.regel === "VMG:A 3.1");
+  assert.deepEqual([has(0), has(1), has(2)], [true, false, true]);
+});
+
+test("vmg_gesamt_gdb: GdB 20, Kennung außerhalb Teil B, weggefallenes Kapitel", () => {
+  const r = call("vmg_gesamt_gdb", { einzel: [
+    { bezeichnung: "a", gdb: 20, kennung: "B 17.1" },
+    { bezeichnung: "b", gdb: 30, kennung: "A 3.5" },
+    { bezeichnung: "c", gdb: 30, kennung: "B 1" },
+  ] });
+  assert.ok(r.eintraege[0].markierungen.some((m) => m.regel === "VMG:A 3.5"));
+  for (const i of [1, 2]) {
+    assert.equal(r.eintraege[i].funktionssystem, null);
+    assert.match(r.eintraege[i].hinweis, /nicht bestimmbar/);
+  }
+});

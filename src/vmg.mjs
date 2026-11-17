@@ -259,6 +259,7 @@ export function gesamtGdb({ einzel } = {}) {
     if (typeof e.funktionssystem === "string" && e.funktionssystem.trim() !== "") sys = { funktionssystem: e.funktionssystem.trim(), quelle: "angabe" };
     if (!sys.funktionssystem) hinweis ??= "Funktionssystem nicht bestimmbar";
     return {
+      index: i,
       bezeichnung: e.bezeichnung.trim(),
       gdb: e.gdb,
       ...(e.kennung !== undefined && String(e.kennung).trim() !== "" ? { kennung: normalizeVmgId(e.kennung) } : {}),
@@ -287,14 +288,14 @@ export function gesamtGdb({ einzel } = {}) {
         beziehung = "gleich";
         grund = `Beide Einträge gehören zum Funktionssystem „${a.funktionssystem}“ (Teil A Nr. 3.1: GdB für das Funktionssystem in seiner Gesamtheit).`;
       } else continue;
-      paare.push({ a: a.bezeichnung, b: b.bezeichnung, beziehung, grund });
+      paare.push({ a: a.bezeichnung, b: b.bezeichnung, a_index: i, b_index: j, beziehung, grund });
     }
 
   const textA35 = textOf("VMG:A 3.5");
-  const paarBezeichnungen = new Set(paare.flatMap((p) => [p.a, p.b]));
+  const inPaar = new Set(paare.flatMap((p) => [p.a_index, p.b_index]));
   for (const e of eintraege) {
     if (e.gdb === 10 || e.gdb === 20) e.markierungen.push({ regel: "VMG:A 3.5", text: textA35 });
-    if (paarBezeichnungen.has(e.bezeichnung))
+    if (inPaar.has(e.index))
       for (const id of ["VMG:A 3.1", "VMG:A 3.2"]) e.markierungen.push({ regel: id, text: textOf(id) });
   }
 
@@ -338,6 +339,25 @@ const MERKZEICHEN = [
   },
 ];
 
+/** Alle Nachfahren in Dokumentreihenfolge, mit Wortlaut (Absätze, GdS-Zeilen, Tabellen). */
+function descendants(n) {
+  return (n.children ?? []).flatMap((c) => {
+    const k = nodes[c];
+    return [
+      {
+        id: k.id,
+        fundstelle: fundstelle(k),
+        ...label(k),
+        ...(k.status ? { status: k.status } : {}),
+        absaetze: k.absaetze ?? [],
+        ...(k.zeilen ? { zeilen: k.zeilen.map(row) } : {}),
+        ...(k.tabellen ? { tabellen: k.tabellen } : {}),
+      },
+      ...descendants(k),
+    ];
+  });
+}
+
 export function merkzeichen({ merkzeichen: wanted } = {}) {
   let list = MERKZEICHEN;
   if (wanted !== undefined && wanted !== null && String(wanted).trim() !== "") {
@@ -356,7 +376,7 @@ export function merkzeichen({ merkzeichen: wanted } = {}) {
               id,
               fundstelle: fundstelle(nodes[id]),
               absaetze: nodes[id].absaetze ?? [],
-              ...(nodes[id].children?.length ? { unterabschnitte: nodes[id].children } : {}),
+              ...(nodes[id].children?.length ? { unterabschnitte: descendants(nodes[id]) } : {}),
             })),
           }
         : { zeichen: m.zeichen, bezeichnung: m.bezeichnung, norm: m.norm, hinweis: m.hinweis }
