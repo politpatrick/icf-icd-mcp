@@ -121,7 +121,7 @@ function auspraegungen(node, variante) {
 }
 
 function relationsOf(id) {
-  const out = graph.out(id).map(meta);
+  const out = graph.out(id).map(meta).filter((e) => !e.to.startsWith("ICF:"));
   const inc = graph.incoming(id).filter((e) => e.via === "direkt").map(meta);
   const fmt = (e, other) => ({
     typ: e.type,
@@ -214,6 +214,11 @@ export function getItem({ code, variante }) {
   if (node.children?.length) out.unterknoten = node.children.map(summary);
   const rel = relationsOf(node.id);
   if (rel.ausgehend.length || rel.eingehend.length) out.beziehungen = rel;
+  const icfMap = icfOf(node.id);
+  if (icfMap.length) {
+    out.icf_zuordnung = icfMap;
+    out.icf_hinweis = ICF_HINWEIS;
+  }
   if (node.abschnitte) out.richtlinien_abschnitte = node.abschnitte.map((k) => ({ kapitel: k, titel: data.abschnitte[k].titel, seite: data.abschnitte[k].seite }));
   out.quelle = { richtlinie: BI_VERSION, ...node.quelle };
   return out;
@@ -315,6 +320,93 @@ export function compare({ code_a, code_b }) {
     verbindungsweg: graph.path(a, b),
     hinweis:
       "Abgrenzungen stammen wörtlich aus den Begutachtungs-Richtlinien. Ein Sachverhalt wird nur einmal gewertet; in Modul 4 und 6 ist es nach den BRi aber unerheblich, ob Teilaspekte bereits in anderen Modulen berücksichtigt worden sind.",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Kuratierte Zuordnung BI ↔ ICF
+// ---------------------------------------------------------------------------
+
+const ICF_HINWEIS =
+  "Kuratierte Zuordnung (keine amtliche Zuordnung zwischen BI und ICF). Beziehungen: entspricht, teilweise, funktion (zugrunde liegende Körperfunktion), umwelt (Kontextfaktor). BI-Stufen werden nicht in ICF-Beurteilungsmerkmale umgerechnet.";
+
+const icfCodes = readData("icf_flat.json");
+const icfParent = {};
+for (const e of Object.values(icfCodes)) for (const c of e.children ?? []) icfParent[c] = e.code;
+const icfAncestors = (code) => {
+  const chain = [];
+  for (let c = icfParent[code]; c; c = icfParent[c]) chain.push(c);
+  return chain;
+};
+
+const icfEdges = data.edges.filter((e) => e.quelle === "kuratiert" && e.to.startsWith("ICF:"));
+const ORDER = { entspricht: 0, teilweise: 1, funktion: 2, umwelt: 3 };
+
+function icfOf(id) {
+  return icfEdges
+    .filter((e) => e.from === id)
+    .map((e) => ({ icf: e.to.slice(4), titel: e.icf_titel, beziehung: e.type.slice(4), begruendung: e.text }))
+    .sort((a, b) => ORDER[a.beziehung] - ORDER[b.beziehung]);
+}
+
+/** BI-Kriterien, die einem ICF-Code zugeordnet sind – direkt, über eine Oberkategorie oder eine Unterkategorie. */
+export function biForIcf(icfCode) {
+  const code = String(icfCode).trim().toLowerCase();
+  const ancestors = new Set(icfAncestors(code));
+  const hits = [];
+  for (const e of icfEdges) {
+    const target = e.to.slice(4);
+    let via;
+    if (target === code) via = "direkt";
+    else if (ancestors.has(target)) via = "oberkategorie";
+    else if (icfAncestors(target).includes(code)) via = "unterkategorie";
+    else continue;
+    const n = nodes[e.from];
+    hits.push({
+      bi: e.from,
+      titel: n.titel,
+      ...(n.modul ? { modul: n.modul } : {}),
+      icf: target,
+      icf_titel: e.icf_titel,
+      beziehung: e.type.slice(4),
+      ueber: via,
+      begruendung: e.text,
+    });
+  }
+  const rank = { direkt: 0, unterkategorie: 1, oberkategorie: 2 };
+  return hits.sort((a, b) => rank[a.ueber] - rank[b.ueber] || ORDER[a.beziehung] - ORDER[b.beziehung] || a.bi.localeCompare(b.bi, "de", { numeric: true }));
+}
+
+const looksLikeIcf = (s) => /^[bdes]\d/i.test(String(s).trim());
+
+export function icfMapping({ code, beziehung }) {
+  const filter = (list) => (beziehung ? list.filter((x) => x.beziehung === beziehung) : list);
+  if (looksLikeIcf(code)) {
+    const icf = String(code).trim().toLowerCase();
+    if (!icfCodes[icf]) throw new LookupError(`ICF-Code "${code}" nicht gefunden.`);
+    return {
+      richtung: "ICF → BI",
+      icf,
+      titel: icfCodes[icf].preferred,
+      bi_kriterien: filter(biForIcf(icf)),
+      hinweis: ICF_HINWEIS,
+      stand: data.icf_zuordnung.stand,
+    };
+  }
+  const { id } = requireNode(code);
+  const n = nodes[id];
+  const ids = n.art === "kriterium" ? [id] : (n.children ?? []).filter((c) => nodes[c].art === "kriterium");
+  const result = ids.map((c) => ({ bi: c, titel: nodes[c].titel, icf: filter(icfOf(c)) })).filter((x) => x.icf.length);
+  if (!result.length) throw new LookupError(`Für ${id} (${n.titel}) gibt es keine ICF-Zuordnung. Zugeordnet sind die Kriterien der Module 1–6 und der Bereiche 6.1/6.2.`);
+  return {
+    richtung: "BI → ICF",
+    code: id,
+    titel: n.titel,
+    zuordnungen: result,
+    beziehungen: data.icf_zuordnung.beziehungen,
+    beurteilungsmerkmale: data.icf_zuordnung.beurteilungsmerkmale,
+    icf_fassung: data.icf_zuordnung.icf_fassung,
+    stand: data.icf_zuordnung.stand,
   };
 }
 

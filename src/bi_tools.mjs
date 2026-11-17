@@ -21,7 +21,18 @@ Kodierung einer Ausprägung: "BI:4.1.3=2" (Stufe 0–3, nicht der Punktwert), Mo
 Typischer Ablauf: bi_search findet zu einer Beobachtung das passende Kriterium, bi_get_item liefert die verbindliche Definition, Hinweise und
 Ausprägungen mit Erläuterung, bi_compare grenzt Kriterien ab (wörtliche Abgrenzungen der BRi), bi_interpret_coding prüft Kodierungen,
 bi_calculate berechnet gewichtete Punkte und Pflegegrad nach Anlage 2 zu § 15 SGB XI (auch für Kinder mit Altersvergleich).
-Eine amtliche Zuordnung zwischen BI und ICF gibt es nicht. Die Einstufung bleibt eine gutachterliche Entscheidung.`;
+bi_icf_mapping verbindet BI-Kriterien und ICF-Kategorien in beide Richtungen; die Zuordnung ist kuratiert (nicht amtlich) und begründet,
+icf_get_related zeigt zu einer ICF-Kategorie zusätzlich die zugeordneten BI-Kriterien. Die Einstufung bleibt eine gutachterliche Entscheidung.`;
+
+/** Ergänzt das Ergebnis von icf_get_related um die zugeordneten BI-Kriterien. */
+export function withBiForIcf(run) {
+  if (!bi) return run;
+  return (args) => {
+    const result = run(args);
+    const hits = bi.biForIcf(result.code?.code ?? args.code);
+    return hits.length ? { ...result, begutachtungsinstrument: { quelle: "kuratiert", kriterien: hits } } : result;
+  };
+}
 
 export const BI_TOOLS = !bi
   ? []
@@ -114,6 +125,22 @@ export const BI_TOOLS = !bi
         },
         annotations: readOnly,
         run: bi.calculate,
+      },
+      {
+        name: "bi_icf_mapping",
+        title: "Begutachtungsinstrument ↔ ICF",
+        description:
+          "Kuratierte Zuordnung zwischen Kriterien des Begutachtungsinstruments und ICF-Kategorien, in beide Richtungen: BI-Kennung (z. B. \"4.1.3\" oder Modul \"4.4\") → ICF-Kategorien, oder ICF-Code (z. B. \"d420\", \"b144\") → BI-Kriterien (auch über Ober- und Unterkategorien). Jede Kante hat eine Beziehung (entspricht, teilweise, funktion, umwelt) und eine Begründung. Keine amtliche Zuordnung; BI-Stufen werden nicht in ICF-Beurteilungsmerkmale umgerechnet.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            code: { type: "string", description: 'BI-Kennung ("4.1.3", "BI:4.4") oder ICF-Code ("d420")' },
+            beziehung: { type: "string", enum: ["entspricht", "teilweise", "funktion", "umwelt"], description: "Optional: nur diese Beziehungsart" },
+          },
+          required: ["code"],
+        },
+        annotations: readOnly,
+        run: bi.icfMapping,
       },
       {
         name: "bi_scoring_rules",

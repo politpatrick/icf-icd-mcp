@@ -24,6 +24,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 STRUKTUR = ROOT / "source" / "bi_struktur.json"
 TEXT = ROOT / "source" / "bri_pflege_2026.txt"
+ZUORDNUNG = ROOT / "source" / "bi_icf_zuordnung.json"
+ICF_DATA = ROOT / "data" / "icf_flat.json"
 
 # Seitenbereiche der Erläuterungskapitel (Kapitel 5 Erwachsene, Kapitel 6 Kinder)
 ERWACHSENE = range(39, 145)
@@ -527,6 +529,26 @@ def build():
             if hits:
                 n["abschnitte"] = hits
 
+    # Kuratierte Zuordnung BI → ICF (eigene Kantenschicht, quelle "kuratiert"), gegen die ICF-Daten geprüft
+    z = json.loads(ZUORDNUNG.read_text(encoding="utf-8"))
+    icf = json.loads(ICF_DATA.read_text(encoding="utf-8"))
+    icf_edges = 0
+    for entry in z["zuordnungen"]:
+        nid = "BI:" + entry["bi"]
+        if nid not in nodes:
+            raise SystemExit(f"Zuordnung: unbekanntes BI-Kriterium {entry['bi']}")
+        for m in entry["icf"]:
+            code = m["code"]
+            if code not in icf:
+                raise SystemExit(f"Zuordnung {entry['bi']}: ICF-Code {code} existiert nicht in der ICF 2005")
+            if m["beziehung"] not in z["beziehungen"]:
+                raise SystemExit(f"Zuordnung {entry['bi']}: unbekannte Beziehung {m['beziehung']}")
+            edge(nid, "ICF:" + code, "icf_" + m["beziehung"], m["begruendung"], quelle="kuratiert",
+                 icf_titel=icf[code]["preferred"])
+            icf_edges += 1
+    icf_meta = {k: z[k] for k in ("stand", "icf_fassung", "beziehungen", "beurteilungsmerkmale")}
+    print(f"ICF-Zuordnungen: {icf_edges} Kanten zu {len({e['to'] for e in edges if e['to'].startswith('ICF:')})} ICF-Codes")
+
     # Zahlen fürs Protokoll
     crit = [n for n in nodes.values() if n["art"] == "kriterium" and n.get("modul")]
     with_def = [n for n in crit if any(t.get("definition") for t in n.get("texte", {}).values())]
@@ -542,6 +564,7 @@ def build():
         "nodes": nodes,
         "edges": edges,
         "abschnitte": abschnitte,
+        "icf_zuordnung": icf_meta,
     }
 
 
