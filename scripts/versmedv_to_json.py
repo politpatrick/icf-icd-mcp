@@ -64,33 +64,50 @@ LETTER = re.compile(r"^([a-z]{1,2})\)$")
 # Kuratierte Zuordnung, weil das XML keine unterscheidenden Merkmale trägt (Einrückung, Spaltenverbund und
 # Attribute sind bei diesen Zeilen gleich wie bei Geschwisterzeilen). Schlüssel ist die Abschnittsnummer in
 # Teil B, "text" ist der wörtliche Anfang einer Zeile dieses Abschnitts aus dem XML. Wirkung:
-#   "pin": n     – die Zeile bleibt Pfad der nächsten n GdS-Zeilen (None: bis zum Abschnittsende)
+#   "until": t   – die Zeile bleibt Pfad aller folgenden GdS-Zeilen bis einschließlich der GdS-Zeile, die
+#                  wörtlich mit t beginnt (None: bis zum Abschnittsende)
 #   "indent": n  – die Zeile gilt als auf Einrückung n stehend (ersetzt so ihre Geschwister-Überschrift)
-#   "split": t   – die verschmolzene Zelle endet auf den wörtlichen Text t; t wird eigener, tieferer Pfadeintrag
-# Wird ein Eintrag nicht genau einmal gefunden, bricht der Build mit Fehler ab (geänderte Quelle prüfen).
+#   "split": t   – die verschmolzene Zelle endet auf den wörtlichen Text t. Bei einer Zwischenzeile wird t
+#                  eigener, tieferer Pfadeintrag (ein "until" gilt dann für t); bei einer GdS-Zeile wird der
+#                  Anfang der Zelle Pfadeintrag und t der Zeilentext (ein "until" gilt dann für den Anfang).
+# Jeder "text" und jedes "until" muss im Abschnitt genau einmal gefunden werden, sonst bricht der Build ab
+# (geänderte Quelle prüfen).
 OVERRIDES: Dict[str, List[dict]] = {
+    "3.6": [{"text": "Nach dem Abklingen lang dauernder psychotischer Episoden", "until": "sonst"}],
     "4.5": [
-        {"text": "Binasale Hemianopsie", "pin": 2},
+        {"text": "Binasale Hemianopsie", "until": "bei Verlust des beidäugigen Sehens"},
         {"text": "Allseitige Einengung binokular", "indent": 1},
+        {"text": "Unregelmäßige Gesichtsfeldausfälle, Skotome", "indent": 0},
     ],
-    "8.4": [{"text": "GdS während dieser Zeit", "pin": None}],
-    "9.1.1": [{"text": "3. Leistungsbeeinträchtigung bereits bei alltäglicher leichter Belastung", "pin": 1}],
-    "9.2.3": [{"text": "an einer Gliedmaße", "pin": 4}],
+    "8.4": [{"text": "GdS während dieser Zeit", "until": None}],
+    "9.1.1": [{"text": "3. Leistungsbeeinträchtigung bereits bei alltäglicher leichter Belastung",
+               "until": "mit gelegentlich auftretenden, vorübergehend schweren Dekompensationserscheinungen"}],
+    "9.2.3": [{"text": "an einer Gliedmaße", "until": "bei Gebrauchsunfähigkeit der ganzen Gliedmaße"}],
     "12.1.4": [
         {"text": "GdS während einer Heilungsbewährung von fünf Jahren nach Entfernung eines Nierenzellkarzinoms",
          "split": "nach Entfernung eines Nierenzellkarzinoms (Hypernephrom)"},
     ],
     "13.1": [
         {"text": "Nach Entfernung eines malignen Penistumors",
-         "split": "nach Entfernung im Frühstadium (T1 bis T2) N0 M0", "pin": 3},
+         "split": "nach Entfernung im Frühstadium (T1 bis T2) N0 M0",
+         "until": "mit vollständiger Entfernung der Corpora cavernosa"},
     ],
-    "16.10": [{"text": "mittelschwere Form - mit 1-5 % AHG", "pin": 2}],
-    "17.12": [{"text": "an Händen und/oder Gesicht", "pin": 2}],
+    "14.2": [
+        {"text": "GdS während einer Heilungsbewährung von zwei Jahren nach Entfernung eines Zervixtumors",
+         "split": "nach Entfernung eines Zervixtumors (Mikrokarzinom) im Stadium T1a N0 M0",
+         "until": "nach Entfernung eines Korpustumors im Frühstadium"},
+        {"text": "GdS während einer Heilungsbewährung von fünf Jahren", "until": None},
+    ],
+    "16.10": [{"text": "mittelschwere Form - mit 1-5 % AHG",
+               "until": "mit häufigen (mehrfach jährlich) ausgeprägten Blutungen"}],
+    "17.12": [{"text": "an Händen und/oder Gesicht", "until": "ausgedehnter"}],
     "18.13": [
-        {"text": "Extremitätenverlust", "pin": 6},
-        {"text": "Nervenausfälle (vollständig)", "pin": None},
+        {"text": "Extremitätenverlust", "until": "Verlust der ganzen Hand"},
+        {"text": "Nervenausfälle (vollständig)", "until": None},
     ],
+    "18.14": [{"text": "Ausgeprägte Knorpelschäden der Kniegelenke", "indent": 0}],
 }
+END = "\x00Abschnittsende"
 
 
 def norm(s: str) -> str:
@@ -334,9 +351,9 @@ class Builder:
                     st["cur"] = self.table_b(st["cur"], ev[1])
         self.end_pfad(st["cur"])
 
-    # Pfadstapel: Einträge [Einrückung, Text, benutzt, Art ("zw"/"gds"), Haltezahl, nach_wert]
-    # Haltezahl None = normaler Eintrag; n > 0 = bleibt für die nächsten n GdS-Zeilen stehen;
-    # -1 = bleibt bis zum Abschnittsende stehen (nur über OVERRIDES gesetzt).
+    # Pfadstapel: Einträge [Einrückung, Text, benutzt, Art ("zw"/"gds"), Halten, nach_wert]
+    # Halten None = normaler Eintrag; sonst (nur über OVERRIDES gesetzt) bleibt der Eintrag stehen bis zur
+    # GdS-Zeile, die mit diesem Text beginnt, bzw. bei END bis zum Abschnittsende.
     def end_pfad(self, node: dict, keep_sticky: bool = False) -> None:
         if keep_sticky:
             self.pop_pfad(node, lambda e: True)
@@ -444,7 +461,11 @@ class Builder:
                     if not paras[0]:
                         paras.pop(0)
                 if paras:
-                    self.set_head(cur, paras[0])
+                    if gds:
+                        # die nummerierte Zeile trägt einen Wert: sie ist GdS-Zeile, kein Titel
+                        cur["titel"] = None
+                    else:
+                        self.set_head(cur, paras[0])
                     for p in paras[1:]:
                         self.absatz(cur, p)
                     if not gds and len(paras) == 1 and cur.get("titel") and open_end(paras[0]):
@@ -471,10 +492,13 @@ class Builder:
                 indent = ov["indent"]
             if gds and pending and (indent == pending[1] or (indent > pending[1] and deep_wrap(pending[2]))):
                 # Überschrift läuft in dieser Zeile weiter (z. B. B 4.1, B 6.2): Titel und Zeile zusammenführen
+                # Die Überschrift ist in Wahrheit die erste GdS-Zeile: kein Titel.
                 node = pending[0]
-                node["titel"] = f"{node['titel']} {text}"
-                self.joins.append(f"{node['id']}: Titel fortgesetzt → {node['titel']!r}")
-                self.zeile(cur, node["titel"], gds, [])
+                joined = f"{node['titel']} {text}"
+                node["titel"] = None
+                self.joins.append(f"{node['id']}: Überschrift läuft in GdS-Zeile weiter → {joined!r}")
+                self.zeile(cur, joined, gds, [])
+                self.push(indent, joined, "gds", used=True)
                 self.prev = "gds"
                 continue
             if gds and self.prev == "nogds" and self.pfad and self.pfad[-1][0] == indent \
@@ -489,16 +513,24 @@ class Builder:
                     self.pop_pfad(cur, lambda e: e[0] > indent)
                 else:
                     self.pop_pfad(cur, lambda e: e[0] >= indent)
+                head_entry = None
+                if ov and "split" in ov:
+                    if text.endswith(" " + ov["split"]):
+                        # verschmolzene Zelle: Anfang ist Überschrift, Rest der eigentliche Zeilentext
+                        head_entry = self.push(indent, text[: -len(ov["split"])].strip(), "zw", used=True)
+                        text = ov["split"]
+                    else:
+                        self.problems.append(f"{cur['id']}: Teilung {ov['split']!r} passt nicht zu {text!r}")
+                        self.override_hits[(cur["nummer"], ov["text"])] = 99
                 for e in self.pfad:
                     e[2] = True
                 self.zeile(cur, text, gds, [e[1] for e in self.pfad])
-                for e in self.pfad:
-                    if e[4] is not None and e[4] > 0:
-                        e[4] -= 1
-                self.pfad = [e for e in self.pfad if e[4] != 0]
+                self.release(cur, text)
                 entry = self.push(indent, text, "gds", used=True)  # Elternteil tieferer Wertzeilen
+                if head_entry is not None:
+                    entry = head_entry
                 self.prev = "gds"
-            elif full and not r["head"]:
+            elif full and not r["head"] and not ov:  # eine kuratierte Zeile ist nie Fließtext
                 self.end_pfad(cur, keep_sticky=True)
                 for _, ps, _ in texts:
                     for p in ps:
@@ -528,10 +560,21 @@ class Builder:
                 else:
                     entry = self.push(indent, text, "zw")
                 self.prev = "nogds"
-            if ov and "pin" in ov:
-                entry[4] = -1 if ov["pin"] is None else ov["pin"]
+            if ov and "until" in ov:
+                entry[4] = END if ov["until"] is None else ov["until"]
                 entry[2] = True
         return cur
+
+    def release(self, node: dict, text: str) -> None:
+        """Gehaltene Einträge, deren "until" diese GdS-Zeile ist, nach der Zeile entfernen."""
+        keep = []
+        for e in self.pfad:
+            if e[4] is not None and e[4] != END and text.startswith(e[4]):
+                key = (node.get("nummer"), "until", e[4])
+                self.override_hits[key] = self.override_hits.get(key, 0) + 1
+            else:
+                keep.append(e)
+        self.pfad = keep
 
     def zeile(self, node: dict, text: str, gds: str, pfad: List[str]) -> None:
         z = {"text": text, "gds": gds}
@@ -699,6 +742,17 @@ def build(xml_path: Path, txt_path: Path) -> Tuple[dict, dict]:
         f"Kuratierte Zuordnung B {nr} {o['text']!r}: {b.override_hits.get((nr, o['text']), 0)}-mal gefunden (erwartet 1)"
         for nr, entries in OVERRIDES.items() for o in entries if b.override_hits.get((nr, o["text"]), 0) != 1
     ]
+    for nr, entries in OVERRIDES.items():
+        rows = (b.nodes.get(f"VMG:B {nr}") or {}).get("zeilen", [])
+        for o in entries:
+            if o.get("until") is None:
+                continue
+            n = sum(1 for z in rows if z["text"].startswith(o["until"]))
+            released = b.override_hits.get((nr, "until", o["until"]), 0)
+            if n != 1 or released != 1:
+                override_errors.append(
+                    f"Kuratierte Zuordnung B {nr} {o['text']!r}: Ende {o['until']!r} {n}-mal als GdS-Zeile "
+                    f"gefunden, {released}-mal als Ende erreicht (erwartet je 1)")
     sw, fallbacks, unresolved = stichwoerter(txt_path, b.nodes, problems.append)
     data = {
         "meta": {"titel": TITEL, "stand": stand, "builddate": builddate, "k710": K710},

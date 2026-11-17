@@ -79,3 +79,35 @@ test("Pfad: kuratierte Zuordnungen", () => {
   assert.deepEqual(pfad("VMG:B 13.1", "mit vollständiger Entfernung der Corpora cavernosa", "80"), [PENIS, "nach Entfernung im Frühstadium (T1 bis T2) N0 M0", "bei Verlust des Penis"]);
   assert.deepEqual(pfad("VMG:B 13.1", "nach Entfernung in höheren Stadien", "90-100"), [PENIS]);
 });
+
+// Regressionsfälle Pfad (Review Runde 2)
+const PSYCHOSE = "Nach dem Abklingen lang dauernder psychotischer Episoden ist eine Heilungsbewährung von zwei Jahren abzuwarten.";
+const HB2 = "GdS während einer Heilungsbewährung von zwei Jahren";
+const HB5 = "GdS während einer Heilungsbewährung von fünf Jahren";
+const SKOTOME = "Unregelmäßige Gesichtsfeldausfälle, Skotome im 50°-Gesichtsfeld unterhalb des horizontalen Meridians, binokular";
+const KNORPEL = "Ausgeprägte Knorpelschäden der Kniegelenke (z. B. Chondromalacia patellae Stadium II - IV) mit anhaltenden Reizerscheinungen, einseitig";
+
+test("Pfad Runde 2: Heilungsbewährung (B 3.6, B 14.2)", () => {
+  assert.deepEqual(pfad("VMG:B 3.6", "GdS während dieser Zeit, wenn bereits mehrere", "50"), [PSYCHOSE]);
+  assert.deepEqual(pfad("VMG:B 3.6", "sonst", "30"), [PSYCHOSE]);
+  assert.deepEqual(pfad("VMG:B 14.2", "nach Entfernung eines Zervixtumors (Mikrokarzinom) im Stadium T1a N0 M0", "50"), [HB2]);
+  assert.deepEqual(pfad("VMG:B 14.2", "nach Entfernung eines Korpustumors im Frühstadium", "50"), [HB2]);
+  assert.deepEqual(pfad("VMG:B 14.2", "im Stadium T2b N0 M0", "60"), [HB5, "nach Entfernung eines Zervixtumors"]);
+  assert.deepEqual(pfad("VMG:B 14.2", "im Stadium T2 N0 M0", "60"), [HB5, "nach Entfernung eines Korpustumors"]);
+});
+
+test("Pfad Runde 2: Geschwister- statt Elternüberschrift (B 18.14 Knorpelschäden)", () => {
+  assert.deepEqual(pfad("VMG:B 18.14", "ohne Bewegungseinschränkung", "10-30"), [KNORPEL]);
+  assert.deepEqual(pfad("VMG:B 18.14", "mit Bewegungseinschränkung", "20-40"), [KNORPEL]);
+  // Sweep: Skotome stehen im Druck auf Ebene von „Gesichtsfeldeinengungen“, nicht darunter
+  assert.deepEqual(pfad("VMG:B 4.5", "mindestens 2/3 ausgefallene Fläche", "50"), [SKOTOME]);
+});
+
+test("Abschnitt mit Wert in der nummerierten Zeile hat keinen Titel (B 12.1.1)", () => {
+  const n = data.nodes["VMG:B 12.1.1"];
+  assert.equal(n.titel, null);
+  assert.deepEqual(n.zeilen[0], { text: "Verlust, Ausfall oder Fehlen einer Niere bei Gesundheit der anderen Niere", gds: "25" });
+  assert.equal(data.nodes["VMG:B 4.1"].titel, null);
+  assert.equal(data.nodes["VMG:B 2.1"].titel, null);
+  assert.equal(data.nodes["VMG:B 3.7"].titel, "Neurosen, Persönlichkeitsstörungen, Folgen psychischer Traumen");
+});
