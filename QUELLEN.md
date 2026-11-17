@@ -41,7 +41,7 @@ verändert werden. Sie werden hier so ausgegeben, wie sie in der Klassifikation 
 Der genaue Wortlaut der vorgeschriebenen Quellenangaben steht im Anhang der Downloadbedingungen, die jedem
 Download des BfArM beiliegen (`downloadbedingungen-2025.pdf`).
 
-## Begutachtungs-Richtlinien (BRi) 2026 – optionales Modul `bi`
+## Begutachtungs-Richtlinien (BRi) 2026 – Modul `bi` (abschaltbar)
 
 - Datei: `source/bri_pflege_2026.pdf` mit dem Textauszug `source/bri_pflege_2026.txt`
 - *Richtlinien zur pflegefachlichen Konkretisierung der Inhalte des Begutachtungsinstruments nach § 15 SGB XI sowie zum

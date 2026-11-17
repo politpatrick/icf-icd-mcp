@@ -226,3 +226,44 @@ test("icf_get_related nennt zugeordnete BI-Kriterien", () => {
   assert.equal(r.begutachtungsinstrument.quelle, "kuratiert");
   assert.ok(r.begutachtungsinstrument.kriterien.some((k) => k.bi === "BI:4.4.8"));
 });
+
+test("Datenbestand: mehrzeilige Überschriften stehen nicht im Hinweistext", () => {
+  const data = readData("bi.json");
+  // Ein Hinweis oder Kapitelabsatz, der klein beginnt, ist der Rest einer umbrochenen Überschrift
+  // ("sche und pflegerische Angaben …" aus "[F 1.2] … medizini-"). Aufzählungsreste nach "Bad:" o. Ä. sind erlaubt.
+  const rest = [];
+  for (const n of Object.values(data.nodes)) {
+    for (const [variante, t] of Object.entries(n.texte ?? {})) {
+      const first = t.hinweise?.[0];
+      if (first && /^[a-zäöü]/.test(first)) rest.push(`${n.id} (${variante}): ${first.slice(0, 40)}`);
+    }
+  }
+  for (const [k, a] of Object.entries(data.abschnitte)) {
+    if (a.absaetze[0] && /^[a-zäöü]/.test(a.absaetze[0])) rest.push(`Kapitel ${k}: ${a.absaetze[0].slice(0, 40)}`);
+  }
+  assert.deepEqual(rest, []);
+  assert.match(data.nodes["BI:1.2"].texte.erwachsene.hinweise[0], /^Die persönliche Einschätzung/);
+  assert.match(data.nodes["BI:5.4"].texte.erwachsene.hinweise[0], /^Liegen Hinweise dafür vor/);
+  assert.match(data.nodes["BI:7.2.1"].texte.erwachsene.hinweise[0], /^Die Einschaltung einer Ärztin/);
+});
+
+test("Datenbestand: fehlende Bindestriche im Fettdruck sind ergänzt", () => {
+  const text = JSON.stringify(readData("bi.json"));
+  for (const falsch of ["Hilfs und Pflegehilfsmittel", "krankheits oder therapie", "krankheitsoder"]) {
+    assert.ok(!text.includes(falsch), falsch);
+  }
+  assert.match(bi.getItem({ code: "7.1.3" }).texte.erwachsene.hinweise[0], /konkreten krankheits- oder therapiebedingten/);
+});
+
+test("BI-Tools melden fehlende Kennungen und ungültiges Alter als Fehler", () => {
+  assert.throws(() => bi.getItem({}), /Kennung fehlt/);
+  assert.throws(() => bi.related({ code: "" }), /Kennung fehlt/);
+  assert.throws(() => bi.compare({ code_a: "4.3.2" }), /Kennung fehlt/);
+  assert.throws(() => bi.calculate({ alter_monate: -5 }), /ungültig/);
+  assert.throws(() => bi.calculate({ alter_monate: "abc" }), /ungültig/);
+  assert.throws(() => bi.calculate({ geburtsdatum: "2027-01-01", begutachtungsdatum: "2026-11-17" }), /nach dem Datum der Begutachtung/);
+  // Gültige Grenzfälle bleiben erlaubt
+  assert.equal(bi.calculate({ alter_monate: 0 }).systematik, "Kinder bis 18 Monate");
+  assert.equal(bi.calculate({ alter_monate: "24" }).alter_monate, 24);
+  assert.equal(bi.listStructure({}).instrument, "Begutachtungsinstrument nach § 15 SGB XI");
+});

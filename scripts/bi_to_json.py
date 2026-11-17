@@ -78,6 +78,12 @@ KORREKTUREN = {
     "Ruhe und Schlafphasen": "Ruhe- und Schlafphasen",
     "ein und auszusteigen": "ein- und auszusteigen",
     "unter schieden": "unterschieden",
+    # Fettdruck S. 133–135, 212–214: "Hilfs- und Pflegehilfsmitteleinsatz", "Hilfs- und Pflegehilfsmitteln"
+    "Hilfs und Pflegehilfsmittel": "Hilfs- und Pflegehilfsmittel",
+    # Fettdruck S. 50, 88, 135, 194, 214 u. a.: "krankheits- oder therapiebedingt…"
+    "krankheits oder therapie": "krankheits- oder therapie",
+    # Ergänzungsstrich am Zeilenende (S. 135: "krankheits-" / "oder therapiebedingten") wurde als Trennstrich gelesen
+    "krankheitsoder therapie": "krankheits- oder therapie",
 }
 
 ALTERSHINWEIS = re.compile(
@@ -228,6 +234,54 @@ def collect_blocks(pages, page_range, toc):
             elif cur is not None:
                 cur["lines"].append(line)
     return blocks
+
+
+def strip_heading_continuation(header_line, lines, titles):
+    """Mehrzeilige Kapitelüberschriften: Folgezeilen der Überschrift abtrennen.
+
+    Nicht fett gesetzte Überschriften wie "5.5.2 [F 1.2] Pflegerelevante Vorgeschichte (Anamnese), medizini-" /
+    "sche und pflegerische Angaben …" laufen über mehrere Zeilen. Die Folgezeilen gehören zur Überschrift,
+    nicht zum ersten Absatz. Abgetrennt wird nur, wenn Kopfzeile und Folgezeilen zusammen genau einen der
+    bekannten Titel (Inhaltsverzeichnis oder Struktur) ergeben.
+    """
+    raw = header_line.strip()
+    plain = raw.replace("**", "").strip()
+    m = BRACKET.match(plain)
+    head = m[3] if m else re.sub(r"^\d+(?:\.\d+)*\s+", "", plain)
+    targets = [fold(t) for t in titles if t]
+    acc = fold(head)
+    if not acc or not targets or acc in targets:
+        return lines
+    # Fett gesetzte Überschrift: unmittelbar folgende reine Fettzeilen gehören zur Überschrift
+    if raw.startswith("**"):
+        end = 0
+        for i, line in enumerate(lines):
+            st = line.strip()
+            if st.startswith("**") and st.endswith("**") and st.count("**") == 2:
+                end = i + 1
+            else:
+                break
+        return lines[end:]
+    # Normale Schrift: Folgezeilen, solange sie den Titel fortsetzen. Steht im Formular noch ein Zusatz
+    # (z. B. "… Rehabilitation erforderlich"), reicht es, wenn der größte Teil des Titels erreicht ist.
+    best = None
+    for i, line in enumerate(lines[:4]):
+        part = fold(line.replace("**", ""))
+        if not part:
+            continue
+        acc += part
+        if acc in targets:
+            return lines[i + 1 :]
+        if not any(t.startswith(acc) for t in targets):
+            break
+        if any(len(acc) >= 0.8 * len(t) for t in targets if t.startswith(acc)):
+            best = i + 1
+    return lines[best:] if best else lines
+
+
+def chapter_number(header_line):
+    m = re.match(r"^(\d\.\d+(?:\.\d+)?)\s", header_line.replace("**", "").strip())
+    return m[1] if m else None
 
 
 def split_title(header_line, lines, title):
@@ -440,7 +494,7 @@ def build():
             if b.get("chapter"):
                 ch = b["chapter"]
                 title = toc[ch][0]
-                text = paragraphs(b["lines"])
+                text = paragraphs(strip_heading_continuation(b["header"], b["lines"], [title]))
                 if ch in abschnitte:
                     abschnitte[ch]["absaetze"] += text
                 else:
@@ -454,8 +508,12 @@ def build():
             is_criterion = node["art"] == "kriterium"
             definition, rest = split_title(b["header"], b["lines"], node["titel"])
             if not is_criterion:
-                # Abschnitte und Felder haben keine verbindliche Definition: Fettzeilen bleiben Hinweistext
-                rest = b["lines"] if not definition else [definition] + rest
+                # Abschnitte und Felder haben keine verbindliche Definition: Fettzeilen bleiben Hinweistext.
+                # Folgezeilen einer mehrzeiligen Überschrift gehören nicht zum Hinweistext.
+                ch = chapter_number(b["header"])
+                titles = [node["titel"]] + ([toc[ch][0]] if ch in toc else [])
+                lines = strip_heading_continuation(b["header"], b["lines"], titles)
+                rest = lines if not definition or lines is not b["lines"] else [definition] + rest
                 definition = ""
             alters = []
             if definition:
