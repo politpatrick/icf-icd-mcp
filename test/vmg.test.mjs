@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readData } from "../src/data.mjs";
+import { handleMessage } from "../src/protocol.mjs";
 
 const data = readData("versmedv.json");
 const row = (id, text) => data.nodes[id].zeilen.find((z) => z.text.startsWith(text));
@@ -110,4 +111,111 @@ test("Abschnitt mit Wert in der nummerierten Zeile hat keinen Titel (B 12.1.1)",
   assert.equal(data.nodes["VMG:B 4.1"].titel, null);
   assert.equal(data.nodes["VMG:B 2.1"].titel, null);
   assert.equal(data.nodes["VMG:B 3.7"].titel, "Neurosen, Persönlichkeitsstörungen, Folgen psychischer Traumen");
+});
+
+// ---------------------------------------------------------------------------
+// Tools
+// ---------------------------------------------------------------------------
+
+let nextId = 1;
+function call(name, args) {
+  const reply = handleMessage({ jsonrpc: "2.0", id: nextId++, method: "tools/call", params: { name, arguments: args } });
+  return reply.result.isError ? { error: reply.result.content[0].text } : JSON.parse(reply.result.content[0].text);
+}
+
+test("vmg_get versteht Schreibweisen und zeigt Wert mit Pfad", () => {
+  for (const k of ["VMG:B 3.7", "B 3.7", "b3.7"]) assert.equal(call("vmg_get", { kennung: k }).id, "VMG:B 3.7");
+  const b37 = call("vmg_get", { kennung: "B 3.7" });
+  assert.equal(b37.fundstelle, "Anlage zu § 2 VersMedV, Teil B Nr. 3.7");
+  assert.ok(b37.zeilen.some((z) => z.gds === "30-40" && z.pfad.length === 2));
+  assert.ok(b37.zeilen.every((z) => Array.isArray(z.pfad)));
+  assert.match(b37.hinweis, /Teil A Nr\. 1\.4/);
+  assert.equal(call("vmg_get", { kennung: "A 5 d jj" }).id, "VMG:A 5d jj");
+  assert.equal(call("vmg_get", { kennung: "D 3" }).status, "aufgehoben");
+  assert.match(call("vmg_get", { kennung: "B 99" }).error, /nicht gefunden/);
+});
+
+test("vmg_get: Abschnitte ohne amtliche Überschrift bekommen eine gekennzeichnete Bezeichnung", () => {
+  const b = call("vmg_get", { kennung: "B 12.1.1" });
+  assert.equal(b.titel, null);
+  assert.equal(b.titel_abgeleitet, true);
+  assert.match(b.bezeichnung, /^Verlust, Ausfall oder Fehlen einer Niere/);
+  const amtlich = call("vmg_get", { kennung: "B 3.7" });
+  assert.equal(amtlich.titel_abgeleitet, undefined);
+  assert.equal(amtlich.bezeichnung, amtlich.titel);
+  // Einleitungssatz ohne Titel bleibt vollständig dabei
+  const b1713 = call("vmg_get", { kennung: "B 17.13" });
+  assert.match(b1713.absaetze[0], /GdS während dieser Zeit$/);
+});
+
+test("vmg_list_structure liefert Gliederung und Teilbaum", () => {
+  const all = call("vmg_list_structure", {});
+  assert.deepEqual(all.knoten.map((k) => k.id), ["VMG:A", "VMG:B", "VMG:C", "VMG:D"]);
+  const b3 = call("vmg_list_structure", { kennung: "B 3" });
+  assert.equal(b3.knoten[0].id, "VMG:B 3");
+  assert.ok(b3.knoten[0].children.some((c) => c.id === "VMG:B 3.7"));
+  assert.equal(call("vmg_list_structure", { kennung: "D 3" }).knoten[0].status, "aufgehoben");
+});
+
+test("vmg_search findet über Wortlaut und Stichwörter", () => {
+  assert.ok(call("vmg_search", { query: "Persönlichkeitsstörungen" }).results.some((r) => r.id === "VMG:B 3.7"));
+  const drog = call("vmg_search", { query: "Drogenabhängigkeit" }).results;
+  assert.ok(drog.some((r) => r.id === "VMG:B 3.8"));
+  assert.ok(call("vmg_search", { query: "Hilflosigkeit", teil: "A" }).results.every((r) => r.id.startsWith("VMG:A")));
+  assert.match(call("vmg_search", {}).error, /query oder icd/);
+});
+
+test("vmg_search: Zeilen immer mit Pfad und Fundstelle, höchstens 5, Kontext bei Knoten ohne Titel", () => {
+  const r = call("vmg_search", { query: "Niere" }).results;
+  assert.ok(r.length > 0);
+  for (const x of r) {
+    assert.match(x.fundstelle, /^Anlage zu § 2 VersMedV, Teil /);
+    assert.ok(x.bezeichnung);
+    if (x.zeilen) {
+      assert.ok(x.zeilen.length <= 5);
+      assert.ok(x.zeilen.every((z) => Array.isArray(z.pfad)));
+    }
+  }
+  const haut = call("vmg_search", { query: "Melanom" }).results.find((x) => x.id === "VMG:B 17.13");
+  assert.ok(haut, "B 17.13 gefunden");
+  assert.match(haut.auszug, /GdS während dieser Zeit$/);
+  assert.ok(haut.zeilen.some((z) => z.gds === "50"));
+});
+
+test("vmg_search leitet über einen ICD-Kode ab", () => {
+  const r = call("vmg_search", { icd: "E11.90" });
+  assert.ok(r.abgeleitet_icd.stichwoerter.some((s) => s.wort === "Diabetes mellitus" && s.ids.includes("VMG:B 15.1")));
+  assert.match(r.abgeleitet_icd.hinweis, /nicht amtlich/);
+  assert.ok(r.abgeleitet_icd.stichwoerter.length <= 10);
+  assert.deepEqual(r.results, []);
+  assert.match(call("vmg_search", { icd: "X99.99" }).error, /nicht gefunden/);
+  assert.deepEqual(call("vmg_search", { icd: "Z00.0" }).abgeleitet_icd.stichwoerter, []);
+});
+
+test("normalizeVmgId", async () => {
+  const { normalizeVmgId } = await import("../src/vmg.mjs");
+  assert.equal(normalizeVmgId("vmg:b 3.7"), "VMG:B 3.7");
+  assert.equal(normalizeVmgId(" a 4b "), "VMG:A 4b");
+  assert.equal(normalizeVmgId("D"), "VMG:D");
+});
+
+test("ICF_MCP_VMG=0 schaltet das VersMedV-Modul ab", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const run = (env) =>
+    (
+      spawnSync(process.execPath, ["src/server.mjs"], {
+        input:
+          JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) + "\n" +
+          JSON.stringify({ jsonrpc: "2.0", id: 2, method: "initialize", params: {} }) + "\n",
+        env: { ...process.env, ...env },
+        cwd: new URL("..", import.meta.url).pathname,
+        encoding: "utf-8",
+      }).stdout.split("\n").filter(Boolean).map((l) => JSON.parse(l)).reduce((acc, m) => ({ ...acc, [m.id]: m.result }), {})
+    );
+  const on = run({});
+  assert.ok(on[1].tools.some((t) => t.name === "vmg_get"));
+  assert.match(on[2].instructions, /Versorgungsmedizin/);
+  const off = run({ ICF_MCP_VMG: "0" });
+  assert.ok(!off[1].tools.some((t) => t.name.startsWith("vmg_")));
+  assert.ok(!/Versorgungsmedizin/.test(off[2].instructions));
 });
