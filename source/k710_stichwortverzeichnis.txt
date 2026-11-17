@@ -1,0 +1,330 @@
+Adipositas	B 15.3
+Adnexe	B 14.3+4
+After	B 10.2.4
+Agnosie	A 6c; B 3.1.2
+AIDS	B 16.11
+Akne	B 17.3
+Alkoholkrankheit	B 3.8
+Allergie	A 5d rr; B 17.1
+Anämien	B 16.9
+Anerkennung im Sinne der Entstehung	C 5.2
+Anerkennung im Sinne der Verschlimmerung	C 5.2
+Aneurysmen (der Gefäße)	B 9.2.2
+Anfallsleiden	A 5 d cc; B 3.1.a+2; D 2c
+Antikoagulation	B 16.10
+Bauchspeicheldrüse	B 10.3.6
+Bauchwandhernien	B 11.2
+Becken	B 18.10
+Begleitung ständige	D 2
+Beine	B 18.14
+Bewegungsfähigkeit im Straßenv., Beeinträchtig.	D 1
+Bestimmung des Grades der Schädigungsfolgen	C 6
+Blindheit	A 6; A 4e aa; B 4.2+5+6; D2
+Anus praeter	B 10.2.4
+Aphakie	B 4.2
+Aphasie	B 3.1.2
+Apraxie	B 3.1.2
+Arterielle Verschlusskrankheiten	B 9.2.1
+Arthrose	B 18
+Artikulationsstörung	B 7.2; B 7.11
+Asthma bronchiale	A 5d gg; B 8.5; B 8.6
+Atemwege, tiefere	B 8
+Auge	B 4
+Augenlid	B 4.4
+Augenmuskellähmung	B 4.4
+Augenverlust	B 4.1
+Autismus	A 5d bb; B 3.5
+Autoimmunkrankheiten des Bindegewebes	A 5d pp; B 17.5
+Blut	B 16
+Bluterkrankheit	A 5d oo; B 16.10
+Bluthochdruck	B 9.3
+Bronchialasthma	A 5d gg; B 8.5; B 8.6
+Bronchiektasen	B 8.2
+Bronchitis, chronische	B 8.2
+Brüche	B 11
+Brust	B 14.1
+Brustkorb	B 8
+Cholangitis	B 10.3.5
+Crohn-Krankheit	B 10.2.2
+Darm	B 10.2.2
+Daumen	B 18.13
+Dermatomyositis	A 5d pp; B 17.5; B 18.2.2
+Eierstock	B 14.3+4
+Ekzeme	B 17.1
+Ellenbogen	B 18.13
+Enddarm	B 10.2.4
+Endometriose	B 14.5
+Endoprothesen	B 18.12
+Enteritis regionalis	B 10.2.2
+Farbenfehlsichtigkeit	B 4.6
+Fazialisparese	B 2.4
+Fettleber	B 10.3.3
+Fettstoffwechselstörung	B 15.3
+Fibromyalgie	B 18.4
+Colitis ulcerosa	B 10.2.2
+Cholezystolithiasis	B 10.3.5
+Cushing-Syndrom	B 15.7
+Diabetes mellitus	A 5d jj; B 15.1; D 1e
+Dialyse	A 5d ii; B 12.1.3
+Drogenabhängigkeit	B 3.8
+Entwicklungsstörungen im Kleinkindalter	B 3.4.1
+Epilepsie	A 5d cc; B 3.1.a+2; D 2c
+Ereignis, schädigendes	C 2.2; C 3.3
+Erysipel, chronisch rezidivierend	B 17.10
+Erythrodermien	B 17.8
+Fibrose der Leber	B 10.3.2
+Finger	B 18.13
+Folgeschaden	C 7
+Funktionssysteme	A 3
+Fuß	B 18.14
+Gallenkoliken	B 10.3.5
+Gallensteine	B 10.3.5
+Gallenwege	B 10.3.5
+Gastritis	B 10.2.1
+Gaumen	B 7.5
+Gaumenspalte	A 5d ff; B 7.6
+Gebärmutter	B 14.2
+Gefäßkrankheiten	B 9.2
+Gehörlosigkeit	D 4
+geistige Behinderung	A 5d aa; B 3.4+5
+Geistige Leistungsfähigkeit	B 3.4
+Gesamt-GdS	A 3
+Geschlechtsorgane, männliche	B 13
+Geschlechtsorgane, weibliche	B 14
+Geschwüre (Magen; Zwölffingerdarm)	B 10.2.1
+Gesicht	B 2
+Gesichtsfeld	A 6; B 4
+Gesichtsfeldausfälle	B 4.5
+Gesichtsneuralgien	B 2.2
+Haarausfall	B 17.11
+Haltungs- und Bewegungsorgane	B 18
+Hämophilie	A 5d oo; B 16.10
+Hämorrhoiden	B 10.2.4
+Hand	B 18.13
+Handgelenk	B 18.13
+Gesundheitsstörung, absichtlich herbeigeführte	C 9
+Gesundheitsstörung, bereits bestehende	C 6.2
+Gesundheitsstörung, nachfolgende	C 6.4
+Gesundheitsstörung, primäre	C 2.1; C 2.3; C 3.4.2
+Gesundheitsstörung, sekundäre	C 2.1; C 2.4; C 3.4.2
+Gesundheitsstörung, vorübergehende	A 1.2 + 1.7
+Gicht	B 15.2
+Gleichgewichtsstörung	B 5.3
+Gliedmaßen, allgemein	B 18.11
+Gliedmaßen, obere	B 18.13
+Gliedmaßen, untere	B 18.14
+Grad der Behinderung	A 1
+Grad der Schädigungsfolgen	A 1; C 1; C 6
+Großwuchs	B 18.8
+Großzehe	B 18.14
+Harnableitung, künstliche	B 12.2.4
+Harnblasentumor	B 12.2.3
+Harnentleerungsstörung	B 12.2.2
+Harninkontinenz	B 12.2.4
+Harnorgane	B 12
+Harnwege	B 12.2
+Harnwegsentzündung	B 12.2.1
+Haut	B 17
+Hautkrankheiten, blasenbildende	B 17.6
+Hauttumor	B 17.13
+Heilungsbewährung	A2
+Hemianopsie	A 6b ff+gg; B 4.5
+Hepar	B 10.3
+Hepatitis, chronische	B 10.3.1
+Hernien	B 11
+Herpes simplex, chronisch rezidivierend	B 17.10
+Herz	A 5d hh; B 9.1
+Herzrhythmusstörungen	B 9.1.6
+Ichthyosis	B 17.9
+Immundefekte	A 5d nn; B 16.11
+Kannversorgung	C 4
+Kehlkopf	B 7.8
+Kiefer	B 7.3
+Kieferklemme	B 7.2
+Kleinwuchs	B 18.7
+Knie	B 18.14
+Knochenmarktransplantation	B 16.8
+Herztransplantation	B 9.1.4
+Hilflosigkeit	A4 + 5; A6d; C13b+h
+Hirnschäden	B 3.1
+Hirntumoren	B 3.3
+HIV-Infektion	B 16.11
+Hoden	B 13.2
+Hodentumor	B 13.4
+Hodgin-Krankheit	B 16.2
+Hörverlust	B 5.2
+Hüfte	B 18.14
+Hydrozele	B 13.3
+Hyperkinesen	B 3.1.2
+Hypertonie, arterielle	B 9.3
+Hyperurikämie	B 15.2
+Immunsystem	B 16
+Intelligenzminderung	B 3.4.2
+Kollagenosen	B 18.2.2
+Kopf	B 2
+Krampfadern	B 9.2.3
+Kraurosis vulvae	B 14.6
+Kreislauf	B 9
+Künstliche Niere	A 5d ii; B 12.1.3
+Kurzdarmsyndrom beim Kind	B 10.2.2
+Lähmung	B 3.1.2
+Leber	B 10.3
+Lebertransplantation	B 10.3.4
+Lebertumor	B 10.3.4
+Leberzirrhose	B 10.3.2
+Leisten/Schenkelhernie	B 11.1
+Leukämie	A 5d mm; B 16
+Leukämie, chronisch lymphatische	B 16.3.1
+Leukämie, chronisch myeloische	B 16.5
+Magen	B 10.2.1
+Magen-Darm-Krankheiten	B 10.2
+Mamma	B 14.1
+Mastdarm	B 10.2.4
+Medizinische Maßnahmen, Folgen	C 8
+Menière-Krankheit	B 5.3
+Merkzeichen B	D 2
+Merkzeichen G	D 1
+Merkzeichen GI	D 4
+Migräne	B 2.3
+Milz	B 16.1
+Mittelohrentzündung, chronische	B 5.4
+Morbus Bechterew	B 18.2.1
+Leukämien, akute	B 16.6
+Linsenverlust	B 4.2
+Lippendefekt	B 7.1
+Luftwege, obere	B 7
+Lunge	B 8
+Lungenfunktionseinschränkung	B 8.3
+Lungentransplantation	B 8.4
+Lupus erythematodes	A 5d pp; B 17.5; B 18.2.2
+Lymphödem	B 9.2.3
+Morbus Crohn	B 10.2.2
+Morbus Hodgin	B 16.2
+Motilitätsstörungen des Darms	B 10.2.2
+Mukoviszidose	A 5d ll; B 15.5
+Multiple Sklerose	B 3.10
+Mundhöhle	B 7
+Mundöffnung, behinderte	B 7.2
+Muskelkrankheiten	B 18.6
+Myelodysplasien	B 16.7
+Myeloproliferative Erkrankungen, chronische	B 16.5
+Mykosen	B 17.10
+Nabelbruch	B 11.2
+Naevus	B 17.12
+Narkolepsie	B 3.2
+Nase	B 6
+Nasennebenhöhlenentzündung, chronische	B 6.2
+Nasenverlust	B 6.1
+Nebenniere	B 15.7
+Nephrolithiasis	B 12.1.1
+Nephrotisches Syndrom	B 12.1.2
+Nervensystem	B 3
+Neurose	B 3.7
+Oberarm	B 18.13
+Oberschenkel	B 18.14
+Ohnhänder	D 2c
+Ohrgeräusche	B 5.3
+Ohrmuschel	B 5.5
+Organe, blutbildende	B 16
+Orientierungsfähigkeit	D 1b; D 2
+Niere	B 12.1
+Nierenfunktionseinschränkung	A5dii; B12.1.3; D1d
+Niereninsuffizienz	A5dii; B12.1.3; D1d
+Nierenstein	B 12.1.1
+Nierentransplantation	B 12.1.4
+Nierenzellkarzinom	B 12.1.4
+Non-Hodgin-Lymphome	B 16.3
+Non-Hodgin-Lymphome, hochmaligne	B 16.3.2
+Non-Hodgin-Lymphome, niedrigmaligne	B 16.3.1
+Ösophagus	B 10.1
+Osteochondrose	B 18
+Osteogenesis imperfecta	A 5d qq; B 18.7
+Osteomyelitis, chronische	B 18.5
+Osteoporose	B 18
+Ozeana	B 6.2
+Pankreas	B 10.3.6
+Parese	B 3.1.2
+Parkinson	B 3.1.2
+Pemphigus, Pemphigoide	B 17.6
+Penis	B 13.1
+Persönlichkeitsstörung	B 3.7
+Phenylketonurie	A 5d kk; B 15.4
+Plasmozytom	B 16.4
+Quincke-Ödem	B 17.2
+Rachenraum	B 7
+Rheumatische Erkrankungen	B 18; B 18.2.1
+Rhinophym	B 17.4
+Sarkoidose	B 8.9
+Schädigung, gesundheitliche	C 2.1; C 3.3
+Schädigungsfolgen	A 1; C 2.1; C 3.3, C 3.4.6
+Schädigungsfolge, im Sinne der Entstehung	C 5.2
+Polyarthritis, chronische	A 5d pp; B 18.1; B 18.2.1
+Polyneuropathien	B 3.11
+Porphyrien	B 15.8
+Prostata	B 13.6
+Psoriasis vulgaris	B 17.7
+Psyche	B 3, C 3.4.6
+Psychisches Trauma	B 3.7
+Psychose	A 4f aa; B 3.6
+Rhythmusstörungen	B 9.1.6
+Riechvermögen	B 6.3
+Rosazea	B 17.4
+Rückenmarksschäden	B 3.9
+Schädigungsfolge, im Sinne der Verschlimmerung	C 5.3
+Scheide	B 14.6
+Schilddrüse	B 15.6
+Schizophrenie	B 3.6
+Schlaf-Apnoe-Syndrom	B 8.7
+Schluckstörungen	B 7.7
+Schlüsselbein	B 18.13
+Schmerzen	A 1.3.2
+Schulter	B 18.13
+Schwerhörigkeit	A 5d ee; B 5; D 1f; D 2b+c; D 4
+Seelische Begleiterscheinung	A 1.3.1
+Sehbehinderung	A 6; A4e aa; A 5d dd; B4; D1+2
+Sehorgan	B 4
+Sehschärfe	A 6; B 4
+Tatsachen (zur Begutachtung des urs. Zusammenhangs)	C 1; C 2
+Taubheit	A 5d ee; B 5; D 1f; D 2b+c; D 4
+Teilhabe, Beeinträchtigung	A 1; B 3; B 15; B 16; C 6
+Ulcera (ventrikuli; duodeni)	B 10.2.1
+Unterarm	B 18.13
+Unterschenkel	B 18.14
+Ursachen, konkurrierende	C 3.4.2
+Skotom	A 6b ee; B 4.5
+Speiseröhre	B 10.1
+Sprue	A 5d ss; B 10.2.2
+Sprunggelenk	B 18.14
+Stammzelltransplantation	B 16.8
+Sterilität	B 14.2
+Stimmstörung	B 7.10
+Stinknase	B 6.2
+Stoffwechsel	B 15
+Strabismus	B 4.4
+Tetanie	B 15.6
+Tinnitus	B 5.3
+Tracheostoma	B 7.9
+Trigeminusneuralgie	B 2.2
+Tuberkulose	B 8.8
+Ursächlicher Zusammenhang Schädigung, Tod	C 10
+Urtikaria	B 17.2
+Vagina	B 14.6
+Varikosis	B 9.2.3
+Varikozele	B 13.3
+Vaskulitiden	B 18.2.3
+Verdauungsorgane	B 10
+Verhaltensstörungen	B 3.5
+Vermutungsregelung	C 3.4.4 -3.4.6
+Wahrscheinlichkeit des ursächlichen Zusammenhangs	C 3.4; C 4.5; C 10
+Wesentliche Änderung der Verhältnisse	A 7
+Zahnverlust	B 7.4
+Zehe	B 18.14
+Zöliakie	A 5d ss; B 10.2.2
+Verschiebung der Wesensgrundlage	A 7c
+Verwachsungen, Bauchfell	B 10.2.3
+Vitiligo	B 17.12
+Vulva	B 14.6
+Wirbelsäule	B 18.9
+Zuckerkrankheit	A 5d jj; B 15.1; D 1e
+Zwerchfellhernie	B 11.3
+Zystitis	B 12.2.1
