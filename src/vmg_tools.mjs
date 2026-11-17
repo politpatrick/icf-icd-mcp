@@ -58,4 +58,42 @@ export const VMG_TOOLS = !vmg
         annotations: readOnly,
         run: vmg.search,
       },
+      {
+        name: "vmg_gesamt_gdb",
+        title: "VersMedV: Prüfhilfe Gesamt-GdB",
+        description:
+          "Prüfhilfe zur Bildung des Gesamt-GdB nach Teil A Nr. 3 VersMedV; es wird kein Gesamt-GdB berechnet. Nimmt Einzel-GdB (je bezeichnung, gdb, optional kennung aus Teil B und funktionssystem) und liefert den höchsten Einzel-GdB als Ausgangswert, das Funktionssystem je Eintrag, Paare im selben bzw. möglicherweise selben Funktionssystem, Markierungen (z. B. leichte Beeinträchtigungen nach A 3.5) und den Wortlaut von A 3.1 bis 3.5. Die Zuordnung innerhalb von Teil B Nr. 18 ist verwaltungsüblich, nicht amtlich.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            einzel: {
+              type: "array",
+              minItems: 1,
+              description: "Einzel-GdB der festgestellten Funktionsbeeinträchtigungen",
+              items: {
+                type: "object",
+                properties: {
+                  bezeichnung: { type: "string", description: "Bezeichnung der Funktionsbeeinträchtigung" },
+                  gdb: { type: "integer", minimum: 10, maximum: 100, multipleOf: 10, description: "Einzel-GdB in Zehnerschritten" },
+                  kennung: { ...kennungProp, description: 'Optional: Kennung in Teil B, z. B. "B 3.7"; daraus wird das Funktionssystem abgeleitet' },
+                  funktionssystem: { type: "string", description: "Optional: Funktionssystem, überschreibt die Ableitung aus der Kennung" },
+                },
+                required: ["bezeichnung", "gdb"],
+              },
+            },
+          },
+          required: ["einzel"],
+        },
+        annotations: readOnly,
+        run: vmg.gesamtGdb,
+      },
+      {
+        name: "vmg_merkzeichen",
+        title: "VersMedV: Merkzeichen",
+        description:
+          "Fundstellen der Merkzeichen G, aG, B, H, Bl, Gl, RF und TBl: VersMedV-Abschnitte mit Wortlaut bzw. bei aG, RF und TBl die Norm außerhalb der VersMedV. Ohne Angabe alle acht Merkzeichen; die Schreibweise (g, AG, tbl) ist egal.",
+        inputSchema: { type: "object", properties: { merkzeichen: { type: "string", description: "Optional: G, aG, B, H, Bl, Gl, RF oder TBl" } } },
+        annotations: readOnly,
+        run: vmg.merkzeichen,
+      },
     ];

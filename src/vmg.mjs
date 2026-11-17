@@ -203,3 +203,163 @@ export function search({ query, icd, teil, limit = 20 } = {}) {
   if (hasIcd) out.abgeleitet_icd = deriveFromIcd(icd);
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// Prüfhilfe Gesamt-GdB (rechnet nichts; zeigt Regeln, Funktionssysteme und Markierungen)
+// ---------------------------------------------------------------------------
+
+const GESAMT_HINWEIS =
+  "Es wird kein Gesamt-GdB berechnet. Nach Teil A Nr. 3 ist der Gesamt-GdB aus einer gutachterlichen Gesamtschau zu bilden; Einzel-GdB dürfen nicht addiert werden.";
+const REGEL_IDS = ["VMG:A 3.1", "VMG:A 3.2", "VMG:A 3.3", "VMG:A 3.3.1", "VMG:A 3.3.2", "VMG:A 3.3.3", "VMG:A 3.3.4", "VMG:A 3.4", "VMG:A 3.5"];
+const textOf = (id) => nodes[id].absaetze.join(" ");
+
+// Zuordnung innerhalb von Teil B Nr. 18 (Haltungs- und Bewegungsorgane): verwaltungsübliche Gliederung, nicht amtlich.
+const B18_SYSTEME = { "18.9": "Rumpf", "18.10": "Rumpf", "18.13": "Arme", "18.14": "Beine" };
+const B18_OFFEN = "Haltungs- und Bewegungsorgane, nicht näher zugeordnet";
+const B18_ZUGEORDNET = new Set(Object.values(B18_SYSTEME));
+
+/** Funktionssystem zu einer Kennung: { funktionssystem, quelle } oder { funktionssystem: null, hinweis }. */
+function systemOf(n) {
+  if (n.teil !== "B") return { funktionssystem: null, hinweis: "Funktionssystem nicht bestimmbar (Kennung liegt außerhalb von Teil B)" };
+  let k = n;
+  while (k.parent && k.parent !== "VMG:B") k = nodes[k.parent];
+  if (k.parent !== "VMG:B") return { funktionssystem: null, hinweis: "Funktionssystem nicht bestimmbar (kein Kapitel von Teil B)" };
+  if (k.nummer !== "18") {
+    if (k.status || !k.titel) return { funktionssystem: null, hinweis: `Funktionssystem nicht bestimmbar (Kapitel B ${k.nummer}: ${k.status ?? "ohne Titel"})` };
+    return { funktionssystem: k.titel, quelle: "teil_b" };
+  }
+  let u = n;
+  while (u.parent && u.parent !== "VMG:B 18") u = nodes[u.parent];
+  const sys = u.parent === "VMG:B 18" ? B18_SYSTEME[u.nummer] : undefined;
+  return { funktionssystem: sys ?? B18_OFFEN, quelle: "verwaltungsueblich" };
+}
+
+function gdbEntry(e, i) {
+  const pos = `einzel[${i}]`;
+  if (!e || typeof e !== "object") throw new LookupError(`${pos}: Objekt mit bezeichnung und gdb erwartet.`);
+  if (typeof e.bezeichnung !== "string" || e.bezeichnung.trim() === "") throw new LookupError(`${pos}: bezeichnung fehlt oder ist leer.`);
+  if (!Number.isInteger(e.gdb) || e.gdb <= 0 || e.gdb > 100 || e.gdb % 10 !== 0)
+    throw new LookupError(`${pos} (${e.bezeichnung}): gdb muss eine ganze Zahl von 10 bis 100 in Zehnerschritten sein (erhalten: ${JSON.stringify(e.gdb)}).`);
+  return e;
+}
+
+const same = (a, b) => a.toLowerCase() === b.toLowerCase();
+
+export function gesamtGdb({ einzel } = {}) {
+  if (!Array.isArray(einzel) || einzel.length === 0) throw new LookupError("einzel muss eine nichtleere Liste mit Einträgen {bezeichnung, gdb, kennung?, funktionssystem?} sein.");
+  const eintraege = einzel.map((raw, i) => {
+    const e = gdbEntry(raw, i);
+    let sys = { funktionssystem: null, quelle: null };
+    let hinweis;
+    if (e.kennung !== undefined && String(e.kennung).trim() !== "") {
+      const s = systemOf(requireNode(e.kennung));
+      sys = { funktionssystem: s.funktionssystem, quelle: s.quelle ?? null };
+      hinweis = s.hinweis;
+    }
+    if (typeof e.funktionssystem === "string" && e.funktionssystem.trim() !== "") sys = { funktionssystem: e.funktionssystem.trim(), quelle: "angabe" };
+    if (!sys.funktionssystem) hinweis ??= "Funktionssystem nicht bestimmbar";
+    return {
+      bezeichnung: e.bezeichnung.trim(),
+      gdb: e.gdb,
+      ...(e.kennung !== undefined && String(e.kennung).trim() !== "" ? { kennung: normalizeVmgId(e.kennung) } : {}),
+      funktionssystem: sys.funktionssystem,
+      funktionssystem_quelle: sys.quelle,
+      ...(hinweis ? { hinweis } : {}),
+      markierungen: [],
+    };
+  });
+
+  const paare = [];
+  for (let i = 0; i < eintraege.length; i++)
+    for (let j = i + 1; j < eintraege.length; j++) {
+      const a = eintraege[i], b = eintraege[j];
+      if (!a.funktionssystem || !b.funktionssystem) continue;
+      const offenA = same(a.funktionssystem, B18_OFFEN), offenB = same(b.funktionssystem, B18_OFFEN);
+      const zugeordnet = (x) => [...B18_ZUGEORDNET].some((s) => same(s, x));
+      let beziehung, grund;
+      if (offenA && offenB) {
+        beziehung = "moeglicherweise_gleich";
+        grund = "Beide Einträge sind Teil B Nr. 18 ohne nähere Zuordnung; ob dasselbe Funktionssystem betroffen ist, ist im Einzelfall zu prüfen.";
+      } else if ((offenA && zugeordnet(b.funktionssystem)) || (offenB && zugeordnet(a.funktionssystem))) {
+        beziehung = "moeglicherweise_gleich";
+        grund = `Ein Eintrag ist Teil B Nr. 18 ohne nähere Zuordnung, der andere ${offenA ? b.funktionssystem : a.funktionssystem} (verwaltungsübliche Gliederung, nicht amtlich); Zusammenhang im Einzelfall zu prüfen.`;
+      } else if (same(a.funktionssystem, b.funktionssystem)) {
+        beziehung = "gleich";
+        grund = `Beide Einträge gehören zum Funktionssystem „${a.funktionssystem}“ (Teil A Nr. 3.1: GdB für das Funktionssystem in seiner Gesamtheit).`;
+      } else continue;
+      paare.push({ a: a.bezeichnung, b: b.bezeichnung, beziehung, grund });
+    }
+
+  const textA35 = textOf("VMG:A 3.5");
+  const paarBezeichnungen = new Set(paare.flatMap((p) => [p.a, p.b]));
+  for (const e of eintraege) {
+    if (e.gdb === 10 || e.gdb === 20) e.markierungen.push({ regel: "VMG:A 3.5", text: textA35 });
+    if (paarBezeichnungen.has(e.bezeichnung))
+      for (const id of ["VMG:A 3.1", "VMG:A 3.2"]) e.markierungen.push({ regel: id, text: textOf(id) });
+  }
+
+  const max = eintraege.reduce((m, e) => (e.gdb > m.gdb ? e : m));
+  return {
+    version: VMG_VERSION,
+    ausgangswert: max.gdb,
+    ausgangseintrag: max.bezeichnung,
+    eintraege,
+    paare,
+    regeln: REGEL_IDS.map((id) => ({ id, text: textOf(id) })),
+    hinweis: GESAMT_HINWEIS,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Merkzeichen
+// ---------------------------------------------------------------------------
+
+// Fundstellen in der VersMedV; Merkzeichen ohne Regelung dort verweisen auf die Norm (am Quelltext gesetze-im-internet.de geprüft).
+const MERKZEICHEN = [
+  { zeichen: "G", bezeichnung: "Erhebliche Beeinträchtigung der Bewegungsfähigkeit im Straßenverkehr", ids: ["VMG:D 1"] },
+  {
+    zeichen: "aG", bezeichnung: "Außergewöhnliche Gehbehinderung",
+    norm: "§ 229 Abs. 3 SGB IX",
+    hinweis: "Erheblich mobilitätsbezogene Teilhabebeeinträchtigung, die einem GdB von mindestens 80 entspricht; dauernd nur mit fremder Hilfe oder mit großer Anstrengung außerhalb des Kraftfahrzeugs fortbewegbar (Wortlaut: § 229 Abs. 3 SGB IX). Die VersMedV enthält dazu keine eigene Nummer.",
+  },
+  { zeichen: "B", bezeichnung: "Berechtigung für eine ständige Begleitung", ids: ["VMG:D 2"] },
+  { zeichen: "H", bezeichnung: "Hilflosigkeit", ids: ["VMG:A 4", "VMG:A 5"] },
+  { zeichen: "Bl", bezeichnung: "Blindheit und hochgradige Sehbehinderung", ids: ["VMG:A 6"] },
+  { zeichen: "Gl", bezeichnung: "Gehörlosigkeit", ids: ["VMG:D 4"] },
+  {
+    zeichen: "RF", bezeichnung: "Ermäßigung beim Rundfunkbeitrag",
+    norm: "Rundfunkbeitragsstaatsvertrag (Landesrecht), Ermäßigung nach § 4",
+    hinweis: "Die gesundheitlichen Voraussetzungen sind landesrechtlich festgelegt (§ 3 Abs. 1 Nr. 5 Schwerbehindertenausweisverordnung). Die genaue Fundstelle im Rundfunkbeitragsstaatsvertrag (§ 4) wurde nicht an einer amtlichen Landesrechtsquelle geprüft; die VersMedV enthält dazu keine eigene Nummer.",
+  },
+  {
+    zeichen: "TBl", bezeichnung: "Taubblindheit",
+    norm: "§ 3 Abs. 1 Nr. 8 Schwerbehindertenausweisverordnung",
+    hinweis: "Mindestens GdB 70 wegen einer Störung der Hörfunktion und GdB 100 wegen einer Störung des Sehvermögens (Wortlaut: § 3 Abs. 1 Nr. 8 SchwbAwV). Die VersMedV enthält dazu keine eigene Nummer.",
+  },
+];
+
+export function merkzeichen({ merkzeichen: wanted } = {}) {
+  let list = MERKZEICHEN;
+  if (wanted !== undefined && wanted !== null && String(wanted).trim() !== "") {
+    const key = String(wanted).trim().toLowerCase();
+    list = MERKZEICHEN.filter((m) => m.zeichen.toLowerCase() === key);
+    if (!list.length) throw new LookupError(`Merkzeichen "${wanted}" unbekannt; erlaubt: ${MERKZEICHEN.map((m) => m.zeichen).join(", ")}.`);
+  }
+  return {
+    version: VMG_VERSION,
+    merkzeichen: list.map((m) =>
+      m.ids
+        ? {
+            zeichen: m.zeichen,
+            bezeichnung: m.bezeichnung,
+            fundstellen: m.ids.map((id) => ({
+              id,
+              fundstelle: fundstelle(nodes[id]),
+              absaetze: nodes[id].absaetze ?? [],
+              ...(nodes[id].children?.length ? { unterabschnitte: nodes[id].children } : {}),
+            })),
+          }
+        : { zeichen: m.zeichen, bezeichnung: m.bezeichnung, norm: m.norm, hinweis: m.hinweis }
+    ),
+  };
+}

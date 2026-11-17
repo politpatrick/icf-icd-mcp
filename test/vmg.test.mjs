@@ -219,3 +219,38 @@ test("ICF_MCP_VMG=0 schaltet das VersMedV-Modul ab", async () => {
   assert.ok(!off[1].tools.some((t) => t.name.startsWith("vmg_")));
   assert.ok(!/Versorgungsmedizin/.test(off[2].instructions));
 });
+
+test("vmg_gesamt_gdb ist eine Prüfhilfe ohne Gesamtwert", () => {
+  const r = call("vmg_gesamt_gdb", { einzel: [
+    { bezeichnung: "Depression", gdb: 50, kennung: "B 3.7" },
+    { bezeichnung: "Wirbelsäule", gdb: 30, kennung: "B 18.9" },
+    { bezeichnung: "Hautekzem", gdb: 10, kennung: "B 17.1" },
+  ] });
+  assert.equal(r.ausgangswert, 50);
+  assert.ok(r.eintraege[2].markierungen.some((m) => m.regel === "VMG:A 3.5"));
+  assert.ok(!/gesamt_?gdb|voraussichtlich/i.test(Object.keys(r).join(" ")));
+  assert.match(r.hinweis, /kein Gesamt-GdB berechnet/);
+  assert.ok(r.regeln.some((g) => g.id === "VMG:A 3.3.4"));
+});
+
+test("vmg_gesamt_gdb erkennt Funktionssysteme", () => {
+  const pair = (a, b) => call("vmg_gesamt_gdb", { einzel: [{ bezeichnung: "a", gdb: 30, kennung: a }, { bezeichnung: "b", gdb: 20, kennung: b }] }).paare;
+  assert.deepEqual(pair("B 18.9", "B 18.14"), []);
+  assert.equal(pair("B 18.9", "B 18.9")[0].beziehung, "gleich");
+  assert.equal(pair("B 18.12", "B 18.14")[0].beziehung, "moeglicherweise_gleich");
+  const own = call("vmg_gesamt_gdb", { einzel: [{ bezeichnung: "a", gdb: 30, kennung: "B 18.9", funktionssystem: "Beine" }, { bezeichnung: "b", gdb: 20, kennung: "B 18.14" }] });
+  assert.equal(own.eintraege[0].funktionssystem_quelle, "angabe");
+  assert.equal(own.paare[0].beziehung, "gleich");
+});
+
+test("vmg_gesamt_gdb prüft Eingaben", () => {
+  for (const einzel of [[], [{ bezeichnung: "x", gdb: 35 }], [{ bezeichnung: "x", gdb: 110 }], [{ bezeichnung: "x", gdb: -10 }]])
+    assert.ok(call("vmg_gesamt_gdb", { einzel }).error);
+});
+
+test("vmg_merkzeichen", () => {
+  assert.equal(call("vmg_merkzeichen", { merkzeichen: "G" }).merkzeichen[0].fundstellen[0].id, "VMG:D 1");
+  assert.match(call("vmg_merkzeichen", { merkzeichen: "aG" }).merkzeichen[0].norm, /SGB IX/);
+  assert.equal(call("vmg_merkzeichen", {}).merkzeichen.length, 8);
+  assert.ok(call("vmg_merkzeichen", { merkzeichen: "XY" }).error);
+});
