@@ -84,3 +84,37 @@ test("icd_list_chapters listet 22 Kapitel mit Bereichen", () => {
   assert.ok(call("icd_list_chapters", { chapter: "v" }).groups.some((g) => g.code === "F30-F39"));
   assert.match(call("icd_list_chapters", { chapter: "F32" }).error, /kein Kapitel/);
 });
+
+test("icd_search findet Begriffe aus dem Alphabetischen Verzeichnis", () => {
+  const r = call("icd_search", { query: "Ziegenpeter" });
+  assert.equal(r.results[0].code, "B26.9");
+  assert.ok(r.results[0].alphabet.some((a) => a.text === "Ziegenpeter"));
+  assert.match(r.hinweis, /Systematische Verzeichnis/);
+});
+
+test("icd_search ignoriert Bindestriche", () => {
+  assert.ok(call("icd_search", { query: "Burnout" }).results.slice(0, 3).some((x) => x.code.startsWith("Z73")));
+});
+
+test("icd_search zeigt Kombinationen und Verweise aus dem Alphabet", () => {
+  const typhus = call("icd_search", { query: "Typhus-Meningitis" }).results.find((x) => x.code.startsWith("A01.0"));
+  assert.ok(typhus.alphabet.some((a) => a.kombination === "A01.0† G01*"));
+  const zucker = call("icd_search", { query: "Zuckerkrankheit" });
+  assert.ok(zucker.results.some((x) => x.alphabet?.some((a) => /s\.a\. Diabetes mellitus/.test(a.text))));
+  const clav = call("icd_search", { query: "Clavicula" });
+  assert.ok(clav.verweise.includes("Clavicula - s. Klavikula"));
+});
+
+test("icd_search sucht nach Orpha-Kennnummer", () => {
+  const r = call("icd_search", { query: "ORPHA:173" });
+  assert.ok(r.results.some((x) => x.code === "A00.0" && x.alphabet.some((a) => a.orpha === 173)));
+  assert.equal(call("icd_search", { query: "Orpha 999999999" }).total, 0);
+});
+
+test("Alphabet verdrängt keine Kodetreffer und beachtet Filter", () => {
+  assert.equal(call("icd_search", { query: "F32" }).results[0].code, "F32");
+  assert.ok(call("icd_search", { query: "Ziegenpeter", chapter: "V" }).results.length === 0);
+  assert.ok(call("icd_search", { query: "T-Helferzellen" }).results.some((x) => x.code.startsWith("U61.2")));
+  const zucker = call("icd_search", { query: "Zuckerkrankheit", codable_only: true }).results;
+  assert.ok(zucker.length > 0 && zucker.every((x) => x.terminal));
+});

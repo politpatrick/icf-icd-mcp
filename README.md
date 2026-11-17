@@ -12,6 +12,7 @@ Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien und Kriter
 - Läuft lokal, sendet keine Daten nach außen
 - ICF: 1.495 Kategorien (b, s, d, e) mit Beschreibungen, Ein-/Ausschlüssen und Beurteilungsmerkmalen
 - ICD-10-GM: 17.177 Klassen, darunter alle über Subklassifikationen gebildeten Kodes (z. B. E11.90, G82.30), mit Kodierregeln nach §295/§301
+- Alphabetisches Verzeichnis der ICD-10-GM: 89.304 Diagnosetexte mit Synonymen und Laienbegriffen (z. B. „Ziegenpeter“ → B26.9), 309 Verweise und 19.352 Orpha-Kennnummern für seltene Erkrankungen aus der Datei Alpha-ID-SE
 
 ## Tools
 
@@ -31,7 +32,7 @@ Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien und Kriter
 
 | Tool | Zweck |
 | --- | --- |
-| `icd_search` | Suche in Titeln und Einschlussbegriffen; Umlaute egal, Kode-Präfixe möglich, optional nach Kapitel oder nur endständige Kodes |
+| `icd_search` | Suche in Titeln, Einschlussbegriffen und im Alphabetischen Verzeichnis (Synonyme, Laienbegriffe, Kreuz-Stern-Kombinationen, Verweise); Umlaute und Bindestriche egal, Kode-Präfixe möglich, Suche nach Orpha-Kennnummer (`ORPHA:173`), optional nach Kapitel oder nur endständige Kodes |
 | `icd_get_code` | Titel, Hierarchiepfad, Ein-/Ausschlüsse mit Verweisen, Hinweise, Unterkodes, §295/§301, Kreuz/Stern/Ausrufezeichen, Alters- und Geschlechtsbezug |
 | `icd_list_chapters` | Die 22 Kapitel mit Kodebereichen oder die Gruppen eines Kapitels |
 | `icd_check_code` | Prüft Kodierbarkeit inkl. Zusatzkennzeichen für Diagnosesicherheit (G/V/Z/A) und Seite (R/L/B), z. B. `F32.1 G` |
@@ -187,9 +188,9 @@ npm run build:data   # data/ aus source/ neu erzeugen (Python 3.9+)
 
 ### Neue ICD-10-GM-Jahresversion
 
-1. Beim BfArM das Paket *ICD-10-GM … Systematik ClaML* herunterladen.
-2. Die XML aus `Klassifikationsdateien/` nach `source/` kopieren und die alte Version löschen.
-3. `npm run build:data` und `npm test` ausführen. `build_data.sh` nimmt automatisch die neueste `icd10gm*syst_claml_*.xml`.
+1. Beim BfArM die Pakete *ICD-10-GM … Systematik ClaML*, *Alphabet EDV-Fassung TXT* und *Alpha-ID-SE* herunterladen.
+2. Die XML aus `Klassifikationsdateien/` und die beiden TXT-Dateien nach `source/` kopieren und die alten Versionen löschen.
+3. `npm run build:data` und `npm test` ausführen. `build_data.sh` nimmt automatisch die neueste `icd10gm*syst_claml_*.xml`, `icd10gm*alpha_edvtxt_*.txt` und `icd10gm*_alphaidse_edvtxt_*.txt`.
 4. Die Versionsangaben in `QUELLEN.md` anpassen.
 
 ### Wissensnetz in graphify

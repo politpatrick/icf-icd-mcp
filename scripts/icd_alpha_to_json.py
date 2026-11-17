@@ -3,7 +3,8 @@
 
 Export des Alphabetischen Verzeichnisses der ICD-10-GM (EDV-Fassung TXT, BfArM) nach JSON für den MCP-Server,
 ergänzt um die Orpha-Kennnummern aus der Datei Alpha-ID-SE:
-  icd10gm_alpha.json – Einträge mit Kodes (ohne Kennzeichen †/*/!), Text und ggf. Orpha-Kennnummer,
+  icd10gm_alpha.json – Einträge mit Kodes (ohne Kennzeichen †/*/!), bei Kombinationen zusätzlich die Kodefolge
+                       mit den Kennzeichen des Alphabets (k, + als †), Text und ggf. Orpha-Kennnummer,
                        dazu die reinen Verweissätze (Art 0) als Text.
 
 Beide Dateien sind |-getrennt mit 8 Feldern (siehe Liesmich-Dateien des BfArM). Verknüpft wird über die
@@ -22,6 +23,7 @@ from pathlib import Path
 from typing import Dict, List
 
 MARKS = re.compile(r"[+*!†]$")
+COMBINED_ART = {"2", "3", "4", "6"}  # Kreuz-Stern, mit Zusatzkode, zwei Primärkodes
 STAND = re.compile(r"_(\d{4})(\d{2})(\d{2})\.txt$")
 
 
@@ -61,6 +63,8 @@ def build(alpha_txt: Path, alphase_txt: Path, known: set) -> dict:
         if missing or not codes:
             unknown.append(f"{nr}: {text} ({', '.join(missing) or 'ohne Kode'})")
             continue
+        if art in COMBINED_ART:
+            entry["k"] = " ".join(v.strip().replace("+", "†") for v in (p, s, z, p2) if v)
         if nr in orpha:
             entry["o"] = orpha[nr]
         entry["t"] = text
