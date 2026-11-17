@@ -118,3 +118,22 @@ test("Alphabet verdrängt keine Kodetreffer und beachtet Filter", () => {
   const zucker = call("icd_search", { query: "Zuckerkrankheit", codable_only: true }).results;
   assert.ok(zucker.length > 0 && zucker.every((x) => x.terminal));
 });
+
+test("Titeltreffer der Systematik bleiben vor Alphabet-Treffern", () => {
+  assert.ok(call("icd_search", { query: "Diabetes" }).results.slice(0, 5).every((x) => /^E1[0-4]$/.test(x.code)));
+  assert.equal(call("icd_search", { query: "Diabetes Typ 2" }).results[0].code, "E11");
+  assert.ok(call("icd_search", { query: "Hypertonie" }).results.slice(0, 3).some((x) => x.code === "I10"));
+  assert.match(call("icd_search", { query: "depressive Episode" }).results[0].code, /^F32/);
+});
+
+test("Alphabet-Treffer brauchen alle übrigen Suchwörter in einem Text", () => {
+  const mixed = call("icd_search", { query: "Typhus Endokarditis Meningitis" }).results;
+  assert.ok(!mixed.some((x) => x.code === "A01.0"));
+  const typhus = call("icd_search", { query: "Typhus Meningitis" }).results.find((x) => x.code.startsWith("A01.0"));
+  assert.equal(typhus.alphabet[0].text, "Typhus-Meningitis");
+});
+
+test("Einträge nur mit Zusatzkode hängen am Zusatzkode", () => {
+  const r = call("icd_search", { query: "Acinetobacter als Erreger" }).results;
+  assert.ok(r.some((x) => x.code.startsWith("B96.5") && x.alphabet?.some((a) => a.text === "Acinetobacter als Erreger")));
+});

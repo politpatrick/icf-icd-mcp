@@ -201,11 +201,14 @@ function alphabetHit(item) {
   };
 }
 
-/** Alphabet-Texte eines Kodes, die zur Suche passen: zuerst die mit allen Suchwörtern, sonst die mit einem. */
+/** Alphabet-Texte eines Kodes, die zur Suche passen, die mit den meisten Suchwörtern zuerst. */
 function matchingAlphabet(items, terms) {
-  const all = items.filter((a) => terms.every((t) => a.folded.includes(t)));
-  const some = all.length ? all : items.filter((a) => terms.some((t) => a.folded.includes(t)));
-  return some.slice(0, MAX_ALPHABET_PER_CODE).map(alphabetHit);
+  return items
+    .map((a) => ({ a, n: terms.filter((t) => a.folded.includes(t)).length }))
+    .filter(({ n }) => n > 0)
+    .sort((x, y) => y.n - x.n)
+    .slice(0, MAX_ALPHABET_PER_CODE)
+    .map(({ a }) => alphabetHit(a));
 }
 
 function searchResult(query, scored, limit, extra = {}) {
@@ -254,14 +257,23 @@ export function search({ query, chapter, codable_only = false, limit = 20 }) {
     let score = 0;
     let allFound = true;
     let alphabetUsed = false;
+    const needAlphabet = [];
     terms.forEach((term, i) => {
       const codeHit = entry.code === codeTerms[i] ? 100 : entry.code.startsWith(codeTerms[i]) ? 20 : 0;
+      const inTitle = item.title.includes(term);
+      const inInclusions = item.inclusions.includes(term);
       const inAlphabet = item.alphabet.includes(term);
-      const hit = (item.title.includes(term) ? 10 : 0) + (inAlphabet ? 6 : 0) + (item.inclusions.includes(term) ? 2 : 0);
+      // Jedes Suchwort zählt nur mit seinem besten Fundort: Titel vor Alphabet vor Einschlüssen
+      const hit = inTitle ? 10 : inAlphabet ? 6 : inInclusions ? 2 : 0;
       if (!hit && !codeHit) allFound = false;
       if (inAlphabet) alphabetUsed = true;
+      if (!inTitle && !inInclusions && !codeHit) needAlphabet.push(term);
       score += hit + codeHit;
     });
+    // Suchwörter, die nur im Alphabet stehen, müssen gemeinsam in einem Alphabet-Text stehen
+    if (allFound && needAlphabet.length > 1) {
+      allFound = alphabetOf[entry.code].some((a) => needAlphabet.every((t) => a.folded.includes(t)));
+    }
     if (allFound) {
       const alphabet = alphabetUsed ? matchingAlphabet(alphabetOf[entry.code], terms) : undefined;
       results.push({ score: score - entry.code.length * 0.1, entry, alphabet });
