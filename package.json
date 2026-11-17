@@ -12,6 +12,7 @@
     "data/icf_flat.json",
     "data/qualifiers.json",
     "data/icd10gm.json",
+    "data/icd10gm_alpha.json",
     "data/bi.json"
   ],
   "scripts": {
