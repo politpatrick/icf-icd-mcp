@@ -27,3 +27,55 @@ test("Stichwörter sind vollständig aufgelöst", () => {
   assert.deepEqual(data.stichwoerter.find((s) => s.wort === "Eierstock").ids, ["VMG:B 14.3", "VMG:B 14.4"]);
   assert.ok(data.stichwoerter.every((s) => s.ids.length > 0 && s.ids.every((id) => data.nodes[id])));
 });
+
+// Regressionsfälle Pfad (Review Runde 1): pfad("VMG:B …", Textanfang, Wert) liefert den Pfad der GdS-Zeile.
+const pfad = (id, text, gds) => {
+  const z = data.nodes[id].zeilen.filter((r) => r.text.startsWith(text) && (gds === undefined || r.gds === gds));
+  assert.equal(z.length, 1, `${id}: ${text} ${gds ?? ""} genau einmal`);
+  return z[0].pfad ?? [];
+};
+const LUNGE = "Nach Entfernung eines malignen Lungentumors oder eines Bronchialtumors ist in den ersten fünf Jahren eine Heilungsbewährung abzuwarten.";
+const PENIS = "Nach Entfernung eines malignen Penistumors ist in den ersten fünf Jahren eine Heilungsbewährung abzuwarten; GdS während dieser Zeit";
+const LEISTUNG3 = data.nodes["VMG:B 9.1.1"].zeilen.find((z) => z.text.startsWith("3. Leistungsbeeinträchtigung")).text;
+
+test("Pfad: Überschrift in voller Breite (B 10.2.2, B 12.1.3)", () => {
+  assert.deepEqual(pfad("VMG:B 10.2.2", "mit schwerer Auswirkung", "50-60"), ["Colitis ulcerosa, Crohn-Krankheit (Enteritis regionalis)"]);
+  assert.deepEqual(pfad("VMG:B 12.1.3", "leichten Grades", "40-50"), ["Verlust, Ausfall oder Fehlen einer Niere mit Funktionseinschränkung der anderen Niere"]);
+});
+
+test("Pfad: Zwischenstufen über Leerzeile (B 3.1.2)", () => {
+  assert.deepEqual(pfad("VMG:B 3.1.2", "sehr selten", "40"), ["Epileptische Anfälle", "je nach Art, Schwere, Häufigkeit und tageszeitlicher Verteilung"]);
+});
+
+test("Pfad: Wertzeile als Elternteil tieferer Wertzeilen (B 13.1, B 18.14)", () => {
+  assert.deepEqual(pfad("VMG:B 13.1", "Verlust der Eichel", "20"), ["Teilverlust des Penis"]);
+  assert.deepEqual(pfad("VMG:B 13.1", "Sonst", "30-40"), ["Teilverlust des Penis"]);
+  assert.deepEqual(pfad("VMG:B 18.14", "bei einseitig ungünstigen Stumpfverhältnissen", "90"), ["Verlust beider Beine im Unterschenkel"]);
+  assert.deepEqual(pfad("VMG:B 18.14", "bei beidseitig ungünstigen Stumpfverhältnissen", "100"), ["Verlust beider Beine im Unterschenkel"]);
+});
+
+test("Pfad: kuratierte Zuordnungen", () => {
+  // B 4.5
+  assert.deepEqual(pfad("VMG:B 4.5", "auf 30° Abstand vom Zentrum", "30"), ["Gesichtsfeldeinengungen", "Allseitige Einengung binokular"]);
+  assert.deepEqual(pfad("VMG:B 4.5", "bei Verlust des beidäugigen Sehens", "30"), ["Vollständige Halbseiten- und Quadrantenausfälle", "Binasale Hemianopsie"]);
+  assert.deepEqual(pfad("VMG:B 4.5", "Homonymer Quadrant oben", "20"), ["Vollständige Halbseiten- und Quadrantenausfälle"]);
+  // B 9.2.3, B 16.10, B 17.12
+  assert.deepEqual(pfad("VMG:B 9.2.3", "bei Gebrauchsunfähigkeit der ganzen Gliedmaße", "80"), ["Lymphödem", "an einer Gliedmaße"]);
+  assert.deepEqual(pfad("VMG:B 16.10", "mit häufigen (mehrfach jährlich) ausgeprägten Blutungen", "50-80"), ["mittelschwere Form - mit 1-5 % AHG"]);
+  assert.deepEqual(pfad("VMG:B 17.12", "ausgedehnter", "20"), ["Pigmentstörungen (z. B. Vitiligo)", "an Händen und/oder Gesicht"]);
+  assert.deepEqual(pfad("VMG:B 17.12", "sonst", "0"), ["Pigmentstörungen (z. B. Vitiligo)"]);
+  // B 18.13
+  assert.deepEqual(pfad("VMG:B 18.13", "Verlust der ganzen Hand", "50"), ["Extremitätenverlust"]);
+  assert.deepEqual(pfad("VMG:B 18.13", "Versteifung des Schultergelenks in günstiger Stellung", "30"), []);
+  assert.deepEqual(pfad("VMG:B 18.13", "N. axillaris", "30"), ["Nervenausfälle (vollständig)"]);
+  assert.deepEqual(pfad("VMG:B 18.13", "Nn. radialis, ulnaris und medianus im Vorderarmbereich", "60"), ["Nervenausfälle (vollständig)"]);
+  // B 9.1.1, B 8.4
+  assert.deepEqual(pfad("VMG:B 9.1.1", "mit gelegentlich auftretenden", "80"), [LEISTUNG3]);
+  assert.deepEqual(pfad("VMG:B 8.4", "mittleren bis schweren Grades", "90-100"), [LUNGE, "GdS während dieser Zeit", "bei Einschränkung der Lungenfunktion"]);
+  // B 12.1.4 (verschmolzene Zelle geteilt)
+  assert.deepEqual(pfad("VMG:B 12.1.4", "im Stadium I und II", "60"), ["GdS während einer Heilungsbewährung von fünf Jahren", "nach Entfernung eines Nephroblastoms"]);
+  assert.deepEqual(pfad("VMG:B 12.1.4", "im Stadium (T1 [Grading ab G2], T2) N0 M0", "60"), ["GdS während einer Heilungsbewährung von fünf Jahren", "nach Entfernung eines Nierenzellkarzinoms (Hypernephrom)"]);
+  // B 13.1 (verschmolzene Zelle geteilt)
+  assert.deepEqual(pfad("VMG:B 13.1", "mit vollständiger Entfernung der Corpora cavernosa", "80"), [PENIS, "nach Entfernung im Frühstadium (T1 bis T2) N0 M0", "bei Verlust des Penis"]);
+  assert.deepEqual(pfad("VMG:B 13.1", "nach Entfernung in höheren Stadien", "90-100"), [PENIS]);
+});

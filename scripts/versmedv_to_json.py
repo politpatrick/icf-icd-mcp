@@ -26,6 +26,12 @@ Gliederung:
         (folgt eine Zeile direkt auf eine Zwischenstufe, bleibt diese bei gleicher Einrückung stehen).
         Abschnittsüberschrift und Fließtext beenden alle Pfade. Eine Zwischenstufe, die nie in einen Pfad
         eingegangen ist, wird als Fließtext übernommen.
+      * Eine Zeile in voller Breite ohne Wert ist dennoch Überschrift, wenn die nächste nichtleere Zeile eine
+        tiefer eingerückte Wertzeile oder selbst eine solche Überschrift ist (kein Satz mit Schlusspunkt,
+        keine Einleitung mit Doppelpunkt, kein Klammerhinweis).
+      * Eine GdS-Zeile ist Pfad für direkt folgende tiefer eingerückte GdS-Zeilen (bis zur nächsten Leerzeile).
+      * Zwei unbenutzte Zwischenstufen gleicher Einrückung über eine Leerzeile hinweg werden gestapelt.
+      * Fälle ohne Merkmal im XML regelt die kuratierte Tabelle OVERRIDES.
     Tabellen mit mehr als vier Spalten oder ohne Spaltenbreiten sind Sondertabellen (Zellen-Arrays).
   - Titel: kurze Überschriften (bis 160 Zeichen, kein Satzende) werden Titel; nummerierte Sätze bleiben
     ohne Titel und stehen als Absatz.
@@ -53,6 +59,38 @@ SKIP = {"FnR", "FnArea", "kommentar", "IMG", "Footnotes"}
 STATUS = {"(weggefallen)": "weggefallen", "(aufgehoben)": "aufgehoben"}
 NUM_P = re.compile(r"^(\d+(?:\.\d+)*)\.?\s+(\S.*)$")
 LETTER = re.compile(r"^([a-z]{1,2})\)$")
+
+
+# Kuratierte Zuordnung, weil das XML keine unterscheidenden Merkmale trägt (Einrückung, Spaltenverbund und
+# Attribute sind bei diesen Zeilen gleich wie bei Geschwisterzeilen). Schlüssel ist die Abschnittsnummer in
+# Teil B, "text" ist der wörtliche Anfang einer Zeile dieses Abschnitts aus dem XML. Wirkung:
+#   "pin": n     – die Zeile bleibt Pfad der nächsten n GdS-Zeilen (None: bis zum Abschnittsende)
+#   "indent": n  – die Zeile gilt als auf Einrückung n stehend (ersetzt so ihre Geschwister-Überschrift)
+#   "split": t   – die verschmolzene Zelle endet auf den wörtlichen Text t; t wird eigener, tieferer Pfadeintrag
+# Wird ein Eintrag nicht genau einmal gefunden, bricht der Build mit Fehler ab (geänderte Quelle prüfen).
+OVERRIDES: Dict[str, List[dict]] = {
+    "4.5": [
+        {"text": "Binasale Hemianopsie", "pin": 2},
+        {"text": "Allseitige Einengung binokular", "indent": 1},
+    ],
+    "8.4": [{"text": "GdS während dieser Zeit", "pin": None}],
+    "9.1.1": [{"text": "3. Leistungsbeeinträchtigung bereits bei alltäglicher leichter Belastung", "pin": 1}],
+    "9.2.3": [{"text": "an einer Gliedmaße", "pin": 4}],
+    "12.1.4": [
+        {"text": "GdS während einer Heilungsbewährung von fünf Jahren nach Entfernung eines Nierenzellkarzinoms",
+         "split": "nach Entfernung eines Nierenzellkarzinoms (Hypernephrom)"},
+    ],
+    "13.1": [
+        {"text": "Nach Entfernung eines malignen Penistumors",
+         "split": "nach Entfernung im Frühstadium (T1 bis T2) N0 M0", "pin": 3},
+    ],
+    "16.10": [{"text": "mittelschwere Form - mit 1-5 % AHG", "pin": 2}],
+    "17.12": [{"text": "an Händen und/oder Gesicht", "pin": 2}],
+    "18.13": [
+        {"text": "Extremitätenverlust", "pin": 6},
+        {"text": "Nervenausfälle (vollständig)", "pin": None},
+    ],
+}
 
 
 def norm(s: str) -> str:
@@ -143,6 +181,11 @@ def open_end(t: str) -> bool:
     return t.endswith(",") or bool(re.fullmatch(r"[a-zäöüß][\w/-]*", last))
 
 
+def is_note(t: str) -> bool:
+    """Eingeklammerter Hinweis wie "(bei Begutachtungen im sozialen Entschädigungsrecht …)": keine Überschrift."""
+    return t.startswith("(") and t.endswith(")")
+
+
 def deep_wrap(t: str) -> bool:
     """Überschrift, die in einer tiefer eingerückten Zeile weiterläuft: endet mit Funktionswort oder
     deutscher Flexions-/Adverbendung (z. B. "verbundenen", "einschließlich"), nicht mit Fachbegriff ("vulgaris")."""
@@ -162,6 +205,7 @@ class Builder:
         self.gds_rows = 0
         self.problems: List[str] = []
         self.joins: List[str] = []  # zusammengeführte Umbrüche (Ausgabe mit --verbose)
+        self.override_hits: Dict[Tuple[str, str], int] = {}
 
     # --- Knoten -------------------------------------------------------------------------------
     def add(self, teil: str, nummer: Optional[str], parent: Optional[str], titel: Optional[str] = None) -> dict:
@@ -252,7 +296,7 @@ class Builder:
     # --- Teil B -------------------------------------------------------------------------------
     def build_b(self, root: dict, blocks: List[ET.Element]) -> None:
         st = {"cur": root, "head": None, "prefix": "", "pending_u": None}
-        self.pfad: List[list] = []  # [Einrückung, Text, benutzt]
+        self.pfad: List[list] = []  # siehe end_pfad
         self.prev = "other"
         self.pending_head = None
         for block in blocks:
@@ -281,7 +325,7 @@ class Builder:
                         self.set_head(st["pending_u"], ev[1])
                         st["pending_u"] = None
                     else:
-                        self.end_pfad(st["cur"])
+                        self.end_pfad(st["cur"], keep_sticky=True)
                         self.absatz(st["cur"], st["prefix"] + ev[1])
                     st["prefix"] = ""
                     st["head"] = None
@@ -290,26 +334,49 @@ class Builder:
                     st["cur"] = self.table_b(st["cur"], ev[1])
         self.end_pfad(st["cur"])
 
-    def end_pfad(self, node: dict) -> None:
-        self.pop_pfad(node, lambda e: True)
+    # Pfadstapel: Einträge [Einrückung, Text, benutzt, Art ("zw"/"gds"), Haltezahl, nach_wert]
+    # Haltezahl None = normaler Eintrag; n > 0 = bleibt für die nächsten n GdS-Zeilen stehen;
+    # -1 = bleibt bis zum Abschnittsende stehen (nur über OVERRIDES gesetzt).
+    def end_pfad(self, node: dict, keep_sticky: bool = False) -> None:
+        if keep_sticky:
+            self.pop_pfad(node, lambda e: True)
+        else:
+            for e in reversed(self.pfad):
+                if not e[2]:
+                    self.absatz(node, e[1])
+            self.pfad = []
         self.prev = "other"
 
     def pop_pfad(self, node: dict, cond) -> None:
-        while self.pfad and cond(self.pfad[-1]):
-            ind, text, used = self.pfad.pop()
-            if not used:
-                self.absatz(node, text)
+        """Entfernt von oben alle Einträge, die cond erfüllen; gehaltene Einträge werden übersprungen."""
+        keep_top: List[list] = []
+        while self.pfad:
+            e = self.pfad[-1]
+            if e[4] is not None:
+                keep_top.append(self.pfad.pop())
+            elif cond(e):
+                self.pfad.pop()
+                if not e[2]:
+                    self.absatz(node, e[1])
+            else:
+                break
+        self.pfad.extend(reversed(keep_top))
 
-    def table_b(self, cur: dict, table: ET.Element) -> dict:
-        tg = table.find("tgroup")
-        specs = tg.findall("colspec")
-        ncols = int(tg.get("cols"))
-        if ncols not in (3, 4) or any(s.get("colwidth") is None for s in specs):
-            self.end_pfad(cur)
-            cur.setdefault("tabellen", []).append(special_rows(table))
-            return cur
-        names = [s.get("colname") for s in specs]
-        last = ncols - 1
+    def push(self, indent: int, text: str, kind: str, used: bool = False) -> list:
+        e = [indent, text, used, kind, None, self.prev == "gds"]
+        self.pfad.append(e)
+        return e
+
+    def override(self, cur: dict, text: str) -> Optional[dict]:
+        for o in OVERRIDES.get(cur.get("nummer") or "", []):
+            if text.startswith(o["text"]):
+                self.override_hits[(cur["nummer"], o["text"])] = self.override_hits.get((cur["nummer"], o["text"]), 0) + 1
+                return o
+        return None
+
+    @staticmethod
+    def rows_b(tg: ET.Element, names: List[str], last: int) -> List[dict]:
+        rows = []
         for row in tg.iter("row"):
             cells = []  # (start, end, entry)
             pos = 0
@@ -320,18 +387,53 @@ class Builder:
                 end = names.index(en) if en in names else start
                 cells.append((start, end, e))
                 pos = end + 1
-            gds = ""
-            texts: List[Tuple[int, List[str], ET.Element]] = []
-            full = False
+            r = {"gds": "", "texts": [], "full": False}
             for start, end, e in cells:
                 paras = paragraphs(events(e))
                 if start == last and end == last:
-                    gds = " ".join(paras)
+                    r["gds"] = " ".join(paras)
                 elif paras:
-                    texts.append((start, paras, e))
+                    r["texts"].append((start, paras, e))
                     if end == last:
-                        full = True
-            u = next((x for c in cells for x in c[2].iter("U")), None)
+                        r["full"] = True
+            r["u"] = next((x for c in cells for x in c[2].iter("U")), None)
+            if r["texts"]:
+                r["indent"] = min(t[0] for t in r["texts"])
+                r["text"] = " ".join(p for _, ps, _ in r["texts"] for p in ps)
+            rows.append(r)
+        # Vorausschau: Textzeile ohne Wert (auch in voller Breite) ist Überschrift, wenn die nächste nichtleere
+        # Zeile eine tiefer eingerückte Wertzeile oder selbst eine solche Überschrift auf gleicher oder tieferer
+        # Einrückung ist; Sätze mit Schlusspunkt, Einleitungen mit Doppelpunkt und Klammerhinweise bleiben
+        # Fließtext.
+        nxt = None
+        for r in reversed(rows):
+            if r["u"] is not None:
+                r["head"] = False
+                nxt = None
+                continue
+            if not r["texts"] and not r["gds"]:
+                continue
+            r["head"] = bool(
+                not r["gds"] and not r["text"].endswith((".", ":")) and not is_note(r["text"]) and nxt is not None and (
+                    (nxt["gds"] and nxt["indent"] > r["indent"])
+                    or (not nxt["gds"] and nxt["indent"] >= r["indent"] and nxt["head"])
+                )
+            )
+            nxt = r if r["texts"] else None
+        return rows
+
+    def table_b(self, cur: dict, table: ET.Element) -> dict:
+        tg = table.find("tgroup")
+        specs = tg.findall("colspec")
+        ncols = int(tg.get("cols"))
+        if ncols not in (3, 4) or any(s.get("colwidth") is None for s in specs):
+            self.end_pfad(cur, keep_sticky=True)
+            cur.setdefault("tabellen", []).append(special_rows(table))
+            return cur
+        names = [s.get("colname") for s in specs]
+        last = ncols - 1
+        for r in self.rows_b(tg, names, last):
+            gds, texts, full, u = r["gds"], r["texts"], r["full"], r["u"]
             if u is not None:
                 self.end_pfad(cur)
                 nummer = norm("".join(u.itertext()))
@@ -356,13 +458,17 @@ class Builder:
                 continue
             pending, self.pending_head = self.pending_head, None
             if not texts and not gds:
+                # Leerzeile: Wertzeilen als Elternteil gelten nur für direkt folgende tiefere Wertzeilen
+                self.pop_pfad(cur, lambda e: e[3] == "gds")
                 self.prev = "blank"
                 continue
             if not texts:
                 self.problems.append(f"{cur['id']}: Wert {gds!r} ohne Text")
                 continue
-            indent = min(t[0] for t in texts)
-            text = " ".join(p for _, ps, _ in texts for p in ps)
+            indent, text = r["indent"], r["text"]
+            ov = self.override(cur, text)
+            if ov and "indent" in ov:
+                indent = ov["indent"]
             if gds and pending and (indent == pending[1] or (indent > pending[1] and deep_wrap(pending[2]))):
                 # Überschrift läuft in dieser Zeile weiter (z. B. B 4.1, B 6.2): Titel und Zeile zusammenführen
                 node = pending[0]
@@ -372,7 +478,7 @@ class Builder:
                 self.prev = "gds"
                 continue
             if gds and self.prev == "nogds" and self.pfad and self.pfad[-1][0] == indent \
-                    and not self.pfad[-1][2] and re.match(r"[a-zäöü]", text) \
+                    and not self.pfad[-1][2] and self.pfad[-1][4] is None and re.match(r"[a-zäöü]", text) \
                     and (wrapped(self.pfad[-1][1]) or re.match(r"(und|oder|und/oder) ", text)):
                 # umbrochene Zeile: die Zwischenzeile ist der Anfang dieser GdS-Zeile
                 head = self.pfad.pop()[1]
@@ -386,19 +492,45 @@ class Builder:
                 for e in self.pfad:
                     e[2] = True
                 self.zeile(cur, text, gds, [e[1] for e in self.pfad])
+                for e in self.pfad:
+                    if e[4] is not None and e[4] > 0:
+                        e[4] -= 1
+                self.pfad = [e for e in self.pfad if e[4] != 0]
+                entry = self.push(indent, text, "gds", used=True)  # Elternteil tieferer Wertzeilen
                 self.prev = "gds"
-            elif full:
-                self.end_pfad(cur)
+            elif full and not r["head"]:
+                self.end_pfad(cur, keep_sticky=True)
                 for _, ps, _ in texts:
                     for p in ps:
                         self.absatz(cur, p)
+                continue
             else:
                 if self.prev == "nogds":
                     self.pop_pfad(cur, lambda e: e[0] > indent)
                 else:
-                    self.pop_pfad(cur, lambda e: e[0] >= indent)
-                self.pfad.append([indent, text, False])
+                    top = self.pfad[-1] if self.pfad else None
+                    if top and top[0] == indent and top[3] == "zw" and not top[2] and not top[5] \
+                            and not top[1].endswith((".", ":")) and not is_note(top[1]):
+                        # zwei noch unbenutzte Zwischenstufen gleicher Einrückung über eine Leerzeile hinweg
+                        # (z. B. B 3.1.2 "Epileptische Anfälle" / "je nach Art …"): stapeln statt ersetzen
+                        self.pop_pfad(cur, lambda e: e[0] > indent)
+                    else:
+                        self.pop_pfad(cur, lambda e: e[0] >= indent)
+                if ov and "split" in ov:
+                    if not text.endswith(" " + ov["split"]):
+                        self.problems.append(f"{cur['id']}: Teilung {ov['split']!r} passt nicht zu {text!r}")
+                        self.override_hits[(cur["nummer"], ov["text"])] = 99
+                        entry = self.push(indent, text, "zw")
+                    else:
+                        self.push(indent, text[: -len(ov["split"])].strip(), "zw")
+                        self.prev = "nogds"
+                        entry = self.push(indent + 1, ov["split"], "zw")
+                else:
+                    entry = self.push(indent, text, "zw")
                 self.prev = "nogds"
+            if ov and "pin" in ov:
+                entry[4] = -1 if ov["pin"] is None else ov["pin"]
+                entry[2] = True
         return cur
 
     def zeile(self, node: dict, text: str, gds: str, pfad: List[str]) -> None:
@@ -563,13 +695,17 @@ def build(xml_path: Path, txt_path: Path) -> Tuple[dict, dict]:
             b.build_acd(teil, root, blocks)
 
     problems = list(b.problems)
+    override_errors = [
+        f"Kuratierte Zuordnung B {nr} {o['text']!r}: {b.override_hits.get((nr, o['text']), 0)}-mal gefunden (erwartet 1)"
+        for nr, entries in OVERRIDES.items() for o in entries if b.override_hits.get((nr, o["text"]), 0) != 1
+    ]
     sw, fallbacks, unresolved = stichwoerter(txt_path, b.nodes, problems.append)
     data = {
         "meta": {"titel": TITEL, "stand": stand, "builddate": builddate, "k710": K710},
         "nodes": b.nodes,
         "stichwoerter": sw,
     }
-    stats = {"joins": b.joins, "gds": b.gds_rows, "fallbacks": fallbacks, "unresolved": unresolved, "problems": problems}
+    stats = {"override_errors": override_errors, "joins": b.joins, "gds": b.gds_rows, "fallbacks": fallbacks, "unresolved": unresolved, "problems": problems}
     return data, stats
 
 
@@ -587,6 +723,10 @@ def main() -> None:
     if args.verbose:
         for j in stats["joins"]:
             print(j, file=sys.stderr)
+    if stats["override_errors"]:
+        for p in stats["override_errors"]:
+            print(f"FEHLER: {p}", file=sys.stderr)
+        sys.exit(1)
     args.target_dir.mkdir(parents=True, exist_ok=True)
     (args.target_dir / "versmedv.json").write_text(
         json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
