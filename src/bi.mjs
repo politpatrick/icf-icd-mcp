@@ -54,6 +54,9 @@ function parseCode(raw) {
 }
 
 function requireNode(raw) {
+  if (String(raw ?? "").trim() === "") {
+    throw new LookupError("BI-Kennung fehlt, z. B. BI:4.1.3 (Umsetzen), BI:4.2 (Modul 2) oder BI:5.4.");
+  }
   const { id, variante } = parseCode(raw);
   if (!nodes[id]) {
     const key = id.slice(3);
@@ -579,7 +582,11 @@ function collectValues({ kodierung, werte }) {
 }
 
 function monthsFrom({ alter_monate, geburtsdatum, begutachtungsdatum }) {
-  if (alter_monate !== undefined && alter_monate !== null) return Number(alter_monate);
+  if (alter_monate !== undefined && alter_monate !== null && alter_monate !== "") {
+    const months = Number(alter_monate);
+    if (!Number.isFinite(months) || months < 0) throw new LookupError(`Alter "${alter_monate}" ist ungültig; bitte das Alter in Monaten als Zahl ab 0 angeben.`);
+    return months;
+  }
   if (!geburtsdatum) return null;
   const b = new Date(geburtsdatum);
   const d = begutachtungsdatum ? new Date(begutachtungsdatum) : new Date();
@@ -590,6 +597,7 @@ function monthsFrom({ alter_monate, geburtsdatum, begutachtungsdatum }) {
     months -= 1;
     days += new Date(d.getFullYear(), d.getMonth(), 0).getDate();
   }
+  if (months < 0) throw new LookupError("Das Geburtsdatum liegt nach dem Datum der Begutachtung.");
   return months + days / 30;
 }
 

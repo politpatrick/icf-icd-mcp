@@ -78,7 +78,7 @@ claude mcp add icf-icd -e ICF_MCP_BI=0 -- node ~/GitHub/icf-icd-mcp/src/server.m
 | `bi_icf_mapping` | Kuratierte Zuordnung BI ↔ ICF in beide Richtungen, mit Beziehungsart und Begründung |
 | `bi_scoring_rules` | Bewertungssystematik mit Schwellen, Modul-5-Regeln und Sonderregeln |
 
-Das Netz enthält 144 Knoten und 202 Kanten innerhalb des Instruments. Davon stammen 61 Abgrenzungen und 114 Verweise wörtlich aus dem Richtlinientext („… sind unter F 4.6.2 zu berücksichtigen“). Die übrigen Kanten bilden Regeln ab (4.4.0 ersetzt bei Kindern bis 18 Monate 4.4.1–4.4.13, aus Modul 2 und 3 zählt der höhere Wert, 4.1.B führt zu Pflegegrad 5). Jede Kante trägt ihre Herkunft (`quelle`: `richtlinie` oder `struktur`) und die Seite.
+Das Netz enthält 144 Knoten und 202 Kanten innerhalb des Instruments. Davon stammen 61 Abgrenzungen und 112 Verweise wörtlich aus dem Richtlinientext („… sind unter F 4.6.2 zu berücksichtigen“). Die übrigen Kanten bilden Regeln ab (4.4.0 ersetzt bei Kindern bis 18 Monate 4.4.1–4.4.13, aus Modul 2 und 3 zählt der höhere Wert, 4.1.B führt zu Pflegegrad 5). Jede Kante trägt ihre Herkunft (`quelle`: `richtlinie` oder `struktur`) und die Seite.
 
 **Zuordnung zur ICF (kuratiert):** Eine amtliche Zuordnung zwischen BI und ICF gibt es nicht. Das Repo enthält deshalb eine eigene, fachlich kuratierte Kantenschicht (`source/bi_icf_zuordnung.json`, in `data/bi.json` mit `quelle: "kuratiert"`): alle 81 bewertbaren Kriterien (Module 1–6, Bereiche 6.1 und 6.2) mit 176 Kanten zu 105 ICF-Kategorien. Jede Kante nennt eine Beziehung und eine Begründung:
 
@@ -170,7 +170,7 @@ src/                 MCP-Server
 netlify/functions/   Netlify Function für den Online-Endpunkt /mcp
 public/              Startseite des Online-Endpunkts
 data/                Generierte Daten (icf_flat.json, qualifiers.json, icd10gm.json, bi.json)
-source/              ClaML-Quelldateien von ICF und ICD-10-GM; BRi-PDF, Textauszug und bi_struktur.json
+source/              ClaML-Quelldateien von ICF und ICD-10-GM; BRi-Textauszug und bi_struktur.json (PDF nur lokal)
 scripts/             Konvertierung ClaML → JSON (icf_to_json.py, icd_to_json.py, build_data.sh),
                      BRi → JSON (bri_extract.py, bi_to_json.py)
                      und graphify-Export (export_graphify.mjs, build_graphify.sh)
