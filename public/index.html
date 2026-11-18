@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ICF, ICD-10-GM & BI MCP</title>
-  <meta name="description" content="MCP-Server zum Nachschlagen und Prüfen von ICF- und ICD-10-GM-Kodes und Kriterien des Begutachtungsinstruments nach § 15 SGB XI">
+  <meta name="description" content="MCP-Server zum Nachschlagen und Prüfen von ICF- und ICD-10-GM-Kodes und Kriterien des Begutachtungsinstruments nach § 15 SGB XI sowie der Versorgungsmedizinischen Grundsätze (VersMedV)">
   <style>
     :root { --bg: #fbfaf7; --fg: #1f1d1a; --muted: #6b665e; --line: #e4e0d8; --code: #f0ede6; --accent: #2f5d50; }
     @media (prefers-color-scheme: dark) {
@@ -26,8 +26,8 @@
 </head>
 <body>
   <main>
-    <h1>ICF, ICD-10-GM &amp; Begutachtungsinstrument MCP</h1>
-    <p class="lead">MCP-Server zum Nachschlagen und Prüfen von ICF-Kategorien und ICD-10-GM-Diagnosen (deutsche Fassungen des BfArM) sowie von Kriterien und Ausprägungen des Begutachtungsinstruments nach § 15 SGB XI (Begutachtungs-Richtlinien 2026).</p>
+    <h1>ICF, ICD-10-GM, Begutachtungsinstrument &amp; VersMedV MCP</h1>
+    <p class="lead">MCP-Server zum Nachschlagen und Prüfen von ICF-Kategorien und ICD-10-GM-Diagnosen (deutsche Fassungen des BfArM) sowie von Kriterien und Ausprägungen des Begutachtungsinstruments nach § 15 SGB XI (Begutachtungs-Richtlinien 2026) und der Versorgungsmedizinischen Grundsätze (VersMedV, GdS/GdB, Merkzeichen).</p>
 
     <h2>Endpunkt</h2>
     <span class="url" id="endpoint">/mcp</span>
@@ -45,15 +45,17 @@
       <li>ICF: <code>icf_search</code>, <code>icf_get_code</code>, <code>icf_list_chapters</code>, <code>icf_get_related</code>, <code>icf_compare</code>, <code>icf_get_qualifiers</code>, <code>icf_interpret_coding</code></li>
       <li>ICD-10-GM 2026: <code>icd_search</code>, <code>icd_get_code</code>, <code>icd_list_chapters</code>, <code>icd_check_code</code>, <code>icd_relations</code>, <code>icd_compare</code></li>
       <li>Begutachtungsinstrument SGB XI: <code>bi_search</code>, <code>bi_get_item</code>, <code>bi_list_structure</code>, <code>bi_related</code>, <code>bi_compare</code>, <code>bi_interpret_coding</code>, <code>bi_calculate</code>, <code>bi_icf_mapping</code>, <code>bi_scoring_rules</code></li>
+      <li>Versorgungsmedizinische Grundsätze (VersMedV): <code>vmg_search</code>, <code>vmg_get</code>, <code>vmg_list_structure</code>, <code>vmg_gesamt_gdb</code>, <code>vmg_merkzeichen</code></li>
     </ul>
 
     <footer>
       ICF © WHO 2001, ICD-10 © WHO 1992, ICD-10-AM © Commonwealth of Australia 1998; deutsche Fassungen herausgegeben vom
       Bundesinstitut für Arzneimittel und Medizinprodukte (BfArM). Erstellt unter Verwendung der maschinenlesbaren Fassung des BfArM.
       Begutachtungs-Richtlinien (BRi) des Medizinischen Dienstes Bund, gültig ab 01.10.2026; Bewertungssystematik nach Anlage 2 zu § 15 SGB XI.
+      Versorgungsmedizinische Grundsätze: amtlicher Wortlaut (gesetze-im-internet.de), Stichwortverzeichnis BMAS (K710, Stand Januar 2026).
       Vollständige Quellenangaben: <a href="https://github.com/politpatrick/icf-icd-mcp/blob/main/QUELLEN.md">QUELLEN.md</a> ·
       Quellcode: <a href="https://github.com/politpatrick/icf-icd-mcp">github.com/politpatrick/icf-icd-mcp</a><br>
-      Die Inhalte ersetzen keine fachliche Bewertung im Einzelfall. Verbindlich sind die PDF-Fassungen des BfArM und der BRi; der Pflegegrad-Rechner ersetzt keine Begutachtung.
+      Die Inhalte ersetzen keine fachliche Bewertung im Einzelfall. Verbindlich sind die PDF-Fassungen des BfArM und der BRi; der Pflegegrad-Rechner ersetzt keine Begutachtung; die VersMedV-Prüfhilfen berechnen keinen Gesamt-GdB.
     </footer>
   </main>
   <script>

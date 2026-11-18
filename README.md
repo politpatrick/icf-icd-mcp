@@ -1,18 +1,20 @@
 # ICF-ICD-MCP
 
-MCP-Server für zwei amtliche Klassifikationen in deutscher Fassung des BfArM und das Begutachtungsinstrument der Pflegeversicherung:
+MCP-Server für zwei amtliche Klassifikationen in deutscher Fassung des BfArM, das Begutachtungsinstrument der Pflegeversicherung und die Versorgungsmedizinischen Grundsätze:
 
 - **ICF**: Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit (WHO, Stand 2005)
 - **ICD-10-GM 2026**: Internationale statistische Klassifikation der Krankheiten, German Modification
 - **Begutachtungsinstrument nach § 15 SGB XI**: Module, Kriterien und Formulargutachten nach den Begutachtungs-Richtlinien 2026, mit Pflegegrad-Rechner
+- **Versorgungsmedizinische Grundsätze (VersMedV)**: Anlage zu § 2 VersMedV mit GdS-Tabelle (Teil B), Merkzeichen und Hilflosigkeit, im amtlichen Wortlaut, mit Prüfhilfen zu Gesamt-GdB und Merkzeichen
 
-Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien und Kriterien der Pflegebegutachtung suchen, nachschlagen und Kodierungen prüfen, etwa für Teilhabeplanung, Gesamtplanverfahren, Pflegegrad-Widersprüche oder Berichte.
+Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien, Kriterien der Pflegebegutachtung und GdS-Werte suchen, nachschlagen und Kodierungen prüfen, etwa für Teilhabeplanung, Gesamtplanverfahren, Pflegegrad-Widersprüche oder Berichte.
 
 - Keine Abhängigkeiten, nur Node.js ≥ 18
 - Läuft lokal, sendet keine Daten nach außen
 - ICF: 1.495 Kategorien (b, s, d, e) mit Beschreibungen, Ein-/Ausschlüssen und Beurteilungsmerkmalen
 - ICD-10-GM: 17.177 Klassen, darunter alle über Subklassifikationen gebildeten Kodes (z. B. E11.90, G82.30), mit Kodierregeln nach §295/§301
 - Alphabetisches Verzeichnis der ICD-10-GM: 89.304 Diagnosetexte mit Synonymen und Laienbegriffen (z. B. „Ziegenpeter“ → B26.9), 309 Verweise und 19.352 Orpha-Kennnummern für seltene Erkrankungen aus der Datei Alpha-ID-SE
+- VersMedV: 356 Abschnitte (Teile A–D), 767 GdS-Zeilen mit Pfad und Fundstelle, 6 Sondertabellen und 330 Stichwörter aus dem Stichwortverzeichnis der BMAS-Broschüre K710 (redaktionelle Beigabe, nicht Teil der Verordnung)
 
 ## Tools
 
@@ -104,6 +106,42 @@ python3 scripts/bi_to_json.py
 
 `source/bi_struktur.json` enthält die von Hand übertragenen Teile (Skalen, Punkteregeln, Alterstabellen, Formularfelder und Optionen), jeweils mit Seitenangabe.
 
+## Versorgungsmedizinische Grundsätze (VersMedV)
+
+Ein viertes Modul gibt die Versorgungsmedizinischen Grundsätze (Anlage zu § 2 der Versorgungsmedizin-Verordnung) im amtlichen Wortlaut wieder: Teil A (gemeinsame Grundsätze), Teil B (GdS-Tabelle), Teil C (Begutachtung im Sozialen Entschädigungsrecht) und Teil D (Merkzeichen; Hilflosigkeit steht in Teil A Nr. 4 und 5). Stand der Fassung: „Zuletzt geändert durch Art. 1 V v. 29.9.2025 I Nr. 228“. Das Modul ist standardmäßig eingeschaltet und lässt sich mit der Umgebungsvariable `ICF_MCP_VMG=0` abschalten:
+
+```bash
+claude mcp add icf-icd -e ICF_MCP_VMG=0 -- node ~/GitHub/icf-icd-mcp/src/server.mjs
+```
+
+**Kennungen** tragen den Präfix `VMG:`: `VMG:A` ist Teil A, `VMG:B 3.7` der Abschnitt „Neurosen, Persönlichkeitsstörungen, Folgen psychischer Traumen“, `VMG:D 1` die Gehbehinderung (G). Buchstaben- und Doppelbuchstaben-Untergliederungen heißen etwa `A 4b` oder `A 5d jj`. Schreibweise und Präfix sind egal (`b3.7` genügt). Abschnitte ohne amtliche Überschrift tragen eine abgeleitete Bezeichnung (`titel_abgeleitet`).
+
+| Tool | Zweck |
+| --- | --- |
+| `vmg_list_structure` | Gliederung der Anlage (Standard: Teile A–D mit obersten Nummern), optional ab einer Kennung; `tiefe` steuert die Ebenen (0 = vollständig) |
+| `vmg_get` | Abschnitt mit Wortlaut, GdS-Zeilen samt Pfad (Überschriften der Zeile), Sondertabellen, Unterabschnitten, darauf verweisenden Stichwörtern und Fundstelle |
+| `vmg_search` | Suche in Überschriften, Stichwortverzeichnis, GdS-Zeilen und Fließtext, optional auf einen Teil beschränkt; mehrere Wörter werden UND-verknüpft. Mit `icd` (z. B. `E11.90`) werden passende Stichwörter über ICD-Titel und Alphabet-Begriffe abgeleitet, getrennt von den Treffern und als „nicht amtlich“ gekennzeichnet |
+| `vmg_gesamt_gdb` | Prüfhilfe zu Teil A Nr. 3: Ausgangswert, Markierungen und die Regeln A 3.1–3.5 im Wortlaut |
+| `vmg_merkzeichen` | Voraussetzungen von G, B, H, Bl und Gl im Wortlaut mit Fundstelle; für aG, RF und TBl ein Hinweis auf die maßgebliche Norm |
+
+Die Daten umfassen 356 Abschnitte (A 86, B 188, C 68, D 14), 767 GdS-Zeilen, 6 Sondertabellen und 330 Stichwörter. Ein GdS-Wert wird immer mit seinem Pfad und seiner Fundstelle ausgegeben; ohne diesen Kontext darf er nicht zitiert werden. Teil B nennt typische Werte, von denen nach Teil A Nr. 1.4 im Einzelfall mit Begründung abgewichen werden kann.
+
+**Was das Modul nicht tut:**
+
+- **Die Prüfhilfe berechnet keinen Gesamt-GdB.** Teil A Nr. 3 verbietet das Addieren und verlangt eine gutachterliche Gesamtschau. `vmg_gesamt_gdb` nennt den Ausgangswert (höchster Einzel-GdB), markiert Einzel-GdB von 10 und 20 (A 3.5) und Beeinträchtigungen im selben Funktionssystem (A 3.1, 3.2) und gibt die Regeln im Wortlaut aus, aber keinen Gesamtwert, auch keinen „voraussichtlichen“.
+- **Funktionssysteme:** Jedes Kapitel B 2 bis B 17 gilt als ein Funktionssystem. Kapitel B 18 (Haltungs- und Bewegungsorgane) wird nach der verwaltungsüblichen Gliederung geteilt (B 18.9 und B 18.10 → Rumpf, B 18.13 → Arme, B 18.14 → Beine). Diese Aufteilung ist verwaltungsüblich, nicht amtlich, und in der Ausgabe so gekennzeichnet. Nicht zugeordnete Abschnitte von B 18 werden bei Arm, Bein oder Rumpf nur als „möglicherweise gleiches Funktionssystem – bitte angeben“ markiert. Ein ausdrücklich angegebenes Funktionssystem hat Vorrang.
+- **Die ICD-Ableitung ist nicht amtlich.** Eine amtliche Zuordnung zwischen ICD und VersMedV gibt es nicht. `icd` vergleicht ICD-Titel und Alphabet-Begriffe per Teilstring mit dem Stichwortverzeichnis. Verneinungen („ohne …“) werden vor dem Abgleich herausgefiltert; die verbleibende Grenze sind lose Teilstring-Treffer (z. B. Gastroparese → Parese). Die Treffer sind Suchhilfen, keine Einstufung.
+- **Merkzeichen außerhalb der VersMedV:** aG (§ 229 Abs. 3 SGB IX) und TBl (§ 3 Abs. 1 Nr. 8 SchwbAwV) sind als Normen geprüft. Bei RF ist die genaue Vorschrift des Rundfunkbeitragsstaatsvertrags nicht verifiziert; das Tool sagt das ausdrücklich. Teil D Nr. 3 (früher aG) ist aufgehoben.
+- **Stichwörter** stammen aus der redaktionellen Beigabe der BMAS-Broschüre K710, nicht aus der Verordnung. Ihre Seitenzahlen sind nicht übernommen.
+
+Die Einstufung bleibt eine gutachterliche Entscheidung im Einzelfall.
+
+**Daten neu erzeugen:** Das amtliche XML und der Textauszug des Stichwortverzeichnisses liegen bei (`source/versmedv_BJNR241200008.xml`, `source/k710_stichwortverzeichnis.txt`); `npm run build:data` erzeugt daraus `data/versmedv.json` (`scripts/versmedv_to_json.py`). Das K710-PDF wird nicht versioniert; nur bei einer neuen Broschüre wird der Auszug mit `pypdf` neu erzeugt:
+
+```bash
+python3 scripts/k710_extract.py source/k710-versorgungsmed-verordnung.pdf source/k710_stichwortverzeichnis.txt
+```
+
 ## Online-Konnektor (ohne Installation)
 
 Der Server läuft öffentlich auf Netlify:
@@ -165,15 +203,18 @@ src/                 MCP-Server
   icd.mjs            ICD-10-GM: Datenzugriff und Abfragelogik
   bi.mjs             Begutachtungsinstrument SGB XI: Wissensnetz, Kodierung, Pflegegrad-Rechner
   bi_tools.mjs       Tool-Definitionen für bi.mjs (abschaltbar mit ICF_MCP_BI=0)
+  vmg.mjs            VersMedV: Gliederung, Abruf, Suche, ICD-Ableitung, Prüfhilfen
+  vmg_tools.mjs      Tool-Definitionen für vmg.mjs (abschaltbar mit ICF_MCP_VMG=0)
   data.mjs           Lädt die JSON-Daten (lokal und in Netlify Functions)
   graph.mjs          Wissensnetz: Kanten, Rückverweise, Bereiche, kürzeste Wege
   text.mjs           Gemeinsame Hilfen (Suche, Fehler)
 netlify/functions/   Netlify Function für den Online-Endpunkt /mcp
 public/              Startseite des Online-Endpunkts
-data/                Generierte Daten (icf_flat.json, qualifiers.json, icd10gm.json, bi.json)
-source/              ClaML-Quelldateien von ICF und ICD-10-GM; BRi-Textauszug und bi_struktur.json (PDF nur lokal)
+data/                Generierte Daten (icf_flat.json, qualifiers.json, icd10gm.json, bi.json, versmedv.json)
+source/              ClaML-Quelldateien von ICF und ICD-10-GM; BRi-Textauszug und bi_struktur.json (PDF nur lokal), VersMedV-XML und K710-Stichwortverzeichnis (Textauszug)
 scripts/             Konvertierung ClaML → JSON (icf_to_json.py, icd_to_json.py, build_data.sh),
                      BRi → JSON (bri_extract.py, bi_to_json.py)
+                     VersMedV → JSON (versmedv_to_json.py, k710_extract.py)
                      und graphify-Export (export_graphify.mjs, build_graphify.sh)
 test/                Tests
 ```
@@ -192,6 +233,13 @@ npm run build:data   # data/ aus source/ neu erzeugen (Python 3.9+)
 2. Die XML aus `Klassifikationsdateien/` und die beiden TXT-Dateien nach `source/` kopieren und die alten Versionen löschen.
 3. `npm run build:data` und `npm test` ausführen. `build_data.sh` nimmt automatisch die neueste `icd10gm*syst_claml_*.xml`, `icd10gm*alpha_edvtxt_*.txt` und `icd10gm*_alphaidse_edvtxt_*.txt`.
 4. Die Versionsangaben in `QUELLEN.md` anpassen.
+
+### VersMedV aktualisieren
+
+1. Von gesetze-im-internet.de `https://www.gesetze-im-internet.de/versmedv/xml.zip` herunterladen und die XML nach `source/versmedv_BJNR241200008.xml` entpacken.
+2. `npm run build:data` und `npm test` ausführen. Die von Hand gepflegten Teile (Tabelle `OVERRIDES` in `scripts/versmedv_to_json.py`) brechen den Build mit einer Fehlermeldung ab, wenn der Wortlaut sich geändert hat; dann die Überschreibung am neuen Text prüfen und anpassen.
+3. Bei einer neuen K710-Broschüre den Auszug mit `scripts/k710_extract.py` neu erzeugen.
+4. Stand und Quellenangaben in `QUELLEN.md` anpassen.
 
 ### Wissensnetz in graphify
 
@@ -222,4 +270,4 @@ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"icf_interp
 
 ICF und ICD-10-GM sind Klassifikationen der Weltgesundheitsorganisation (WHO) in der deutschen Fassung des Bundesinstituts für Arzneimittel und Medizinprodukte (BfArM). Sie werden unverändert und mit den vorgeschriebenen Quellenangaben weitergegeben, siehe [QUELLEN.md](QUELLEN.md). Verbindlich ist jeweils das PDF des Systematischen Verzeichnisses beim BfArM.
 
-Die Tools liefern Klassifikationsinhalte, keine fachliche Bewertung im Einzelfall. Das gilt auch für `bi_calculate`: Es rechnet nach Anlage 2 zu § 15 SGB XI, ersetzt aber keine Begutachtung.
+Die Tools liefern Klassifikationsinhalte, keine fachliche Bewertung im Einzelfall. Das gilt auch für `bi_calculate`: Es rechnet nach Anlage 2 zu § 15 SGB XI, ersetzt aber keine Begutachtung. Die VersMedV-Prüfhilfen (`vmg_gesamt_gdb`, `vmg_merkzeichen`) ersetzen keine gutachterliche Gesamtschau.

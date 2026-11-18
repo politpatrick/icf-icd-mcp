@@ -88,3 +88,37 @@ Bund erhältlich (www.md-bund.de) und wird nur gebraucht, um bei einer neuen Fas
 `source/bi_icf_zuordnung.json` ist eine eigene, fachlich kuratierte Arbeitshilfe dieses Projekts (Stand 16.11.2026). Sie ist
 keine amtliche Zuordnung: Weder das BfArM noch der Medizinische Dienst Bund haben eine Zuordnung zwischen Begutachtungsinstrument
 und ICF veröffentlicht. Jede Kante ist begründet und verweist nur auf Kategorien der ICF-Fassung 2005.
+
+## Versorgungsmedizinische Grundsätze (VersMedV) – Modul `vmg` (abschaltbar)
+
+- Datei: `source/versmedv_BJNR241200008.xml` (`versmedv/xml.zip` von gesetze-im-internet.de, nur die Norm „Anlage zu § 2“)
+- *Versorgungsmedizin-Verordnung (VersMedV)*, Anlage zu § 2: Versorgungsmedizinische Grundsätze, Stand: „Zuletzt geändert durch
+  Art. 1 V v. 29.9.2025 I Nr. 228“, Build-Datum des XML 06.05.2026
+- Herausgeber des Rechtsinformationsportals: Bundesministerium der Justiz in Zusammenarbeit mit der juris GmbH
+
+**Rechtsstellung:** Die Verordnung ist ein amtliches Werk nach § 5 Absatz 1 UrhG und genießt keinen urheberrechtlichen Schutz.
+Die Texte werden unverändert übernommen.
+
+### Stichwortverzeichnis (K710)
+
+- Datei: `source/k710_stichwortverzeichnis.txt` (Textauszug)
+- Herausgeber: Bundesministerium für Arbeit und Soziales (BMAS)
+- Titel: *Versorgungsmedizin-Verordnung – VersMedV – Versorgungsmedizinische Grundsätze*, Stand Januar 2026 (K710)
+- Das Stichwortverzeichnis gehört nicht zur Verordnung, sondern ist eine redaktionelle Beigabe der Broschüre.
+
+Die Broschüre ist als anderes amtliches Werk nach § 5 Absatz 2 UrhG einzuordnen: Es gelten das Änderungsverbot und die Pflicht
+zur Quellenangabe (§§ 62, 63 UrhG). Begriffe und Fundstellen werden unverändert übernommen. Nur der Textauszug wird weitergegeben,
+nicht das PDF (Gestaltung und Satz können geschützt sein); es wird nur gebraucht, um bei einer neuen Broschüre den Auszug neu
+zu erzeugen (`scripts/k710_extract.py`, mit `pypdf`). Die Seitenzahlen der Broschüre werden nicht übernommen.
+
+### Kuratierte Teile (nicht amtlich)
+
+- **Pfade in Teil B:** `scripts/versmedv_to_json.py` enthält Überschreibungen (`OVERRIDES`) für die Pfade (Überschriften) einzelner GdS-Zeilen.
+  Sie verwenden nur Text, der im Quelltext der Verordnung wörtlich steht; bei Abweichung bricht der Build ab.
+- **Funktionssysteme für `vmg_gesamt_gdb`:** Jedes Kapitel B 2 bis B 17 ist ein Funktionssystem. Die Aufteilung von B 18 in
+  Rumpf, Arme und Beine folgt der verwaltungsüblichen Gliederung und ist nicht amtlich.
+- **ICD-Ableitung (`vmg_search` mit `icd`):** Die Verbindung von ICD-Kodes zu Stichwörtern der VersMedV ist eine Suchhilfe dieses
+  Projekts (Teilstring-Vergleich von ICD-Titeln und Alphabet-Begriffen mit dem Stichwortverzeichnis). Es gibt keine amtliche
+  Zuordnung zwischen ICD-10-GM und VersMedV.
+- **Normhinweise zu aG, RF und TBl:** aG: § 229 Absatz 3 SGB IX; TBl: § 3 Absatz 1 Nummer 8 Schwerbehindertenausweisverordnung
+  (SchwbAwV). Die genaue Vorschrift des Rundfunkbeitragsstaatsvertrags zu RF ist nicht verifiziert.

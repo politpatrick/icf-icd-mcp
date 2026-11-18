@@ -4,11 +4,12 @@
 import * as icf from "./icf.mjs";
 import * as icd from "./icd.mjs";
 import { LookupError } from "./text.mjs";
+import { VMG_ENABLED, VMG_TOOLS, VMG_INSTRUCTIONS } from "./vmg_tools.mjs";
 import { BI_ENABLED, BI_TOOLS, BI_INSTRUCTIONS, withBiForIcf } from "./bi_tools.mjs";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
-const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM und Begutachtungsinstrument (Deutsch)", version: "1.5.0" };
+const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM, Begutachtungsinstrument und VersMedV (Deutsch)", version: "1.6.0" };
 
 const BASE_INSTRUCTIONS = `Zugriff auf die deutsche ICF (Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit, WHO/BfArM 2005)
 und die ${icd.ICD_VERSION} (Diagnosen, Systematisches Verzeichnis des BfArM).
@@ -31,7 +32,7 @@ Codes immer mit icf_get_code bzw. icd_get_code verifizieren, bevor sie in Berich
 Quellen: ICF und ICD-10-GM © WHO, deutsche Fassung herausgegeben vom BfArM; Quellenangaben unter https://github.com/politpatrick/icf-icd-mcp/blob/main/QUELLEN.md
 Eine ICD-Diagnose sagt nichts über die Funktionsfähigkeit aus – ICF-Kategorien müssen im Einzelfall begründet werden.`;
 
-const INSTRUCTIONS = BI_ENABLED ? `${BASE_INSTRUCTIONS}\n\n${BI_INSTRUCTIONS}` : BASE_INSTRUCTIONS;
+const INSTRUCTIONS = [BASE_INSTRUCTIONS, BI_ENABLED && BI_INSTRUCTIONS, VMG_ENABLED && VMG_INSTRUCTIONS].filter(Boolean).join("\n\n");
 
 const codeParam = {
   type: "object",
@@ -212,6 +213,7 @@ const TOOLS = [
     run: icf.compare,
   },
   ...(BI_ENABLED ? BI_TOOLS : []),
+  ...(VMG_ENABLED ? VMG_TOOLS : []),
 ];
 
 const toolsByName = Object.fromEntries(TOOLS.map((t) => [t.name, t]));

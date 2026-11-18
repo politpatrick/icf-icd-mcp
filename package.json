@@ -1,7 +1,7 @@
 {
   "name": "icf-icd-mcp",
-  "version": "1.5.0",
-  "description": "MCP-Server für die deutsche ICF, die ICD-10-GM und das Begutachtungsinstrument nach § 15 SGB XI",
+  "version": "1.6.0",
+  "description": "MCP-Server für die deutsche ICF, die ICD-10-GM, das Begutachtungsinstrument nach § 15 SGB XI und die Versorgungsmedizinischen Grundsätze (VersMedV)",
   "private": true,
   "type": "module",
   "bin": {
@@ -13,7 +13,8 @@
     "data/qualifiers.json",
     "data/icd10gm.json",
     "data/icd10gm_alpha.json",
-    "data/bi.json"
+    "data/bi.json",
+    "data/versmedv.json"
   ],
   "scripts": {
     "start": "node src/server.mjs",
@@ -27,5 +28,5 @@
     "type": "git",
     "url": "https://github.com/politpatrick/icf-icd-mcp.git"
   },
-  "keywords": ["icf", "icd-10-gm", "mcp", "model-context-protocol", "claude", "teilhabe", "sgb-ix", "sgb-xi", "pflegebegutachtung"]
+  "keywords": ["icf", "icd-10-gm", "mcp", "model-context-protocol", "claude", "teilhabe", "sgb-ix", "sgb-xi", "pflegebegutachtung", "versmedv", "gdb", "schwerbehinderung"]
 }

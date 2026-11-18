@@ -6,3 +6,5 @@ __pycache__/
 graphify-out/
 # BRi-PDF: Gestaltung (Titelfoto, Satz) ggf. geschützt, nur der Textauszug wird versioniert
 source/bri_pflege_2026.pdf
+# K710-PDF (BMAS-Broschüre): Gestaltung ggf. geschützt, nur der Stichwortverzeichnis-Auszug wird versioniert
+source/k710-versorgungsmed-verordnung.pdf

@@ -10,5 +10,10 @@ export function fold(text) {
     .replace(/ae/g, "a").replace(/oe/g, "o").replace(/ue/g, "u");
 }
 
+/** Wie fold(), aber ohne Bindestriche ("Burnout" = "Burn-out"). */
+export function compact(text) {
+  return fold(text).replace(/-/g, "");
+}
+
 /** Fehler, die als Tool-Ergebnis mit isError an den Client gehen (statt als Protokollfehler). */
 export class LookupError extends Error {}

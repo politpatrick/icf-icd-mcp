@@ -3,7 +3,7 @@
 
 import { readData } from "./data.mjs";
 import { RelationGraph } from "./graph.mjs";
-import { fold, LookupError } from "./text.mjs";
+import { fold, compact, LookupError } from "./text.mjs";
 
 const { meta: VERSION, codes } = readData("icd10gm.json");
 
@@ -47,11 +47,6 @@ for (const item of ALPHABET.entries) {
   if (item.o) (byOrpha[item.o] ??= []).push(item);
 }
 const verweise = ALPHABET.verweise.map((text) => ({ text, folded: compact(text) }));
-
-/** Wie fold(), aber ohne Bindestriche ("Burnout" = "Burn-out"). Nur für die ICD-Suche. */
-function compact(text) {
-  return fold(text).replace(/-/g, "");
-}
 
 const chapterOf = {};
 const searchIndex = [];
@@ -108,6 +103,12 @@ export function normalizeIcdCode(raw) {
   let code = String(raw ?? "").trim().toUpperCase().replace(/\s+/g, "").replace(/[*†!+]/g, "").replace(/\.?-$/, "");
   if (/^[A-Z]\d{3,}$/.test(code)) code = `${code.slice(0, 3)}.${code.slice(3)}`;
   return code;
+}
+
+/** Titel und Alphabet-Begriffe eines Kodes (für die Ableitung von VersMedV-Stichwörtern). */
+export function alphabetTerms(raw) {
+  const code = requireCode(raw);
+  return { code, title: codes[code].fullTitle, begriffe: (alphabetOf[code] ?? []).map((a) => a.t) };
 }
 
 function requireCode(raw) {
