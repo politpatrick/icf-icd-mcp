@@ -36,6 +36,23 @@ function fullTitle(entry) {
   return entry.combined ? `${fullTitle(codes[entry.parent])}: ${entry.title}` : entry.title;
 }
 
+// Alphabetisches Verzeichnis: Einträge hängen am Primärkode, reine Zusatzkodierungen (Art 5) am Zusatzkode.
+const ALPHABET = readData("icd10gm_alpha.json");
+const ALPHABET_HINT = "Alphabet-Treffer stammen aus dem Alphabetischen Verzeichnis; maßgeblich ist das Systematische Verzeichnis.";
+const alphabetOf = {};
+const byOrpha = {};
+for (const item of ALPHABET.entries) {
+  item.folded = compact(item.t);
+  (alphabetOf[item.art === 5 ? item.z : item.p] ??= []).push(item);
+  if (item.o) (byOrpha[item.o] ??= []).push(item);
+}
+const verweise = ALPHABET.verweise.map((text) => ({ text, folded: compact(text) }));
+
+/** Wie fold(), aber ohne Bindestriche ("Burnout" = "Burn-out"). Nur für die ICD-Suche. */
+function compact(text) {
+  return fold(text).replace(/-/g, "");
+}
+
 const chapterOf = {};
 const searchIndex = [];
 for (const entry of Object.values(codes)) {
@@ -44,8 +61,9 @@ for (const entry of Object.values(codes)) {
   if (entry.kind === "category") {
     searchIndex.push({
       entry,
-      title: fold(entry.fullTitle + " " + (entry.title_long ?? "")),
-      inclusions: fold((entry.inclusions ?? []).map(textOf).join(" ")),
+      title: compact(entry.fullTitle + " " + (entry.title_long ?? "")),
+      inclusions: compact((entry.inclusions ?? []).map(textOf).join(" ")),
+      alphabet: (alphabetOf[entry.code] ?? []).map((a) => a.folded).join(" | "),
     });
   }
 }
@@ -172,33 +190,97 @@ export function getCode({ code: raw }) {
   };
 }
 
-export function search({ query, chapter, codable_only = false, limit = 20 }) {
-  const terms = fold(query).split(/\s+/).filter(Boolean);
-  if (!terms.length) throw new LookupError("Suchbegriff fehlt.");
-  const chap = chapter ? requireCode(String(chapter).toUpperCase()) : null;
-  const codeTerms = terms.map((t) => normalizeIcdCode(t));
-  const results = [];
-  for (const item of searchIndex) {
-    const { entry } = item;
-    if (chap && chapterOf[entry.code] !== chap) continue;
-    if (codable_only && !isTerminal(entry)) continue;
-    let score = 0;
-    let allFound = true;
-    terms.forEach((term, i) => {
-      const codeHit = entry.code === codeTerms[i] ? 100 : entry.code.startsWith(codeTerms[i]) ? 20 : 0;
-      const hit = (item.title.includes(term) ? 10 : 0) + (item.inclusions.includes(term) ? 2 : 0);
-      if (!hit && !codeHit) allFound = false;
-      score += hit + codeHit;
-    });
-    if (allFound) results.push({ score: score - entry.code.length * 0.1, entry });
-  }
-  results.sort((a, b) => b.score - a.score);
+const MAX_ALPHABET_PER_CODE = 3;
+const MAX_VERWEISE = 5;
+
+function alphabetHit(item) {
+  return {
+    text: item.t,
+    ...(item.k ? { kombination: item.k } : {}),
+    ...(item.o ? { orpha: item.o } : {}),
+  };
+}
+
+/** Alphabet-Texte eines Kodes, die zur Suche passen, die mit den meisten Suchwörtern zuerst. */
+function matchingAlphabet(items, terms) {
+  return items
+    .map((a) => ({ a, n: terms.filter((t) => a.folded.includes(t)).length }))
+    .filter(({ n }) => n > 0)
+    .sort((x, y) => y.n - x.n)
+    .slice(0, MAX_ALPHABET_PER_CODE)
+    .map(({ a }) => alphabetHit(a));
+}
+
+function searchResult(query, scored, limit, extra = {}) {
+  scored.sort((a, b) => b.score - a.score);
+  const results = scored.slice(0, Math.min(limit, 100)).map(({ entry, alphabet }) => ({
+    ...summary(entry.code),
+    ...(alphabet?.length ? { alphabet } : {}),
+  }));
   return {
     version: ICD_VERSION,
     query,
-    total: results.length,
-    results: results.slice(0, Math.min(limit, 100)).map(({ entry }) => summary(entry.code)),
+    total: scored.length,
+    results,
+    ...extra,
+    ...(results.some((r) => r.alphabet) ? { hinweis: ALPHABET_HINT } : {}),
   };
+}
+
+function searchOrpha(query, orpha, accept, limit) {
+  const items = byOrpha[orpha] ?? [];
+  const byCode = new Map();
+  for (const item of items) {
+    const entry = codes[item.art === 5 ? item.z : item.p];
+    if (!accept(entry)) continue;
+    if (!byCode.has(entry.code)) byCode.set(entry.code, { entry, score: -entry.code.length * 0.1, alphabet: [] });
+    const hit = byCode.get(entry.code);
+    if (hit.alphabet.length < MAX_ALPHABET_PER_CODE) hit.alphabet.push(alphabetHit(item));
+  }
+  return searchResult(query, [...byCode.values()], limit);
+}
+
+export function search({ query, chapter, codable_only = false, limit = 20 }) {
+  const chap = chapter ? requireCode(String(chapter).toUpperCase()) : null;
+  const accept = (entry) => !(chap && chapterOf[entry.code] !== chap) && !(codable_only && !isTerminal(entry));
+  const orpha = String(query ?? "").match(/^\s*orpha\s*[:\-]?\s*(\d+)\s*$/i);
+  if (orpha) return searchOrpha(query, Number(orpha[1]), accept, limit);
+
+  const words = fold(query).split(/\s+/).filter((w) => w.replace(/-/g, ""));
+  if (!words.length) throw new LookupError("Suchbegriff fehlt.");
+  const terms = words.map((w) => w.replace(/-/g, ""));
+  const codeTerms = words.map((w) => normalizeIcdCode(w));
+  const results = [];
+  for (const item of searchIndex) {
+    const { entry } = item;
+    if (!accept(entry)) continue;
+    let score = 0;
+    let allFound = true;
+    let alphabetUsed = false;
+    const needAlphabet = [];
+    terms.forEach((term, i) => {
+      const codeHit = entry.code === codeTerms[i] ? 100 : entry.code.startsWith(codeTerms[i]) ? 20 : 0;
+      const inTitle = item.title.includes(term);
+      const inInclusions = item.inclusions.includes(term);
+      const inAlphabet = item.alphabet.includes(term);
+      // Jedes Suchwort zählt nur mit seinem besten Fundort: Titel vor Alphabet vor Einschlüssen
+      const hit = inTitle ? 10 : inAlphabet ? 6 : inInclusions ? 2 : 0;
+      if (!hit && !codeHit) allFound = false;
+      if (inAlphabet) alphabetUsed = true;
+      if (!inTitle && !inInclusions && !codeHit) needAlphabet.push(term);
+      score += hit + codeHit;
+    });
+    // Suchwörter, die nur im Alphabet stehen, müssen gemeinsam in einem Alphabet-Text stehen
+    if (allFound && needAlphabet.length > 1) {
+      allFound = alphabetOf[entry.code].some((a) => needAlphabet.every((t) => a.folded.includes(t)));
+    }
+    if (allFound) {
+      const alphabet = alphabetUsed ? matchingAlphabet(alphabetOf[entry.code], terms) : undefined;
+      results.push({ score: score - entry.code.length * 0.1, entry, alphabet });
+    }
+  }
+  const refs = verweise.filter((v) => terms.every((t) => v.folded.includes(t))).slice(0, MAX_VERWEISE).map((v) => v.text);
+  return searchResult(query, results, limit, refs.length ? { verweise: refs } : {});
 }
 
 export function checkCode({ code: raw }) {

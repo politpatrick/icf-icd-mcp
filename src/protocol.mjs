@@ -8,7 +8,7 @@ import { BI_ENABLED, BI_TOOLS, BI_INSTRUCTIONS, withBiForIcf } from "./bi_tools.
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
-const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM und Begutachtungsinstrument (Deutsch)", version: "1.4.0" };
+const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM und Begutachtungsinstrument (Deutsch)", version: "1.5.0" };
 
 const BASE_INSTRUCTIONS = `Zugriff auf die deutsche ICF (Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit, WHO/BfArM 2005)
 und die ${icd.ICD_VERSION} (Diagnosen, Systematisches Verzeichnis des BfArM).
@@ -19,6 +19,7 @@ icf_get_qualifiers erklärt die Beurteilungsmerkmale, icf_interpret_coding prüf
 
 ICD-10-GM – icd_search findet Diagnosen, icd_get_code liefert Titel, Ein-/Ausschlüsse, Hinweise und Kodierregeln (§295/§301, Alter, Geschlecht),
 icd_check_code prüft einen Kode mit Zusatzkennzeichen (G/V/Z/A, R/L/B), icd_list_chapters zeigt Kapitel und Gruppen.
+icd_search durchsucht auch das Alphabetische Verzeichnis (Synonyme, Laienbegriffe, Orpha-Kennnummern); maßgeblich bleibt das Systematische Verzeichnis.
 Nur endständige Kodes sind (stationär) kodierbar; Stern-Kodes (*) nur zusammen mit einem Kreuz-Kode (†).
 
 Wissensnetz – icd_relations und icf_get_related zeigen alle amtlichen Beziehungen eines Codes, auch Rückverweise und von Oberklassen
@@ -114,7 +115,7 @@ const TOOLS = [
     name: "icd_search",
     title: "ICD-10-GM durchsuchen",
     description:
-      "Sucht Diagnosen in der ICD-10-GM nach Titel und Einschlussbegriffen. Mehrere Wörter werden UND-verknüpft; Umlaute und Groß-/Kleinschreibung sind egal. Auch Kode-Präfixe (z. B. \"F32\") funktionieren. Liefert Kode, vollständigen Titel und ob der Kode endständig (kodierbar) ist.",
+      "Sucht Diagnosen in der ICD-10-GM nach Titel, Einschlussbegriffen und in rund 89.000 Begriffen des Alphabetischen Verzeichnisses (Synonyme, Laienbegriffe wie \"Zuckerkrankheit\", Kreuz-Stern-Kombinationen, Orpha-Kennnummern; Suche auch mit \"ORPHA:173\"). Mehrere Wörter werden UND-verknüpft; Umlaute, Bindestriche und Groß-/Kleinschreibung sind egal. Auch Kode-Präfixe (z. B. \"F32\") funktionieren. Liefert Kode, vollständigen Titel und ob der Kode endständig (kodierbar) ist, bei Alphabet-Treffern die passenden Alphabet-Texte sowie Verweise.",
     inputSchema: {
       type: "object",
       properties: {

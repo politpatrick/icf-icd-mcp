@@ -23,6 +23,21 @@ Verzeichnisses beim BfArM.
 - Herausgegeben vom BfArM im Auftrag des Bundesministeriums für Gesundheit (BMG)
 - Die Erstellung erfolgt unter Verwendung der maschinenlesbaren Fassung des BfArM.
 
+## ICD-10-GM Version 2026, Alphabetisches Verzeichnis und Datei Alpha-ID-SE
+
+- Dateien: `source/icd10gm2026alpha_edvtxt_20250926.txt` (Alphabetisches Verzeichnis, EDV-Fassung TXT, OID 1.2.276.0.76.5.554)
+  und `source/icd10gm2026_alphaidse_edvtxt_20250926.txt` (Datei Alpha-ID-SE, OID 1.2.276.0.76.5.556), jeweils Stand 26.09.2025
+- Herausgegeben vom BfArM im Auftrag des Bundesministeriums für Gesundheit (BMG), das Alphabetische Verzeichnis in Kooperation
+  mit dem Zentralinstitut für die kassenärztliche Versorgung in der Bundesrepublik Deutschland (Zi)
+- Es gelten dieselben Downloadbedingungen und Quellenangaben wie für die ICD-10-GM (siehe oben).
+- Die Orpha-Kennnummern (ORPHAcodes) in der Datei Alpha-ID-SE stammen aus der Datenbank für Seltene Erkrankungen Orphanet;
+  Referenz für die Version 2026 ist das Orphanet Nomenclature Pack 07/2025.
+
+`scripts/icd_alpha_to_json.py` übernimmt Kodes und Texte unverändert und verknüpft beide Dateien über die laufende Nummer
+(Alphabet `109254` = Alpha-ID `I109254`). Nicht übernommen werden das Druckkennzeichen und die gestrichenen (ungültigen)
+Alpha-IDs. Bei Unstimmigkeiten zwischen Systematischem und Alphabetischem Verzeichnis ist das Systematische Verzeichnis
+maßgeblich; verbindliche Referenzfassung ist dessen PDF.
+
 ## ICF, Stand Oktober 2005
 
 - Datei: `source/icf2005syst_claml_20120619.xml`
