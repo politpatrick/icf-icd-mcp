@@ -350,10 +350,22 @@ test("Leere Ergebnisse tragen einen Hinweis", () => {
   assert.equal(call("vmg_search", { query: "Niere" }).hinweis_leer, undefined);
 });
 
-test("ICD-Ableitung ignoriert verneinte Teile (E11.90 ohne Adipositas)", () => {
-  const w = call("vmg_search", { icd: "E11.90" }).abgeleitet_icd.stichwoerter.map((s) => s.wort);
-  assert.ok(w.includes("Diabetes mellitus"));
-  assert.ok(!w.includes("Adipositas"), w.join(", "));
+test("ICD-Ableitung ignoriert verneinte Teile (ohne ...)", () => {
+  const w = (icd) => call("vmg_search", { icd }).abgeleitet_icd.stichwoerter.map((s) => s.wort);
+  assert.ok(!w("I12.9").includes("Niereninsuffizienz"));
+  assert.ok(!w("K80.20").includes("Zystitis"));
+  // Schutz: legitime Ableitungen bleiben (auch über „mit/bei“)
+  assert.ok(w("E11.50").includes("Kreislauf"));
+  assert.ok(w("E11.90").includes("Diabetes mellitus"));
+});
+
+test("hinweis_leer: Treffer aus query unterdrücken den Top-Level-Hinweis, ICD-Hinweis steht im Block", () => {
+  const r = call("vmg_search", { query: "Persönlichkeitsstörungen", icd: "F32.1" });
+  assert.ok(r.results.length > 0);
+  assert.equal(r.hinweis_leer, undefined);
+  assert.match(r.abgeleitet_icd.hinweis_leer, /Keine Stichwörter/);
+  const nur = call("vmg_search", { icd: "F32.1" });
+  assert.match(nur.hinweis_leer, /Keine Treffer/);
 });
 
 test("normalizeVmgId akzeptiert das eigene Fundstellen-Format", () => {

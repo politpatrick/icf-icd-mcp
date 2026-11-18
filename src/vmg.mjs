@@ -16,6 +16,7 @@ const ABWEICHUNG_HINWEIS =
 const STICHWORT_HINWEIS = "Stichwörter stammen aus dem Stichwortverzeichnis der BMAS-Broschüre K710 (redaktionelle Beigabe, nicht Teil der Verordnung).";
 const LEER_HINWEIS =
   "Keine Treffer. Mit anderem Wortstamm suchen (z. B. „depressiv“ statt „Depression“) oder die Gliederung mit vmg_list_structure durchgehen.";
+const ICD_LEER_HINWEIS = "Keine Stichwörter über diesen ICD-Kode abgeleitet; mit query nach einem Wortstamm suchen.";
 const ICD_HINWEIS = "abgeleitet über ICD-Titel und Alphabet-Begriffe, nicht amtlich";
 const TEILE = ["A", "B", "C", "D"];
 const MAX_ZEILEN = 5;
@@ -189,10 +190,8 @@ const ICD_STOP = ["nicht naher bezeichnet", "nicht naher bezeichnete", "sonstige
 function deriveFromIcd(raw) {
   const { code, title, begriffe } = alphabetTerms(raw);
   // Verneinte Teile („… ohne Adipositas“) tragen keine Ableitung: ab „ohne“ bis zum nächsten Komma, Semikolon, Doppelpunkt oder Satzende entfernen.
-  // In Alphabet-Begriffen zusätzlich Begleitumstände „mit/bei …“ (z. B. „Typ-2-Diabetes mellitus bei Adipositas“); im Titel bleibt „Mit …“ (Komplikationen) erhalten.
   const NEG = /\bohne\b[^,;:.]*/gi;
-  const BEGLEIT = /\b(?:mit|bei)\b[^,;:.]*/gi;
-  let hay = [compact(title.replace(NEG, " ")), ...begriffe.map((t) => compact(t.replace(NEG, " ").replace(BEGLEIT, " ")))];
+  let hay = [title, ...begriffe].map((t) => compact(t.replace(NEG, " ")));
   for (const s of ICD_STOP) hay = hay.map((h) => h.split(s).join(" "));
   const found = data.stichwoerter
     .map((s) => ({ wort: s.wort, ids: s.ids, c: compact(s.wort) }))
@@ -230,7 +229,10 @@ export function search({ query, icd, teil, limit = 20 } = {}) {
   if (hasQuery && !out.results.length) out.hinweis_leer = LEER_HINWEIS;
   if (hasIcd) {
     out.abgeleitet_icd = deriveFromIcd(icd);
-    if (!out.abgeleitet_icd.stichwoerter.length) out.hinweis_leer = LEER_HINWEIS;
+    if (!out.abgeleitet_icd.stichwoerter.length) {
+      out.abgeleitet_icd.hinweis_leer = ICD_LEER_HINWEIS;
+      if (!hasQuery) out.hinweis_leer = LEER_HINWEIS;
+    }
   }
   if (out.results.some((r) => r.stichwort)) out.stichwoerter_hinweis = STICHWORT_HINWEIS;
   return out;
