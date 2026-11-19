@@ -137,3 +137,17 @@ test("Einträge nur mit Zusatzkode hängen am Zusatzkode", () => {
   const r = call("icd_search", { query: "Acinetobacter als Erreger" }).results;
   assert.ok(r.some((x) => x.code.startsWith("B96.5") && x.alphabet?.some((a) => a.text === "Acinetobacter als Erreger")));
 });
+
+test("Neue Einträge aus Alpha-ID-SE 2027 sind suchbar und gekennzeichnet", () => {
+  const r = call("icd_search", { query: "Erythema induratum Bazin" });
+  const hit = r.results.find((x) => x.code === "A18.4");
+  assert.ok(hit, "A18.4 gefunden");
+  const a = hit.alphabet.find((x) => x.text === "Erythema induratum Bazin");
+  assert.equal(a.orpha, 730401);
+  assert.match(a.quelle, /Alpha-ID-SE 2027/);
+  const gang = call("icd_search", { query: "Paraneoplastische sensible Ganglionopathie" }).results.find((x) => x.code.startsWith("C34.9"));
+  assert.ok(gang.alphabet.some((x) => x.kombination === "C34.9† G63.1*"));
+  assert.ok(call("icd_search", { query: "ORPHA:730401" }).results.some((x) => x.code === "A18.4"));
+  // Einträge aus dem Alphabet tragen keine Quellenangabe
+  assert.ok(!call("icd_search", { query: "Ziegenpeter" }).results[0].alphabet[0].quelle);
+});

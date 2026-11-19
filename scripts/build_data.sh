@@ -20,7 +20,7 @@ PY_CMD="${2:-python3}"
 ICF_XML="$ROOT_DIR/source/icf2005syst_claml_20120619.xml"
 ICD_XML="$(ls "$ROOT_DIR"/source/icd10gm*syst_claml_*.xml | sort | tail -1)"
 ALPHA_TXT="$(ls "$ROOT_DIR"/source/icd10gm*alpha_edvtxt_*.txt | sort | tail -1)"
-ALPHASE_TXT="$(ls "$ROOT_DIR"/source/icd10gm*_alphaidse_edvtxt_*.txt | sort | tail -1)"
+ALPHASE_TXT="$(ls "$ROOT_DIR"/source/*alphaidse*_edvtxt_*.txt | sort | tail -1)"
 VMG_XML="$ROOT_DIR/source/versmedv_BJNR241200008.xml"
 VMG_TXT="$ROOT_DIR/source/k710_stichwortverzeichnis.txt"
 

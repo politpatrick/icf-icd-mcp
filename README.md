@@ -13,7 +13,7 @@ Damit können Claude und andere MCP-Clients Diagnosen, ICF-Kategorien, Kriterien
 - Läuft lokal, sendet keine Daten nach außen
 - ICF: 1.495 Kategorien (b, s, d, e) mit Beschreibungen, Ein-/Ausschlüssen und Beurteilungsmerkmalen
 - ICD-10-GM: 17.177 Klassen, darunter alle über Subklassifikationen gebildeten Kodes (z. B. E11.90, G82.30), mit Kodierregeln nach §295/§301
-- Alphabetisches Verzeichnis der ICD-10-GM: 89.304 Diagnosetexte mit Synonymen und Laienbegriffen (z. B. „Ziegenpeter“ → B26.9), 309 Verweise und 19.352 Orpha-Kennnummern für seltene Erkrankungen aus der Datei Alpha-ID-SE
+- Alphabetisches Verzeichnis der ICD-10-GM: 89.304 Diagnosetexte mit Synonymen und Laienbegriffen (z. B. „Ziegenpeter“ → B26.9) und 309 Verweise, dazu aus der Datei Alpha-ID-SE 2027 weitere 267 Begriffe (überwiegend seltene Erkrankungen) und 19.473 Orpha-Kennnummern
 - VersMedV: 356 Abschnitte (Teile A–D), 767 GdS-Zeilen mit Pfad und Fundstelle, 6 Sondertabellen und 330 Stichwörter aus dem Stichwortverzeichnis der BMAS-Broschüre K710 (redaktionelle Beigabe, nicht Teil der Verordnung)
 
 ## Tools
@@ -227,12 +227,14 @@ npm start            # Server auf stdio starten
 npm run build:data   # data/ aus source/ neu erzeugen (Python 3.9+)
 ```
 
-### Neue ICD-10-GM-Jahresversion
+### Neue ICD-10-GM-Version oder Alpha-ID-SE
 
-1. Beim BfArM die Pakete *ICD-10-GM … Systematik ClaML*, *Alphabet EDV-Fassung TXT* und *Alpha-ID-SE* herunterladen.
-2. Die XML aus `Klassifikationsdateien/` und die beiden TXT-Dateien nach `source/` kopieren und die alten Versionen löschen.
-3. `npm run build:data` und `npm test` ausführen. `build_data.sh` nimmt automatisch die neueste `icd10gm*syst_claml_*.xml`, `icd10gm*alpha_edvtxt_*.txt` und `icd10gm*_alphaidse_edvtxt_*.txt`.
-4. Die Versionsangaben in `QUELLEN.md` anpassen.
+Die ICD-10-GM 2026 gilt nach Planung des BfArM bis Ende 2028; die nächste Version ist die ICD-10-GM 2029. Die Datei Alpha-ID-SE erscheint dagegen jährlich (im Herbst, für das Folgejahr) mit aktualisierten Orpha-Kennnummern und teils neuen Einträgen.
+
+1. Beim BfArM herunterladen: bei einer neuen ICD-Version *ICD-10-GM … Systematik ClaML* und *Alphabet EDV-Fassung TXT*, jährlich *Alpha-ID-SE EDV-Fassung TXT*.
+2. Die XML aus `Klassifikationsdateien/` bzw. die TXT-Dateien nach `source/` kopieren und die alten Versionen löschen.
+3. `npm run build:data` und `npm test` ausführen. `build_data.sh` nimmt automatisch die neueste `icd10gm*syst_claml_*.xml`, `icd10gm*alpha_edvtxt_*.txt` und `*alphaidse*_edvtxt_*.txt`.
+4. Die Versionsangaben und Zahlen in `QUELLEN.md` und hier anpassen.
 
 ### VersMedV aktualisieren
 
