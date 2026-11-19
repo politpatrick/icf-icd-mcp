@@ -199,6 +199,8 @@ function alphabetHit(item) {
     text: item.t,
     ...(item.k ? { kombination: item.k } : {}),
     ...(item.o ? { orpha: item.o } : {}),
+    // Einträge, die nur in der Datei Alpha-ID-SE stehen (noch nicht im Alphabetischen Verzeichnis)
+    ...(item.q ? { quelle: ALPHABET.meta.alphaidse } : {}),
   };
 }
 
