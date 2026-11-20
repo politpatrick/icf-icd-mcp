@@ -91,3 +91,36 @@ test("Fehlende Eingaben ergeben einen verständlichen Fehler", () => {
   assert.ok(call("bi_gegenueberstellen", { gutachten: "4.1.3=1" }).error);
   assert.ok(call("bi_gegenueberstellen", { gutachten: "4.1.3=1", eigene: "9.9=1" }).error);
 });
+
+// --- Abschluss-Review: Regressionen ---
+
+test("Säuglinge: nächste Schwelle aus der Tabelle bis 18 Monate", () => {
+  const r = call("bi_gegenueberstellen", { gutachten: gutachten({}, 12), eigene: "4.4.0=nein", alter_monate: 12 });
+  const s = r.mit_eigenen_werten.naechste_schwelle;
+  assert.equal(s.punkte, 12.5);
+  assert.equal(s.pflegegrad, 2);
+});
+
+test("Besondere Bedarfskonstellation: keine widersprüchliche Schwelle, Grad-Änderung zuerst", () => {
+  const r = call("bi_gegenueberstellen", { gutachten: gutachten(), eigene: "4.1.4=1; 4.1.B=ja" });
+  assert.equal(r.mit_eigenen_werten.pflegegrad, 5);
+  assert.equal(r.mit_eigenen_werten.naechste_schwelle, undefined);
+  assert.equal(r.unterschiede[0].code, "BI:4.1.B");
+  assert.equal(r.unterschiede[0].wirkung.aendert_grad_allein, true);
+});
+
+test("Modul 5: Gruppe statt Einzelpunkte 0, Label statt undefined", () => {
+  const r = call("bi_gegenueberstellen", { gutachten: gutachten(), eigene: "4.5.1=9/Tag" });
+  const u = r.unterschiede[0];
+  assert.equal(u.gutachten.label, "entfällt");
+  assert.ok(!/undefined/.test(JSON.stringify(u)));
+  assert.equal(u.eigene.gruppe.gruppe, "A");
+  assert.ok(u.eigene.gruppe.einzelpunkte > u.gutachten.gruppe.einzelpunkte);
+});
+
+test("Modul 2/3: Gesamtwirkung zählt, auch wenn das andere Modul übernimmt", () => {
+  const r = call("bi_gegenueberstellen", { gutachten: gutachten({ "4.2.1": 3, "4.2.2": 3, "4.3.1": 1, "4.3.2": 1 }), eigene: "4.2.1=0; 4.2.2=0" });
+  const summe = r.unterschiede.reduce((s, u) => s + u.wirkung.gesamtpunkte_differenz, 0);
+  assert.ok(r.unterschiede.every((u) => typeof u.wirkung.gesamtpunkte_differenz === "number"));
+  assert.ok(summe < 0);
+});

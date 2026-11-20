@@ -55,3 +55,17 @@ test("Instructions nennen bi_gegenueberstellen und die Prompts", () => {
   assert.match(ins, /bi_gegenueberstellen/);
   assert.match(ins, /pflegegrad_interview/);
 });
+
+test("Altersangaben im Prompt passen zur Systematik", () => {
+  assert.ok(!/Kind/.test(text("pflegegutachten_verstehen", { alter_monate: "600" })));
+  const jugend = text("pflegegrad_interview", { alter_monate: "180" });
+  assert.ok(!/gleichaltrigen Kindern/.test(jugend));
+  assert.match(jugend, /Punktesystematik für Erwachsene/);
+  assert.match(text("pflegegrad_interview", { alter_monate: "12" }), /4\.4\.0/);
+  assert.match(text("pflegegrad_interview", { alter_monate: "60" }), /gleichaltrigen Kindern/);
+});
+
+test("wer_antwortet akzeptiert keine eingebauten Namen; params null", () => {
+  assert.equal(rpc("prompts/get", { name: "pflegegrad_interview", arguments: { wer_antwortet: "constructor" } }).error.code, -32602);
+  assert.equal(handleMessage({ jsonrpc: "2.0", id: 500, method: "prompts/get", params: null }).error.code, -32602);
+});

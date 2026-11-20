@@ -2,6 +2,7 @@
 // den Zustand trägt das Fallprofil im Gespräch. Keine Rechtsberatung, keine Interna.
 
 import { BI_ENABLED } from "./bi_tools.mjs";
+import { ADULT_FROM_MONTHS, INFANT_BELOW_MONTHS } from "./bi.mjs";
 
 /** Fehler in Prompt-Argumenten (wird als JSON-RPC-Fehler -32602 gemeldet). */
 export class PromptError extends Error {}
@@ -17,6 +18,18 @@ function alterMonate(raw) {
   const n = Number(raw);
   if (!Number.isInteger(n) || n < 0 || n > 1560) throw new PromptError("alter_monate muss eine ganze Zahl von 0 bis 1560 sein (Alter in Monaten).");
   return n;
+}
+
+/** Beschreibung der Altersgruppe und ihrer Bewertungsregeln für den Prompt-Text. */
+function altersText(monate, werkzeug) {
+  if (monate === undefined) return "Es geht um eine erwachsene Person (Fassung für Erwachsene).";
+  if (monate >= 18 * 12) return `Es geht um eine erwachsene Person (${monate} Monate); es gilt die Fassung für Erwachsene.`;
+  const basis = `Es geht um ein Kind bzw. eine jugendliche Person (${monate} Monate). Verwende die Kinderfassung der Kriterien (bi_get_item mit variante "kinder") und übergib ${werkzeug} alter_monate ${monate}.`;
+  if (monate < INFANT_BELOW_MONTHS) {
+    return `${basis} Bis 18 Monate gilt eine Sonderregel: Statt Modul 4 wird nur die Frage 4.4.0 (gravierende Probleme bei der Nahrungsaufnahme) gestellt, die Module 1, 2 und 6 werden nicht bewertet, und es gilt eine eigene Tabelle der Pflegegrade.`;
+  }
+  if (monate < ADULT_FROM_MONTHS) return `${basis} Bis zum vollendeten 11. Lebensjahr werden Kinder mit gleichaltrigen Kindern ohne Beeinträchtigung verglichen.`;
+  return `${basis} Ab dem vollendeten 11. Lebensjahr gilt die Punktesystematik für Erwachsene; die Texte der Kinderfassung beschreiben die Kriterien altersgerecht.`;
 }
 
 const GRUNDSAETZE = `Grundsätze für das ganze Gespräch:
@@ -39,13 +52,12 @@ const PROMPTS_ALLE = [
     bi: true,
     render(args) {
       const wer = args.wer_antwortet ?? "person";
-      if (!WER[wer]) throw new PromptError(`wer_antwortet muss einer dieser Werte sein: ${Object.keys(WER).join(", ")}.`);
+      if (typeof wer !== "string" || !Object.hasOwn(WER, wer)) throw new PromptError(`wer_antwortet muss einer dieser Werte sein: ${Object.keys(WER).join(", ")}.`);
       const monate = alterMonate(args.alter_monate);
-      const kind = monate !== undefined && monate < 18 * 12;
       return `Führe mit mir ein Interview zur Vorbereitung auf eine Pflegebegutachtung nach dem Begutachtungsinstrument (§ 15 SGB XI).
 
 ${WER[wer]}
-${kind ? `Es geht um ein Kind bzw. eine jugendliche Person (${monate} Monate). Verwende die Kinderfassung der Kriterien (bi_get_item mit variante "kinder") und bei der Berechnung alter_monate ${monate}. Kinder werden mit gleichaltrigen Kindern ohne Beeinträchtigung verglichen.` : "Es geht um eine erwachsene Person (Fassung für Erwachsene)."}
+${altersText(monate, "bi_calculate")}
 
 ${GRUNDSAETZE}
 
@@ -74,7 +86,7 @@ Ergebnis:
     render(args) {
       const monate = alterMonate(args.alter_monate);
       return `Hilf mir, ein Pflegegutachten zu verstehen und mit meiner eigenen Sicht zu vergleichen.
-${monate !== undefined ? `Es geht um ein Kind bzw. eine jugendliche Person (${monate} Monate am Tag der Begutachtung); übergib alter_monate ${monate}.` : ""}
+${monate !== undefined ? altersText(monate, "bi_calculate und bi_gegenueberstellen") : ""}
 
 ${GRUNDSAETZE}
 

@@ -7,13 +7,7 @@ import * as bi from "./bi.mjs";
 import { parseProfil } from "./fall.mjs";
 import { LookupError } from "./text.mjs";
 
-const SCHWELLEN = [
-  { punkte: 12.5, pflegegrad: 1 },
-  { punkte: 27, pflegegrad: 2 },
-  { punkte: 47.5, pflegegrad: 3 },
-  { punkte: 70, pflegegrad: 4 },
-  { punkte: 90, pflegegrad: 5 },
-];
+const PFLEGEGRADE = bi.getScoringRules().pflegegrade;
 
 const HINWEIS =
   "Gegenüberstellung nach den Begutachtungs-Richtlinien. Sie zeigt, was die Stufen bedeuten und wie sich Unterschiede auswirken; sie bewertet das Gutachten nicht und ist keine Rechtsberatung.";
@@ -56,12 +50,21 @@ function einzelpunkte(calc, code) {
   return 0;
 }
 
+/** Modul 5 wird je Gruppe (A, B, C, D) bewertet, nicht je Kriterium. */
+function gruppe(calc, code) {
+  const nummer = code.replace(/^BI:/, "");
+  const g = calc.module.find((m) => m.modul === 5)?.gruppen?.find((x) => x.kriterien?.includes(nummer));
+  if (!g) return undefined;
+  return { gruppe: g.gruppe, einzelpunkte: g.einzelpunkte, ...(g.massnahmen_pro_tag !== undefined ? { massnahmen_pro_tag: g.massnahmen_pro_tag } : {}) };
+}
+
 function stufe(e, calc) {
+  const g = e.modul === 5 ? gruppe(calc, e.code) : undefined;
   return {
     kodierung: e.kodierung,
-    label: e.label ?? (e.anzahl !== undefined ? `${e.anzahl}× je ${e.je}` : String(e.wert)),
+    label: e.label ?? (e.anzahl !== undefined ? `${e.anzahl}× je ${e.je}` : e.wert !== undefined ? String(e.wert) : e.art),
     ...(e.erlaeuterung ? { erlaeuterung: e.erlaeuterung } : {}),
-    einzelpunkte: einzelpunkte(calc, e.code),
+    ...(g ? { gruppe: g } : { einzelpunkte: einzelpunkte(calc, e.code) }),
   };
 }
 
@@ -76,9 +79,13 @@ function texte(code, variante) {
   return { titel: item.titel, definition: t.definition ?? "", hinweise: t.hinweise ?? [], abgrenzungen };
 }
 
-function naechsteSchwelle(punkte) {
-  const s = SCHWELLEN.find((x) => x.punkte > punkte);
-  return s ? { punkte: s.punkte, pflegegrad: s.pflegegrad, abstand: rund(s.punkte - punkte) } : undefined;
+/** Nächste Schwelle über dem erreichten Grad; Tabelle für Säuglinge bis 18 Monate gesondert. */
+function naechsteSchwelle(calc, alter_monate) {
+  if (calc.besondere_bedarfskonstellation) return undefined;
+  const saeugling = alter_monate !== undefined && alter_monate < bi.INFANT_BELOW_MONTHS;
+  const tabelle = saeugling ? PFLEGEGRADE.kinder_bis_18_monate.stufen : PFLEGEGRADE.stufen;
+  const s = tabelle.find((x) => x.ab > calc.gesamtpunkte && x.grad > calc.pflegegrad);
+  return s ? { punkte: s.ab, pflegegrad: s.grad, abstand: rund(s.ab - calc.gesamtpunkte) } : undefined;
 }
 
 /**
@@ -129,14 +136,15 @@ export function gegenueberstellen({ gutachten, eigene, profil, herkunft_gutachte
         gewichtet_vorher: vorher?.gewichtete_punkte ?? 0,
         gewichtet_nachher: nachher?.gewichtete_punkte ?? 0,
         modul_zaehlt: m === 2 || m === 3 ? nachher?.geht_ein !== false : true,
+        gesamtpunkte_differenz: rund(calcEinzeln.gesamtpunkte - calcBasis.gesamtpunkte),
         ...(vollstaendig ? { pflegegrad_allein: calcEinzeln.pflegegrad, aendert_grad_allein: calcEinzeln.pflegegrad !== calcBasis.pflegegrad } : {}),
       },
       hinweise: t.hinweise,
       abgrenzungen: t.abgrenzungen,
     });
   }
-  const differenz = (u) => (u.wirkung.modul_zaehlt ? u.wirkung.gewichtet_nachher - u.wirkung.gewichtet_vorher : 0);
-  unterschiede.sort((a, b) => differenz(b) - differenz(a));
+  // Zuerst Unterschiede, die allein den Grad ändern, dann nach Wirkung auf die Gesamtpunkte.
+  unterschiede.sort((a, b) => Number(Boolean(b.wirkung.aendert_grad_allein)) - Number(Boolean(a.wirkung.aendert_grad_allein)) || b.wirkung.gesamtpunkte_differenz - a.wirkung.gesamtpunkte_differenz);
 
   return {
     richtlinie: calcBasis.richtlinie,
@@ -145,7 +153,7 @@ export function gegenueberstellen({ gutachten, eigene, profil, herkunft_gutachte
       ? { vollstaendig: true, gesamtpunkte: calcBasis.gesamtpunkte, pflegegrad: calcBasis.pflegegrad }
       : { vollstaendig: false, fehlende_kriterien: calcBasis.nicht_angegeben },
     mit_eigenen_werten: vollstaendig
-      ? { gesamtpunkte: calcAlle.gesamtpunkte, pflegegrad: calcAlle.pflegegrad, ...(naechsteSchwelle(calcAlle.gesamtpunkte) ? { naechste_schwelle: naechsteSchwelle(calcAlle.gesamtpunkte) } : {}) }
+      ? { gesamtpunkte: calcAlle.gesamtpunkte, pflegegrad: calcAlle.pflegegrad, ...(naechsteSchwelle(calcAlle, alter_monate) ? { naechste_schwelle: naechsteSchwelle(calcAlle, alter_monate) } : {}) }
       : {},
     bestaetigt,
     unterschiede,

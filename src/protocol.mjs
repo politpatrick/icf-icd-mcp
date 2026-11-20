@@ -271,7 +271,7 @@ export function handleMessage(msg) {
       break;
     case "prompts/get":
       try {
-        outcome = { result: getPrompt(params) };
+        outcome = { result: getPrompt(msg?.params ?? {}) };
       } catch (err) {
         if (!(err instanceof PromptError)) throw err;
         outcome = { error: { code: -32602, message: err.message } };
