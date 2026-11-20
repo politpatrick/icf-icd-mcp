@@ -15,8 +15,8 @@ const nodes = data.nodes;
 export const BI_VERSION = `${data.meta.kurz} (gültig ab ${data.meta.gueltig_ab.split("-").reverse().join(".")})`;
 
 const VARIANTS = ["erwachsene", "kinder"];
-const ADULT_FROM_MONTHS = data.pflegegrade.kinder_unter_11.ab_monaten_erwachsenensystematik; // 132
-const INFANT_BELOW_MONTHS = 18;
+export const ADULT_FROM_MONTHS = data.pflegegrade.kinder_unter_11.ab_monaten_erwachsenensystematik; // 132
+export const INFANT_BELOW_MONTHS = 18;
 
 const parentOf = {};
 for (const n of Object.values(nodes)) for (const c of n.children ?? []) parentOf[c] = n.id;

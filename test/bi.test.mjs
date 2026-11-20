@@ -15,7 +15,7 @@ test("BI-Tools sind standardmäßig aktiv", () => {
   const { tools } = handleMessage({ jsonrpc: "2.0", id: 1, method: "tools/list" }).result;
   const names = tools.map((t) => t.name).filter((n) => n.startsWith("bi_"));
   assert.deepEqual(names.sort(), [
-    "bi_calculate", "bi_compare", "bi_get_item", "bi_icf_mapping", "bi_interpret_coding", "bi_list_structure", "bi_related", "bi_scoring_rules", "bi_search",
+    "bi_calculate", "bi_compare", "bi_gegenueberstellen", "bi_get_item", "bi_icf_mapping", "bi_interpret_coding", "bi_list_structure", "bi_related", "bi_scoring_rules", "bi_search",
   ]);
   const init = handleMessage({ jsonrpc: "2.0", id: 2, method: "initialize", params: {} }).result;
   assert.match(init.instructions, /Begutachtungsinstrument nach § 15 SGB XI/);

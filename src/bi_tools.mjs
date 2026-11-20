@@ -2,6 +2,7 @@
 // abschalten lässt es sich mit der Umgebungsvariable ICF_MCP_BI=0 (dann nur ICF und ICD-10-GM).
 
 import * as biModule from "./bi.mjs";
+import { gegenueberstellen } from "./bi_gegenueberstellung.mjs";
 
 export const BI_ENABLED = !["0", "false", "nein", "off"].includes(String(process.env.ICF_MCP_BI ?? "").toLowerCase());
 
@@ -22,7 +23,9 @@ Typischer Ablauf: bi_search findet zu einer Beobachtung das passende Kriterium, 
 Ausprägungen mit Erläuterung, bi_compare grenzt Kriterien ab (wörtliche Abgrenzungen der BRi), bi_interpret_coding prüft Kodierungen,
 bi_calculate berechnet gewichtete Punkte und Pflegegrad nach Anlage 2 zu § 15 SGB XI (auch für Kinder mit Altersvergleich).
 bi_icf_mapping verbindet BI-Kriterien und ICF-Kategorien in beide Richtungen; die Zuordnung ist kuratiert (nicht amtlich) und begründet,
-icf_get_related zeigt zu einer ICF-Kategorie zusätzlich die zugeordneten BI-Kriterien. Die Einstufung bleibt eine gutachterliche Entscheidung.`;
+icf_get_related zeigt zu einer ICF-Kategorie zusätzlich die zugeordneten BI-Kriterien. Die Einstufung bleibt eine gutachterliche Entscheidung.
+bi_gegenueberstellen stellt ein Pflegegutachten der eigenen Einschätzung gegenüber (Gutachten als Grundlage, je Unterschied Definition, Stufen, Wirkung, Abgrenzungen); keine Bewertung des Gutachtens.
+Geführte Abläufe als Prompts: pflegegrad_interview (Selbsteinschätzung vor der Begutachtung) und pflegegutachten_verstehen.`;
 
 /** Ergänzt das Ergebnis von icf_get_related um die zugeordneten BI-Kriterien. */
 export function withBiForIcf(run) {
@@ -149,5 +152,24 @@ export const BI_TOOLS = !bi
         inputSchema: { type: "object", properties: {} },
         annotations: readOnly,
         run: bi.getScoringRules,
+      },
+      {
+        name: "bi_gegenueberstellen",
+        title: "Pflegegutachten und eigene Einschätzung gegenüberstellen",
+        description:
+          "Stellt die Einstufungen eines Pflegegutachtens der eigenen Einschätzung gegenüber. Das Gutachten ist die Grundlage, die eigenen Werte werden eingesetzt (eine unvollständige eigene Einschätzung genügt). Je Unterschied: verbindliche Definition des Kriteriums, Bedeutung beider Stufen wörtlich aus den BRi, Wirkung auf Modulpunkte, gewichtete Punkte und Pflegegrad (auch ob dieser Unterschied allein den Grad ändert), Hinweise und Abgrenzungen. Dazu Gesamtpunkte, Grad und Abstand zur nächsten Schwelle – nur bei vollständigem Gutachten. Eingabe als Kodierungen oder als Fallprofil. Bewertet das Gutachten nicht und ist keine Rechtsberatung.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            gutachten: { type: "string", description: 'Einstufungen aus dem Gutachten, z. B. "4.1.1=0; 4.1.2=1; …; 4.5.1=3/Tag"' },
+            eigene: { type: "string", description: 'Eigene Einschätzung, nur abweichende oder zweifelhafte Kriterien genügen, z. B. "4.1.3=3; 4.4.1=2"' },
+            profil: { type: ["object", "string"], description: "Alternativ: Fallprofil mit BI-Einträgen verschiedener Herkunft" },
+            herkunft_gutachten: { type: "string", description: 'Herkunft der Gutachten-Einträge im Profil (Standard "gutachten")' },
+            herkunft_eigene: { type: "string", description: 'Herkunft der eigenen Einträge im Profil (Standard "interview", sonst "selbstauskunft")' },
+            alter_monate: { type: "number", description: "Bei Kindern: Alter am Tag der Begutachtung in Monaten" },
+          },
+        },
+        annotations: readOnly,
+        run: gegenueberstellen,
       },
     ];

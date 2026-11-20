@@ -7,10 +7,11 @@ import { LookupError } from "./text.mjs";
 import { VMG_ENABLED, VMG_TOOLS, VMG_INSTRUCTIONS } from "./vmg_tools.mjs";
 import { BI_ENABLED, BI_TOOLS, BI_INSTRUCTIONS, withBiForIcf } from "./bi_tools.mjs";
 import { FALL_TOOLS, FALL_INSTRUCTIONS } from "./fall_tools.mjs";
+import { listPrompts, getPrompt, PromptError } from "./prompts.mjs";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
-const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM, Begutachtungsinstrument und VersMedV (Deutsch)", version: "1.7.0" };
+const SERVER_INFO = { name: "icf", title: "ICF, ICD-10-GM, Begutachtungsinstrument und VersMedV (Deutsch)", version: "1.8.0" };
 
 const BASE_INSTRUCTIONS = `Zugriff auf die deutsche ICF (Internationale Klassifikation der Funktionsfähigkeit, Behinderung und Gesundheit, WHO/BfArM 2005)
 und die ${icd.ICD_VERSION} (Diagnosen, Systematisches Verzeichnis des BfArM).
@@ -249,7 +250,7 @@ export function handleMessage(msg) {
       outcome = {
         result: {
           protocolVersion: PROTOCOL_VERSIONS.includes(requested) ? requested : PROTOCOL_VERSIONS[0],
-          capabilities: { tools: { listChanged: false } },
+          capabilities: { tools: { listChanged: false }, prompts: { listChanged: false } },
           serverInfo: SERVER_INFO,
           instructions: INSTRUCTIONS,
         },
@@ -264,6 +265,17 @@ export function handleMessage(msg) {
       break;
     case "tools/call":
       outcome = callTool(params);
+      break;
+    case "prompts/list":
+      outcome = { result: listPrompts() };
+      break;
+    case "prompts/get":
+      try {
+        outcome = { result: getPrompt(msg?.params ?? {}) };
+      } catch (err) {
+        if (!(err instanceof PromptError)) throw err;
+        outcome = { error: { code: -32602, message: err.message } };
+      }
       break;
     default:
       if (!isRequest) return null; // z. B. notifications/initialized
