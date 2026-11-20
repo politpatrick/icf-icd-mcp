@@ -170,3 +170,47 @@ test("ICF_MCP_BI=0: Hinweis modul_aus, keine Pflege-Orientierung", async () => {
   assert.ok(r.hinweise.some((h) => h.kennung === "modul_aus"));
   assert.deepEqual(r.pflege, []);
 });
+
+// --- fall_vergleichen ---
+
+test("fall_vergleichen: neu, weggefallen, verändert über Grundkode trotz anderer Ids", () => {
+  const alt = mit([E("a", "icf", "d450.12"), E("b", "icd", "F20.0 V"), E("c", "personbezogen", undefined, { text: "Mag Musik" })]);
+  const neu = mit([E("x", "icf", "d450.23"), E("y", "icd", "F20.0 G"), E("z", "icf", "d920.2")]);
+  neu.meta.stichtag = "2027-11-20";
+  const r = call("fall_vergleichen", { alt, neu });
+  assert.equal(r.gueltig, true, JSON.stringify(r.fehler));
+  assert.deepEqual(r.stichtage, { alt: "2026-11-20", neu: "2027-11-20" });
+  assert.ok(r.eintraege.veraendert.some((v) => v.schluessel.includes("d450")));
+  assert.ok(r.eintraege.veraendert.some((v) => v.schluessel.includes("F20.0")));
+  assert.ok(r.eintraege.neu.some((e) => e.kode.startsWith("d920")));
+  assert.ok(r.eintraege.weggefallen.some((e) => e.art === "personbezogen"));
+  assert.ok(!/verschlecht|verbesser/i.test(JSON.stringify(r)));
+});
+
+test("fall_vergleichen: Zusammenhänge, GdB und Formfehler", () => {
+  const alt = mit([E("i", "icd", "F20.0 G"), E("d", "icf", "d720.22"), E("v", "vmg", "VMG:B 3.7", { gdb: 40 })]);
+  const neu = mit([E("i2", "icd", "F20.0 G"), E("d2", "icf", "d720.22"), E("v2", "vmg", "VMG:B 3.7", { gdb: 50 })], [{ von: "i2", nach: "d2", art: "verursacht" }]);
+  const r = call("fall_vergleichen", { alt, neu });
+  assert.equal(r.zusammenhaenge.neu.length, 1);
+  assert.equal(r.zusammenhaenge.weggefallen.length, 0);
+  assert.deepEqual(r.gdb.map(({ kennung, alt: a, neu: n }) => [kennung, a, n]), [["VMG:B 3.7", 40, 50]]);
+  assert.equal(r.eintraege.unveraendert, 2);
+
+  const kaputt = minimal();
+  kaputt.meta.name = "Erika";
+  const f = call("fall_vergleichen", { alt: kaputt, neu });
+  assert.equal(f.gueltig, false);
+  assert.ok(f.fehler.some((x) => x.pfad === "alt.meta.name"));
+});
+
+test("fall_vergleichen: Pflegepunkte je Herkunft und mehrdeutige Schlüssel", async () => {
+  const altBi = await alleBi();
+  const neuBi = altBi.map((e) => (e.kode.startsWith("BI:4.1.3=") ? { ...e, kode: "BI:4.1.3=3" } : e));
+  const alt = mit(altBi), neu = mit(neuBi);
+  alt.meta.alter = neu.meta.alter = { jahre: 46 };
+  const r = call("fall_vergleichen", { alt, neu });
+  const p = r.pflege.find((x) => x.herkunft === "interview");
+  assert.ok(p.differenz > 0);
+  const m = call("fall_vergleichen", { alt: mit([E("a", "icf", "d450.1"), E("b", "icf", "d450.2")]), neu: mit([E("c", "icf", "d450.3")]) });
+  assert.ok(m.hinweise.some((h) => h.kennung === "mehrdeutig"));
+});

@@ -29,4 +29,20 @@ export const FALL_TOOLS = [
     annotations: readOnly,
     run: (args) => fall.pruefen(args),
   },
+  {
+    name: "fall_vergleichen",
+    title: "Zwei Fassungen eines Fallprofils vergleichen",
+    description:
+      "Vergleicht zwei Fassungen eines Fallprofils (z. B. vor einem Jahr und heute): neue, weggefallene und veränderte Einträge (Beurteilungsmerkmal, BI-Stufe, Diagnosesicherheit, GdB, Status, Dauer), dazu Zusammenhänge, Ziele und Verfahren, angegebene Einzel-GdB und – bei vollständigen Angaben – die Pflegepunkte je Herkunft. Die Zuordnung erfolgt über die Kodes, nicht über die Ids. Wertet die Veränderung nicht.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        alt: { type: ["object", "string"], description: "Frühere Fassung des Fallprofils" },
+        neu: { type: ["object", "string"], description: "Neuere Fassung des Fallprofils" },
+      },
+      required: ["alt", "neu"],
+    },
+    annotations: readOnly,
+    run: (args) => fall.vergleichen(args),
+  },
 ];

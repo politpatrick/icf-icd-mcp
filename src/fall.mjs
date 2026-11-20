@@ -387,3 +387,139 @@ export function pruefen({ profil: input } = {}) {
     pflege,
   };
 }
+
+// --- Vergleich zweier Fassungen ---
+
+/** Merkmal-, Stufen- oder Zusatzteil eines Kodes (alles nach dem Grundkode). */
+function auspraegung(e) {
+  const kode = String(e.kode ?? "").trim();
+  if (e.art === "icf") return kode.slice(kode.split(/[.+]/)[0].length);
+  if (e.art === "bi") return kode.split("=")[1] ?? "";
+  if (e.art === "icd") return zusatz(e);
+  return "";
+}
+
+const FELDNAME = { icf: "merkmal", bi: "stufe", icd: "zusatzkennzeichen" };
+
+function veraenderteFelder(a, b) {
+  const felder = [];
+  if (auspraegung(a) !== auspraegung(b)) felder.push(FELDNAME[a.art] ?? "kode");
+  for (const f of ["gdb", "dauer", "richtung"]) if (a[f] !== b[f]) felder.push(f);
+  if ((a.status ?? "geschildert") !== (b.status ?? "geschildert")) felder.push("status");
+  return felder;
+}
+
+const kurz = (e) => ({ id: e.id, art: e.art, ...(e.kode ? { kode: e.kode } : {}), ...(e.text ? { text: e.text } : {}), herkunft: e.herkunft });
+
+/** Ordnet Elemente zweier Listen über einen Schlüssel zu; Mehrfachschlüssel werden in Reihenfolge gepaart. */
+function zuordnen(alt, neu, schluessel) {
+  const gruppe = (liste) => {
+    const m = new Map();
+    for (const x of liste) (m.get(schluessel(x)) ?? m.set(schluessel(x), []).get(schluessel(x))).push(x);
+    return m;
+  };
+  const ga = gruppe(alt);
+  const gn = gruppe(neu);
+  const paare = [], nurAlt = [], nurNeu = [], mehrdeutig = [];
+  for (const key of new Set([...ga.keys(), ...gn.keys()])) {
+    const a = ga.get(key) ?? [];
+    const n = gn.get(key) ?? [];
+    if (a.length > 1 || n.length > 1) mehrdeutig.push(key);
+    for (let i = 0; i < Math.max(a.length, n.length); i++) {
+      if (a[i] && n[i]) paare.push([a[i], n[i], key]);
+      else if (a[i]) nurAlt.push(a[i]);
+      else nurNeu.push(n[i]);
+    }
+  }
+  return { paare, nurAlt, nurNeu, mehrdeutig };
+}
+
+/**
+ * Vergleicht zwei Fassungen eines Fallprofils: neue, weggefallene und veränderte Einträge, Zusammenhänge,
+ * Ziele, Verfahren, angegebene Einzel-GdB und (bei vollständigen Angaben) die Pflegepunkte je Herkunft.
+ * Wertet die Veränderung nicht.
+ */
+export function vergleichen({ alt: altInput, neu: neuInput } = {}) {
+  const a = parseProfil(altInput);
+  const n = parseProfil(neuInput);
+  const fehler = [
+    ...a.fehler.map((f) => ({ pfad: `alt.${f.pfad}`, meldung: f.meldung })),
+    ...n.fehler.map((f) => ({ pfad: `neu.${f.pfad}`, meldung: f.meldung })),
+  ];
+  if (fehler.length) return { gueltig: false, fehler };
+  const alt = a.profil;
+  const neu = n.profil;
+  const liste = (p, k) => (Array.isArray(p[k]) ? p[k] : []);
+  const hinweise = [];
+
+  const key = (e) => `${e.art}|${grundkode(e)}|${e.herkunft}`;
+  const ein = zuordnen(liste(alt, "eintraege"), liste(neu, "eintraege"), key);
+  if (ein.mehrdeutig.length) {
+    hinweise.push({ kennung: "mehrdeutig", text: `Mehrfach vorhandene Einträge wurden in ihrer Reihenfolge zugeordnet: ${ein.mehrdeutig.map((k) => k.split("|")[1]).join(", ")}.` });
+  }
+  const veraendert = [];
+  let unveraendert = 0;
+  for (const [x, y, schluessel] of ein.paare) {
+    const felder = veraenderteFelder(x, y);
+    if (!felder.length) {
+      unveraendert++;
+      continue;
+    }
+    veraendert.push({
+      schluessel: schluessel.split("|").slice(0, 2).join(" "),
+      vorher: kurz(x),
+      nachher: kurz(y),
+      felder,
+      ...(x.begruendung ? { begruendung_vorher: x.begruendung } : {}),
+      ...(y.begruendung ? { begruendung_nachher: y.begruendung } : {}),
+    });
+  }
+
+  const zKey = (p) => {
+    const byId = new Map(liste(p, "eintraege").map((e) => [e.id, e]));
+    return (z) => `${z.art}|${byId.get(z.von) ? grundkode(byId.get(z.von)) : z.von}|${byId.get(z.nach) ? grundkode(byId.get(z.nach)) : z.nach}`;
+  };
+  const zA = liste(alt, "zusammenhaenge").map((z) => ({ ...z, _k: zKey(alt)(z) }));
+  const zN = liste(neu, "zusammenhaenge").map((z) => ({ ...z, _k: zKey(neu)(z) }));
+  const zus = zuordnen(zA, zN, (z) => z._k);
+  const zOut = (z) => {
+    const [art, von, nach] = z._k.split("|");
+    return { art, von, nach };
+  };
+  const ziele = zuordnen(liste(alt, "ziele"), liste(neu, "ziele"), (z) => compact(z.text ?? ""));
+  const verf = zuordnen(liste(alt, "verfahren"), liste(neu, "verfahren"), (v) => `${v.art}|${v.bereich}|${v.datum ?? ""}`);
+
+  const gdbWerte = (p) => new Map(liste(p, "eintraege").filter((e) => e.art === "vmg" && e.gdb !== undefined).map((e) => [grundkode(e), e.gdb]));
+  const gA = gdbWerte(alt);
+  const gN = gdbWerte(neu);
+  const gdb = [...new Set([...gA.keys(), ...gN.keys()])]
+    .filter((k) => gA.get(k) !== gN.get(k))
+    .map((kennung) => ({ kennung, ...(gA.has(kennung) ? { alt: gA.get(kennung) } : {}), ...(gN.has(kennung) ? { neu: gN.get(kennung) } : {}) }));
+
+  const pA = pruefen({ profil: alt }).pflege;
+  const pN = pruefen({ profil: neu }).pflege;
+  const pflege = [...new Set([...pA, ...pN].map((p) => p.herkunft))].map((herkunft) => {
+    const x = pA.find((p) => p.herkunft === herkunft);
+    const y = pN.find((p) => p.herkunft === herkunft);
+    const werte = (p) => (p?.vollstaendig ? { gesamtpunkte: p.gesamtpunkte, pflegegrad: p.pflegegrad } : p ? { vollstaendig: false } : undefined);
+    return {
+      herkunft,
+      ...(x ? { alt: werte(x) } : {}),
+      ...(y ? { neu: werte(y) } : {}),
+      ...(x?.vollstaendig && y?.vollstaendig ? { differenz: Math.round((y.gesamtpunkte - x.gesamtpunkte) * 100) / 100 } : {}),
+    };
+  });
+
+  return {
+    gueltig: true,
+    fehler: [],
+    stichtage: { alt: alt.meta?.stichtag, neu: neu.meta?.stichtag },
+    eintraege: { neu: ein.nurNeu.map(kurz), weggefallen: ein.nurAlt.map(kurz), veraendert, unveraendert },
+    zusammenhaenge: { neu: zus.nurNeu.map(zOut), weggefallen: zus.nurAlt.map(zOut) },
+    ziele: { neu: ziele.nurNeu.map((z) => z.text), weggefallen: ziele.nurAlt.map((z) => z.text) },
+    verfahren: { neu: verf.nurNeu, weggefallen: verf.nurAlt },
+    pflege,
+    gdb,
+    hinweise,
+  };
+}
