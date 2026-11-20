@@ -1,6 +1,6 @@
 {
   "name": "icf-icd-mcp",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "MCP-Server für die deutsche ICF, die ICD-10-GM, das Begutachtungsinstrument nach § 15 SGB XI und die Versorgungsmedizinischen Grundsätze (VersMedV)",
   "private": true,
   "type": "module",
@@ -14,7 +14,9 @@
     "data/icd10gm.json",
     "data/icd10gm_alpha.json",
     "data/bi.json",
-    "data/versmedv.json"
+    "data/versmedv.json",
+    "data/fallprofil-1.schema.json",
+    "data/fallprofil-1.beispiel.json"
   ],
   "scripts": {
     "start": "node src/server.mjs",
