@@ -56,3 +56,117 @@ test("Limits und Wertebereiche", () => {
   q.eintraege.push({ id: "v", art: "vmg", kode: "VMG:B 3.7", gdb: 35, herkunft: "bescheid" });
   assert.ok(parseProfil(q).fehler.some((f) => f.pfad === "eintraege[0].gdb"));
 });
+
+// --- fall_pruefen ---
+
+const mit = (eintraege, zusammenhaenge = [], extra = {}) => ({ ...minimal(), eintraege, zusammenhaenge, ...extra });
+const E = (id, art, kode, more = {}) => ({ id, art, ...(kode === undefined ? {} : { kode }), herkunft: "selbstauskunft", ...more });
+const hinweise = (p) => call("fall_pruefen", { profil: p }).hinweise.map((h) => h.kennung);
+
+/** Alle BI-Kriterien mit neutralem Wert (Stufe 0, Häufigkeit „entfällt“, ja/nein „nein“). */
+async function alleBi(alter_monate) {
+  const bi = await import("../src/bi.mjs");
+  return bi.calculate(alter_monate ? { alter_monate } : {}).nicht_angegeben.map((id, i) => {
+    const wert = /^BI:4\.5\./.test(id) ? "entfällt" : /\.(B|0)$/.test(id) ? "nein" : "0";
+    return E(`bi${i}`, "bi", `${id}=${wert}`, { herkunft: "interview" });
+  });
+}
+
+test("fall_pruefen: Beispiel gültig, Klartext, Lebensbereiche, Querverweise, Datenschutz", () => {
+  const r = call("fall_pruefen", { profil: schema().beispiel });
+  assert.equal(r.gueltig, true, JSON.stringify(r.fehler));
+  assert.ok(r.eintraege.every((e) => e.klartext), JSON.stringify(r.eintraege.filter((e) => !e.klartext)));
+  assert.ok(r.lebensbereiche.find((l) => l.nummer === 7).eintraege.some((e) => e.kode.startsWith("d720")));
+  assert.equal(r.lebensbereiche.find((l) => l.nummer === 9).titel, "Gemeinschafts-, soziales und staatsbürgerliches Leben");
+  assert.ok(r.querverweise.length > 0 && r.querverweise.every((q) => q.quelle === "kuratiert, nicht amtlich"));
+  assert.match(r.datenschutz, /Pseudonym/);
+});
+
+test("fall_pruefen nimmt das Profil auch als JSON-Text", () => {
+  assert.equal(call("fall_pruefen", { profil: JSON.stringify(schema().beispiel) }).gueltig, true);
+  const kaputt = call("fall_pruefen", { profil: '{"fallprofil":' });
+  assert.equal(kaputt.gueltig, false);
+  assert.ok(kaputt.fehler.length > 0);
+});
+
+test("Kodes: Fehler gegen Warnung", () => {
+  const r = call("fall_pruefen", { profil: mit([E("a", "icf", "d450"), E("b", "icd", "F20"), E("c", "icf", "x999.9"), E("v", "vmg", "VMG:B 99")]) });
+  assert.equal(r.gueltig, false);
+  assert.ok(r.fehler.some((f) => f.pfad === "eintraege[2].kode"));
+  assert.ok(r.fehler.some((f) => f.pfad === "eintraege[3].kode"));
+  assert.ok(r.eintraege.find((e) => e.id === "a").warnungen.length > 0);
+  assert.ok(r.eintraege.find((e) => e.id === "b").warnungen.length > 0);
+});
+
+test("Zusammenhänge: erlaubte und unerlaubte Paare", () => {
+  const r = call("fall_pruefen", {
+    profil: mit([E("i", "icd", "F20.0 G"), E("b", "icf", "b160.2"), E("d", "icf", "d720.33")], [
+      { von: "d", nach: "b", art: "beeintraechtigt" },
+      { von: "b", nach: "d", art: "beeintraechtigt" },
+      { von: "i", nach: "b", art: "verursacht" },
+    ]),
+  });
+  assert.equal(r.zusammenhaenge[0].gueltig, false);
+  assert.ok(r.zusammenhaenge[0].meldung);
+  assert.equal(r.zusammenhaenge[1].gueltig, true);
+  assert.equal(r.zusammenhaenge[2].gueltig, true);
+});
+
+test("Alle Lückenhinweise werden ausgelöst", () => {
+  assert.ok(hinweise(mit([E("d", "icf", "d450.22")])).includes("d_ohne_ursache"));
+  assert.ok(hinweise(mit([E("e", "icf", "e150.2")])).includes("barriere_ohne_bezug"));
+  assert.ok(hinweise(mit([E("e", "icf", "e310+2")])).includes("foerderfaktor_ohne_bezug"));
+  assert.ok(hinweise(mit([E("e", "icf", "e150")])).includes("umweltfaktor_ohne_merkmal"));
+  assert.ok(hinweise(mit([E("o", "icf", "d450", { status: "offen" })])).includes("offen"));
+  assert.ok(hinweise(mit([E("x", "icf", "d450.22", { status: "belegt" })])).includes("ohne_beleg"));
+  const t = minimal();
+  t.meta.zweck = ["teilhabe"];
+  t.eintraege = [E("d", "icf", "d450.22")];
+  assert.ok(hinweise(t).includes("komponente_fehlt"));
+  const doppelt = call("fall_pruefen", { profil: mit([E("a", "icd", "F20.0 G"), E("b", "icd", "F20.0 V")]) }).hinweise.find((h) => h.kennung === "doppelt");
+  assert.match(doppelt.text, /widersprüchliche Diagnosesicherheit/);
+  assert.ok(hinweise(mit([E("a", "icf", "e310+3"), E("b", "icf", "e310.2")])).includes("doppelt"));
+  assert.ok(!hinweise(mit([E("a", "icd", "F20.0 G"), E("b", "icd", "F20.0 G", { herkunft: "gutachten" })])).includes("doppelt"));
+  assert.ok(hinweise(mit([], [], { ziele: [{ id: "z", text: "Allein einkaufen", eintraege: [] }] })).includes("ziel_ohne_bezug"));
+  assert.ok(hinweise(mit([E("b", "bi", "BI:4.1.3=2")])).includes("alter_fehlt"));
+});
+
+test("Hinweistexte bewerten nicht", () => {
+  const r = call("fall_pruefen", { profil: mit([E("d", "icf", "d450.22"), E("e", "icf", "e150.2")]) });
+  assert.ok(r.hinweise.every((h) => !/nicht begründet|unbegründet|abgelehnt|kein Anspruch/i.test(h.text)));
+});
+
+test("Pflege-Orientierung nur bei vollständigen Angaben, Kinder über Monate", async () => {
+  const teil = call("fall_pruefen", { profil: mit([E("b", "bi", "BI:4.1.3=2")]) }).pflege[0];
+  assert.equal(teil.vollstaendig, false);
+  assert.equal(teil.pflegegrad, undefined);
+  assert.equal(teil.gesamtpunkte, undefined);
+  assert.ok(teil.fehlende_kriterien.length > 0);
+
+  const voll = mit(await alleBi());
+  voll.meta.alter = { jahre: 46 };
+  const p = call("fall_pruefen", { profil: voll }).pflege.find((x) => x.herkunft === "interview");
+  assert.equal(p.vollstaendig, true, JSON.stringify(p.fehlende_kriterien));
+  assert.equal(p.gesamtpunkte, 0);
+  assert.equal(typeof p.pflegegrad, "number");
+
+  const kind = mit(await alleBi(30));
+  kind.meta.alter = { monate: 30 };
+  const k = call("fall_pruefen", { profil: kind }).pflege.find((x) => x.herkunft === "interview");
+  assert.equal(k.vollstaendig, true, JSON.stringify(k.fehlende_kriterien));
+  assert.match(k.hinweis, /Kinder/);
+});
+
+test("ICF_MCP_BI=0: Hinweis modul_aus, keine Pflege-Orientierung", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const profil = mit([E("b", "bi", "BI:4.1.3=2"), E("d", "icf", "d450.22")]);
+  const out = spawnSync(process.execPath, ["src/server.mjs"], {
+    input: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/call", params: { name: "fall_pruefen", arguments: { profil } } }) + "\n",
+    env: { ...process.env, ICF_MCP_BI: "0" },
+    cwd: new URL("..", import.meta.url).pathname,
+    encoding: "utf-8",
+  }).stdout;
+  const r = JSON.parse(JSON.parse(out).result.content[0].text);
+  assert.ok(r.hinweise.some((h) => h.kennung === "modul_aus"));
+  assert.deepEqual(r.pflege, []);
+});

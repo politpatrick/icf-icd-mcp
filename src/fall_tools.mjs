@@ -16,4 +16,17 @@ export const FALL_TOOLS = [
     annotations: readOnly,
     run: () => fall.schema(),
   },
+  {
+    name: "fall_pruefen",
+    title: "Fallprofil prüfen",
+    description:
+      "Prüft ein Fallprofil in einem Durchgang: Form, alle Kodes (ICD, ICF, BI, VersMedV, Merkzeichen) mit Klartext, Zusammenhänge, Hinweise auf Lücken (z. B. Bedarf ohne verknüpfte Ursache, Barriere ohne Bezug, doppelte Einträge), Zuordnung der d-Einträge zu den neun Lebensbereichen nach § 118 SGB IX, kuratierte Querverweise ICF ↔ BI und – nur wenn alle Kriterien angegeben sind – eine Pflegegrad-Orientierung je Herkunft. Bewertet den Fall nicht und ist keine Rechtsberatung. Das Profil wird nicht gespeichert.",
+    inputSchema: {
+      type: "object",
+      properties: { profil: { type: ["object", "string"], description: "Fallprofil als Objekt oder JSON-Text (Format siehe fall_schema)" } },
+      required: ["profil"],
+    },
+    annotations: readOnly,
+    run: (args) => fall.pruefen(args),
+  },
 ];
