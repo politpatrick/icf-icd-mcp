@@ -159,7 +159,7 @@ Das Format hat **keine Felder für Namen, Anschriften, Versicherungs- oder Akten
 | `fall_pruefen` | Prüft Form und alle Kodes mit Klartext, prüft die Zusammenhänge, meldet Lücken (z. B. Bedarf ohne verknüpfte Ursache, Barriere ohne Bezug, doppelte Einträge, fehlende ICF-Komponente), ordnet d-Einträge den neun Lebensbereichen nach § 118 SGB IX zu, zeigt kuratierte Querverweise ICF ↔ BI und gibt je Herkunft eine Pflegegrad-Orientierung – **nur wenn alle Kriterien angegeben sind** |
 | `fall_vergleichen` | Vergleicht zwei Fassungen: neue, weggefallene und veränderte Einträge, Zusammenhänge, Ziele, Verfahren, Einzel-GdB und Pflegepunkte – ohne Wertung |
 
-Die Hinweise sagen, was noch fehlt, und bewerten den Fall nicht. Das Fallprofil ist **keine Rechtsberatung**. Schema und Beispiel liegen unter `data/fallprofil-1.schema.json` und `data/fallprofil-1.beispiel.json`.
+Die Hinweise sagen, was noch fehlt, und bewerten den Fall nicht. Das Fallprofil ist **keine Rechtsberatung**. Schema und Beispiel liegen unter `data/fallprofil-1.schema.json` und `data/fallprofil-1.beispiel.json`. Gesamtplan der Fallarbeit und offene Punkte: [`docs/fallarbeit/`](docs/fallarbeit/).
 
 ## Prompts (geführte Abläufe)
 
