@@ -80,6 +80,7 @@ claude mcp add icf-icd -e ICF_MCP_BI=0 -- node ~/GitHub/icf-icd-mcp/src/server.m
 | `bi_calculate` | Summen, gewichtete Punkte, Gesamtpunkte und Pflegegrad nach Anlage 2 zu § 15 SGB XI, auch für Kinder (Altersvergleich, Sonderregel bis 18 Monate) |
 | `bi_icf_mapping` | Kuratierte Zuordnung BI ↔ ICF in beide Richtungen, mit Beziehungsart und Begründung |
 | `bi_scoring_rules` | Bewertungssystematik mit Schwellen, Modul-5-Regeln und Sonderregeln |
+| `bi_gegenueberstellen` | Stellt ein Pflegegutachten der eigenen Einschätzung gegenüber: Gutachten als Grundlage, eigene Werte eingesetzt; je Unterschied Definition, Bedeutung beider Stufen wörtlich aus den BRi, Wirkung auf Punkte und Pflegegrad (auch allein), Hinweise und Abgrenzungen; Abstand zur nächsten Schwelle. Bewertet das Gutachten nicht |
 
 Das Netz enthält 144 Knoten und 202 Kanten innerhalb des Instruments. Davon stammen 61 Abgrenzungen und 112 Verweise wörtlich aus dem Richtlinientext („… sind unter F 4.6.2 zu berücksichtigen“). Die übrigen Kanten bilden Regeln ab (4.4.0 ersetzt bei Kindern bis 18 Monate 4.4.1–4.4.13, aus Modul 2 und 3 zählt der höhere Wert, 4.1.B führt zu Pflegegrad 5). Jede Kante trägt ihre Herkunft (`quelle`: `richtlinie` oder `struktur`) und die Seite.
 
@@ -159,6 +160,17 @@ Das Format hat **keine Felder für Namen, Anschriften, Versicherungs- oder Akten
 | `fall_vergleichen` | Vergleicht zwei Fassungen: neue, weggefallene und veränderte Einträge, Zusammenhänge, Ziele, Verfahren, Einzel-GdB und Pflegepunkte – ohne Wertung |
 
 Die Hinweise sagen, was noch fehlt, und bewerten den Fall nicht. Das Fallprofil ist **keine Rechtsberatung**. Schema und Beispiel liegen unter `data/fallprofil-1.schema.json` und `data/fallprofil-1.beispiel.json`.
+
+## Prompts (geführte Abläufe)
+
+Der Server bietet MCP-Prompts an, die Schritt für Schritt durch einen Fall führen. Clients wie Claude Desktop und Claude Code zeigen sie als auswählbare Vorlagen. Den Zustand trägt das Fallprofil im Gespräch; der Server speichert nichts. Die Abläufe richten sich an antragsberechtigte Personen und sind **keine Rechtsberatung**.
+
+| Prompt | Zweck |
+| --- | --- |
+| `pflegegrad_interview` | Selbsteinschätzung vor einer Pflegebegutachtung: Modul für Modul in einfacher Sprache, mit Zwischenständen, Fallprofil, Orientierung zum Pflegegrad (nur bei vollständigen Angaben), Vorbereitungsliste und Vorlage für ein Pflegetagebuch. Argumente: `wer_antwortet`, `alter_monate` |
+| `pflegegutachten_verstehen` | Ein Pflegegutachten verstehen: Einstufungen übernehmen, eigene Sicht zu zweifelhaften Kriterien erfragen, mit `bi_gegenueberstellen` jeden Unterschied erklären, Formulierungshilfen für eine eigene Darstellung, allgemeiner Hinweis auf Widerspruchsfrist laut Rechtsbehelfsbelehrung und unabhängige Beratung. Argument: `alter_monate` |
+
+Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts.
 
 ## Online-Konnektor (ohne Installation)
 

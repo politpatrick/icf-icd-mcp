@@ -23,7 +23,9 @@ Typischer Ablauf: bi_search findet zu einer Beobachtung das passende Kriterium, 
 Ausprägungen mit Erläuterung, bi_compare grenzt Kriterien ab (wörtliche Abgrenzungen der BRi), bi_interpret_coding prüft Kodierungen,
 bi_calculate berechnet gewichtete Punkte und Pflegegrad nach Anlage 2 zu § 15 SGB XI (auch für Kinder mit Altersvergleich).
 bi_icf_mapping verbindet BI-Kriterien und ICF-Kategorien in beide Richtungen; die Zuordnung ist kuratiert (nicht amtlich) und begründet,
-icf_get_related zeigt zu einer ICF-Kategorie zusätzlich die zugeordneten BI-Kriterien. Die Einstufung bleibt eine gutachterliche Entscheidung.`;
+icf_get_related zeigt zu einer ICF-Kategorie zusätzlich die zugeordneten BI-Kriterien. Die Einstufung bleibt eine gutachterliche Entscheidung.
+bi_gegenueberstellen stellt ein Pflegegutachten der eigenen Einschätzung gegenüber (Gutachten als Grundlage, je Unterschied Definition, Stufen, Wirkung, Abgrenzungen); keine Bewertung des Gutachtens.
+Geführte Abläufe als Prompts: pflegegrad_interview (Selbsteinschätzung vor der Begutachtung) und pflegegutachten_verstehen.`;
 
 /** Ergänzt das Ergebnis von icf_get_related um die zugeordneten BI-Kriterien. */
 export function withBiForIcf(run) {

@@ -49,3 +49,9 @@ test("ICF_MCP_BI=0: keine Pflege-Prompts", async () => {
   }).stdout;
   assert.ok(!JSON.parse(out).result.prompts.some((p) => p.name.startsWith("pflege")));
 });
+
+test("Instructions nennen bi_gegenueberstellen und die Prompts", () => {
+  const ins = rpc("initialize").result.instructions;
+  assert.match(ins, /bi_gegenueberstellen/);
+  assert.match(ins, /pflegegrad_interview/);
+});
