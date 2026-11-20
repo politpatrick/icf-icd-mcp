@@ -142,6 +142,24 @@ Die Einstufung bleibt eine gutachterliche Entscheidung im Einzelfall.
 python3 scripts/k710_extract.py source/k710-versorgungsmed-verordnung.pdf source/k710_stichwortverzeichnis.txt
 ```
 
+## Fallprofil
+
+Das **Fallprofil** ist ein versioniertes JSON-Format (Version 1), mit dem antragsberechtigte Personen ihre Situation für GdB-Antrag, Pflegebegutachtung und Eingliederungshilfe **einmal** strukturiert erfassen und in allen Abläufen, Skills und Agenten weiterverwenden können. Es bildet das biopsychosoziale Modell der ICF ab:
+
+- **Einträge**: ICD-10-GM (`F20.0 G`), ICF b/s/d/e mit Beurteilungsmerkmal (`b160.2`, `d720.33`, `e310+3`), personbezogene Faktoren als Freitext, BI-Kodierungen (`BI:4.2.8=2`), VersMedV-Kennungen mit Einzel-GdB (`VMG:B 3.7`) und Merkzeichen. Je Eintrag möglich: Begründung, Belegverweis (Quelle, Datum, Seite), Herkunft (Selbstauskunft, Interview, Befund, Gutachten, Bescheid …), O-Ton, Status (belegt, geschildert, offen), Dauer und bei d-Einträgen eine Orientierung, an welche Stelle man sich wenden kann.
+- **Zusammenhänge**: `verursacht` (Diagnose → ICF), `beeintraechtigt` (b/s → d), `foerdert`/`hemmt` (Umwelt- oder personbezogener Faktor → ICF), `entspricht` (zwischen ICF, BI und VersMedV).
+- **Ziele** und gewünschte Unterstützung der Person, **Verfahren** (Antrag, Bescheid, Gutachten) mit Ergebnis.
+
+Das Format hat **keine Felder für Namen, Anschriften, Versicherungs- oder Aktennummern**; unbekannte Felder werden abgelehnt. Das Profil bleibt beim Nutzer und wird vom Server nie gespeichert.
+
+| Tool | Zweck |
+| --- | --- |
+| `fall_schema` | JSON-Schema, Feldbeschreibung und ein erfundenes Beispielprofil |
+| `fall_pruefen` | Prüft Form und alle Kodes mit Klartext, prüft die Zusammenhänge, meldet Lücken (z. B. Bedarf ohne verknüpfte Ursache, Barriere ohne Bezug, doppelte Einträge, fehlende ICF-Komponente), ordnet d-Einträge den neun Lebensbereichen nach § 118 SGB IX zu, zeigt kuratierte Querverweise ICF ↔ BI und gibt je Herkunft eine Pflegegrad-Orientierung – **nur wenn alle Kriterien angegeben sind** |
+| `fall_vergleichen` | Vergleicht zwei Fassungen: neue, weggefallene und veränderte Einträge, Zusammenhänge, Ziele, Verfahren, Einzel-GdB und Pflegepunkte – ohne Wertung |
+
+Die Hinweise sagen, was noch fehlt, und bewerten den Fall nicht. Das Fallprofil ist **keine Rechtsberatung**. Schema und Beispiel liegen unter `data/fallprofil-1.schema.json` und `data/fallprofil-1.beispiel.json`.
+
 ## Online-Konnektor (ohne Installation)
 
 Der Server läuft öffentlich auf Netlify:

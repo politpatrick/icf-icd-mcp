@@ -4,7 +4,10 @@ import * as fall from "./fall.mjs";
 
 const readOnly = { readOnlyHint: true, openWorldHint: false };
 
-export const FALL_INSTRUCTIONS = "";
+export const FALL_INSTRUCTIONS = `Fallprofil – Austauschformat für einen Fall nach dem biopsychosozialen Modell der ICF (ICD, ICF b/s/d/e, personbezogene Faktoren, BI, VersMedV, Zusammenhänge, Ziele, Verfahren).
+Ablauf: fall_schema (Format und Beispiel) → Profil aus den Angaben der Person aufbauen, mit Begründung, Beleg und O-Ton → fall_pruefen (Kodes, Lücken, Lebensbereiche nach § 118 SGB IX) → bei einer neuen Fassung fall_vergleichen.
+Immer ein Pseudonym statt des Namens verwenden, keine Anschriften oder Nummern. Das Profil bleibt beim Nutzer und wird nicht gespeichert.
+Das Fallprofil hilft antragsberechtigten Personen, ihre Situation zu ordnen; es ist keine Rechtsberatung und bewertet den Fall nicht.`;
 
 export const FALL_TOOLS = [
   {

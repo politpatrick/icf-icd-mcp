@@ -214,3 +214,10 @@ test("fall_vergleichen: Pflegepunkte je Herkunft und mehrdeutige Schlüssel", as
   const m = call("fall_vergleichen", { alt: mit([E("a", "icf", "d450.1"), E("b", "icf", "d450.2")]), neu: mit([E("c", "icf", "d450.3")]) });
   assert.ok(m.hinweise.some((h) => h.kennung === "mehrdeutig"));
 });
+
+test("Instructions beschreiben das Fallprofil", () => {
+  const init = handleMessage({ jsonrpc: "2.0", id: 99, method: "initialize", params: {} }).result;
+  assert.match(init.instructions, /Fallprofil/);
+  assert.match(init.instructions, /Pseudonym/);
+  assert.match(init.instructions, /keine Rechtsberatung/);
+});
