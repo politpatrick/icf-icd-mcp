@@ -66,7 +66,7 @@ function check(value, node, pfad, fehler) {
   if (t === "object") {
     for (const key of node.required ?? []) if (!(key in value)) fehler.push({ pfad: join(pfad, key), meldung: "Pflichtfeld fehlt" });
     for (const [key, v] of Object.entries(value)) {
-      if (node.properties?.[key]) check(v, node.properties[key], join(pfad, key), fehler);
+      if (node.properties && Object.hasOwn(node.properties, key)) check(v, node.properties[key], join(pfad, key), fehler);
       else if (node.additionalProperties === false) fehler.push({ pfad: join(pfad, key), meldung: "unbekanntes Feld (nicht zulässig)" });
     }
   }
@@ -98,7 +98,7 @@ function semantics(p, fehler) {
     for (const end of ["von", "nach"]) if (z?.[end] !== undefined && !ids.has(z[end])) add(`zusammenhaenge[${i}].${end}`, `kein Eintrag mit der Id "${z[end]}"`);
   });
   (Array.isArray(p.ziele) ? p.ziele : []).forEach((z, i) => {
-    (z?.eintraege ?? []).forEach((id, j) => { if (!ids.has(id)) add(`ziele[${i}].eintraege[${j}]`, `kein Eintrag mit der Id "${id}"`); });
+    (Array.isArray(z?.eintraege) ? z.eintraege : []).forEach((id, j) => { if (!ids.has(id)) add(`ziele[${i}].eintraege[${j}]`, `kein Eintrag mit der Id "${id}"`); });
   });
   (Array.isArray(p.verfahren) ? p.verfahren : []).forEach((v, i) => {
     const erg = v?.ergebnis ?? {};
@@ -160,6 +160,7 @@ const DATENSCHUTZ =
   "Das Fallprofil wird nur geprüft und nicht gespeichert. Bitte ein Pseudonym statt des Namens verwenden und keine Anschriften, Versicherungs- oder Aktennummern in Freitexte schreiben.";
 
 const KURATIERT = "kuratiert, nicht amtlich";
+const MAX_HINWEISTEXTE = 5;
 
 /** ICF-Komponente (b, s, d, e) eines ICF-Eintrags. */
 const komponente = (e) => (e.art === "icf" ? String(e.kode ?? "").trim()[0]?.toLowerCase() : null);
@@ -173,6 +174,12 @@ export function grundkode(e) {
     case "icf":
       return kode.split(/[.+]/)[0].toLowerCase();
     case "bi":
+      try {
+        const r = bi.interpretCoding({ coding: kode }).ergebnisse;
+        if (r.length === 1 && r[0].gueltig) return r[0].code;
+      } catch {
+        // fällt auf die Schreibweise zurück
+      }
       return kode.split("=")[0].replace(/^(BI:)?/i, "BI:").replace(/\s+/g, "");
     case "vmg":
       try {
@@ -221,9 +228,12 @@ function pruefeEintrag(e) {
       return { klartext: `${r.code} ${r.title}${merkmale ? ` – ${merkmale}` : ""}`, warnungen };
     }
     case "bi": {
-      const r = bi.interpretCoding({ coding: e.kode }).ergebnisse[0];
+      const ergebnisse = bi.interpretCoding({ coding: e.kode }).ergebnisse;
+      if (ergebnisse.length !== 1) throw new LookupError("Ein BI-Eintrag darf genau eine Kodierung enthalten, z. B. BI:4.1.3=2. Mehrere Kriterien bitte als eigene Einträge erfassen.");
+      const r = ergebnisse[0];
       if (!r.gueltig) throw new LookupError(r.fehler);
-      return { klartext: `${r.code} ${r.titel}: ${r.label ?? r.wert}`, warnungen: [] };
+      const wert = r.label ?? (r.anzahl !== undefined ? `${r.anzahl}× je ${r.je}` : r.wert ?? r.art);
+      return { klartext: `${r.code} ${r.titel}: ${wert}`, warnungen: [], kodierung: r.kodierung };
     }
     case "vmg": {
       const r = vmg.get({ kennung: e.kode });
@@ -231,7 +241,7 @@ function pruefeEintrag(e) {
       return { klartext: `${r.fundstelle}${titel ? ` – ${titel}` : ""}${e.gdb ? `; angegebener Einzel-GdB ${e.gdb}` : ""}`, warnungen: [] };
     }
     case "merkzeichen": {
-      if (!MERKZEICHEN[e.kode]) throw new LookupError(`Unbekanntes Merkzeichen "${e.kode}". Erlaubt: ${Object.keys(MERKZEICHEN).join(", ")}.`);
+      if (!Object.hasOwn(MERKZEICHEN, e.kode)) throw new LookupError(`Unbekanntes Merkzeichen "${e.kode}". Erlaubt: ${Object.keys(MERKZEICHEN).join(", ")}.`);
       return { klartext: `Merkzeichen ${e.kode}: ${MERKZEICHEN[e.kode]}`, warnungen: [] };
     }
     case "personbezogen":
@@ -249,7 +259,7 @@ const alterMonate = (meta) => (meta?.alter?.monate ?? (meta?.alter?.jahre !== un
  * Prüft ein Fallprofil fachlich: Kodes, Zusammenhänge, Lücken, Lebensbereiche, Querverweise und
  * (nur bei vollständigen Angaben) eine Pflegegrad-Orientierung je Herkunft. Bewertet den Fall nicht.
  */
-export function pruefen({ profil: input } = {}) {
+function pruefenIntern({ profil: input } = {}) {
   const { profil, fehler } = parseProfil(input);
   const leer = { fallprofil: FALLPROFIL_VERSION, gueltig: false, fehler, datenschutz: DATENSCHUTZ, eintraege: [], zusammenhaenge: [], hinweise: [], lebensbereiche: [], querverweise: [], pflege: [] };
   if (!profil) return leer;
@@ -273,8 +283,8 @@ export function pruefen({ profil: input } = {}) {
     }
     if (e.art !== "personbezogen" && !e.kode) return;
     try {
-      const { klartext, warnungen } = pruefeEintrag(e);
-      ok.set(e.id, e);
+      const { klartext, warnungen, kodierung } = pruefeEintrag(e);
+      ok.set(e.id, kodierung ? { ...e, _kodierung: kodierung } : e);
       ausgabe.push({ id: e.id, art: e.art, kode: e.kode, klartext, ...(e.richtung ? { richtung: e.richtung } : {}), warnungen });
     } catch (err) {
       const meldung = err instanceof LookupError ? err.message : "Dieser Eintrag konnte wegen eines internen Fehlers nicht geprüft werden.";
@@ -287,7 +297,7 @@ export function pruefen({ profil: input } = {}) {
     const v = ok.get(z?.von);
     const n = ok.get(z?.nach);
     if (!v || !n) return { von: z?.von, nach: z?.nach, art: z?.art, gueltig: false, meldung: "Mindestens ein Ende ist kein gültiger Eintrag." };
-    if (!ERLAUBT[z.art]?.(v, n)) return { von: z.von, nach: z.nach, art: z.art, gueltig: false, meldung: `Diese Verbindung passt nicht: ${REGEL[z.art] ?? "unbekannte Art"}.` };
+    if (!Object.hasOwn(ERLAUBT, z.art) || !ERLAUBT[z.art](v, n)) return { von: z.von, nach: z.nach, art: z.art, gueltig: false, meldung: `Diese Verbindung passt nicht: ${Object.hasOwn(REGEL, z.art) ? REGEL[z.art] : "unbekannte Art"}.` };
     return { von: z.von, nach: z.nach, art: z.art, gueltig: true };
   });
   const gueltigeZ = zusammenhaenge.filter((z) => z.gueltig);
@@ -314,7 +324,7 @@ export function pruefen({ profil: input } = {}) {
     if (e.status === "offen") hinweis("offen", e.id, `Noch offen: ${e.kode ?? e.text}.`);
     if (e.status === "belegt" && !e.beleg) hinweis("ohne_beleg", e.id, `${e.kode ?? e.text} ist als belegt markiert, aber ohne Beleg angegeben.`);
   }
-  if ((profil.meta?.zweck ?? []).includes("teilhabe")) {
+  if (Array.isArray(profil.meta?.zweck) && profil.meta.zweck.includes("teilhabe")) {
     const da = (pred) => [...ok.values()].some(pred);
     const fehlt = [
       ["Gesundheitsproblem (ICD)", (e) => e.art === "icd"],
@@ -360,11 +370,25 @@ export function pruefen({ profil: input } = {}) {
   }
 
   const pflege = [];
-  if (BI_ENABLED && biEintraege.length) {
+  const alterFehlerhaft = fehler.some((f) => f.pfad.startsWith("meta.alter"));
+  if (BI_ENABLED && biEintraege.length && !alterFehlerhaft) {
     const nachHerkunft = new Map();
-    for (const e of biEintraege) (nachHerkunft.get(e.herkunft) ?? nachHerkunft.set(e.herkunft, []).get(e.herkunft)).push(e.kode);
-    for (const [herkunft, kodes] of nachHerkunft) {
-      const r = bi.calculate({ kodierung: kodes.join("; "), ...(alterMonate(profil.meta) !== undefined ? { alter_monate: alterMonate(profil.meta) } : {}) });
+    for (const e of biEintraege) (nachHerkunft.get(e.herkunft) ?? nachHerkunft.set(e.herkunft, []).get(e.herkunft)).push(e);
+    for (const [herkunft, liste] of nachHerkunft) {
+      const stufen = new Map();
+      for (const e of liste) (stufen.get(grundkode(e)) ?? stufen.set(grundkode(e), new Set()).get(grundkode(e))).add(e._kodierung);
+      const widerspruch = [...stufen].filter(([, werte]) => werte.size > 1).map(([kennung]) => kennung);
+      if (widerspruch.length) {
+        pflege.push({ herkunft, vollstaendig: false, hinweis: `${widerspruch.join(", ")} ist mehrfach mit unterschiedlichen Werten angegeben; bitte einen Wert festlegen.` });
+        continue;
+      }
+      let r;
+      try {
+        r = bi.calculate({ kodierung: liste.map((e) => e._kodierung).join("; "), ...(alterMonate(profil.meta) !== undefined ? { alter_monate: alterMonate(profil.meta) } : {}) });
+      } catch (err) {
+        pflege.push({ herkunft, vollstaendig: false, hinweis: err instanceof LookupError ? err.message : "Die Orientierung konnte nicht berechnet werden." });
+        continue;
+      }
       const fehlend = r.nicht_angegeben ?? [];
       pflege.push(
         fehlend.length
@@ -381,7 +405,11 @@ export function pruefen({ profil: input } = {}) {
     datenschutz: DATENSCHUTZ,
     eintraege: ausgabe,
     zusammenhaenge,
-    hinweise: [...hinweise.values()].map(({ kennung, eintraege: ids, texte }) => ({ kennung, eintraege: [...new Set(ids)], text: texte.join(" ") })),
+    hinweise: [...hinweise.values()].map(({ kennung, eintraege: ids, texte }) => ({
+      kennung,
+      eintraege: [...new Set(ids)],
+      text: texte.slice(0, MAX_HINWEISTEXTE).join(" ") + (texte.length > MAX_HINWEISTEXTE ? ` … und ${texte.length - MAX_HINWEISTEXTE} weitere.` : ""),
+    })),
     lebensbereiche,
     querverweise,
     pflege,
@@ -439,7 +467,7 @@ function zuordnen(alt, neu, schluessel) {
  * Ziele, Verfahren, angegebene Einzel-GdB und (bei vollständigen Angaben) die Pflegepunkte je Herkunft.
  * Wertet die Veränderung nicht.
  */
-export function vergleichen({ alt: altInput, neu: neuInput } = {}) {
+function vergleichenIntern({ alt: altInput, neu: neuInput } = {}) {
   const a = parseProfil(altInput);
   const n = parseProfil(neuInput);
   const fehler = [
@@ -496,8 +524,8 @@ export function vergleichen({ alt: altInput, neu: neuInput } = {}) {
     .filter((k) => gA.get(k) !== gN.get(k))
     .map((kennung) => ({ kennung, ...(gA.has(kennung) ? { alt: gA.get(kennung) } : {}), ...(gN.has(kennung) ? { neu: gN.get(kennung) } : {}) }));
 
-  const pA = pruefen({ profil: alt }).pflege;
-  const pN = pruefen({ profil: neu }).pflege;
+  const pA = pruefenIntern({ profil: alt }).pflege;
+  const pN = pruefenIntern({ profil: neu }).pflege;
   const pflege = [...new Set([...pA, ...pN].map((p) => p.herkunft))].map((herkunft) => {
     const x = pA.find((p) => p.herkunft === herkunft);
     const y = pN.find((p) => p.herkunft === herkunft);
@@ -522,4 +550,24 @@ export function vergleichen({ alt: altInput, neu: neuInput } = {}) {
     gdb,
     hinweise,
   };
+}
+
+const INTERN = "Das Fallprofil konnte wegen eines unerwarteten Fehlers nicht vollständig geprüft werden. Bitte die Form mit fall_schema vergleichen.";
+
+/** Prüft ein Fallprofil; unerwartete Fehler werden als Fehlermeldung zurückgegeben, nie als Protokollfehler. */
+export function pruefen(args = {}) {
+  try {
+    return pruefenIntern(args);
+  } catch (err) {
+    return { fallprofil: FALLPROFIL_VERSION, gueltig: false, fehler: [{ pfad: "(Profil)", meldung: err instanceof LookupError ? err.message : INTERN }], datenschutz: DATENSCHUTZ, eintraege: [], zusammenhaenge: [], hinweise: [], lebensbereiche: [], querverweise: [], pflege: [] };
+  }
+}
+
+/** Vergleicht zwei Fassungen; unerwartete Fehler werden als Fehlermeldung zurückgegeben. */
+export function vergleichen(args = {}) {
+  try {
+    return vergleichenIntern(args);
+  } catch (err) {
+    return { gueltig: false, fehler: [{ pfad: "(Profil)", meldung: err instanceof LookupError ? err.message : INTERN }] };
+  }
 }

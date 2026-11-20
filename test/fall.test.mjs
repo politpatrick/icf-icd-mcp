@@ -221,3 +221,73 @@ test("Instructions beschreiben das Fallprofil", () => {
   assert.match(init.instructions, /Pseudonym/);
   assert.match(init.instructions, /keine Rechtsberatung/);
 });
+
+// --- Abschluss-Review: Regressionen ---
+
+test("Falsche Feldtypen ergeben Fehler statt Protokollfehler", () => {
+  const a = mit([], [], { ziele: [{ id: "z", text: "x", eintraege: "e1" }] });
+  const ra = call("fall_pruefen", { profil: a });
+  assert.equal(ra.gueltig, false);
+  const b = minimal();
+  b.meta.zweck = 5;
+  assert.equal(call("fall_pruefen", { profil: b }).gueltig, false);
+  assert.equal(call("fall_vergleichen", { alt: a, neu: minimal() }).gueltig, false);
+  const c = minimal();
+  c.meta.alter = { monate: -5 };
+  c.eintraege = [E("b", "bi", "BI:4.1.3=2")];
+  const rc = call("fall_pruefen", { profil: c });
+  assert.ok(!rc.error && rc.gueltig === false);
+});
+
+test("Eingebaute Eigenschaftsnamen umgehen die Feldprüfung nicht", () => {
+  const p = minimal();
+  p.meta.constructor = "Erika Mustermann";
+  p.meta.toString = "Musterstr. 1";
+  const f = parseProfil(p).fehler.map((x) => x.pfad);
+  assert.ok(f.includes("meta.constructor") && f.includes("meta.toString"), f.join(", "));
+  const r = call("fall_pruefen", { profil: mit([E("m", "merkzeichen", "toString")]) });
+  assert.equal(r.gueltig, false);
+  const z = call("fall_pruefen", { profil: mit([E("i", "icd", "F20.0 G"), E("b", "icf", "b160.2")], [{ von: "i", nach: "b", art: "constructor" }]) });
+  assert.equal(z.zusammenhaenge[0].gueltig, false);
+});
+
+test("Ein BI-Eintrag trägt genau eine Kodierung", () => {
+  for (const kode of ["BI:4.1.3=2;BI:4.1.4=3", "BI:4.1.3=2;BI:9.9=7"]) {
+    const r = call("fall_pruefen", { profil: mit([E("b", "bi", kode)]) });
+    assert.ok(!r.error, r.error);
+    assert.equal(r.gueltig, false);
+    assert.ok(r.fehler.some((f) => f.pfad === "eintraege[0].kode"));
+  }
+});
+
+test("Widersprüchliche BI-Stufen derselben Herkunft ergeben keinen Pflegegrad", async () => {
+  const p = mit([...(await alleBi()), E("dup", "bi", "BI:4.1.3=3", { herkunft: "interview" })]);
+  p.meta.alter = { jahre: 46 };
+  const pf = call("fall_pruefen", { profil: p }).pflege.find((x) => x.herkunft === "interview");
+  assert.equal(pf.vollstaendig, false);
+  assert.equal(pf.pflegegrad, undefined);
+  assert.match(pf.hinweis, /BI:4\.1\.3/);
+});
+
+test("Kinderfassung KF wird wie die BI-Kennung zugeordnet", () => {
+  const alt = mit([E("a", "bi", "KF 4.1.3=1")]);
+  const neu = mit([E("b", "bi", "BI:4.1.3=2")]);
+  const r = call("fall_vergleichen", { alt, neu });
+  assert.equal(r.eintraege.veraendert.length, 1);
+  assert.equal(r.eintraege.neu.length + r.eintraege.weggefallen.length, 0);
+  assert.ok(hinweise(mit([E("a", "bi", "KF 4.1.3=1"), E("b", "bi", "BI:4.1.3=2")])).includes("doppelt"));
+});
+
+test("Klartext für Modul-5-Häufigkeiten", () => {
+  const r = call("fall_pruefen", { profil: mit([E("b", "bi", "BI:4.5.1=3/Tag")]) });
+  assert.ok(!/undefined/.test(r.eintraege[0].klartext), r.eintraege[0].klartext);
+});
+
+test("Listen haben Obergrenzen und Hinweistexte wiederholen sich nicht je Eintrag", () => {
+  const p = minimal();
+  p.ziele = Array.from({ length: 101 }, (_, i) => ({ id: `z${i}`, text: "x" }));
+  assert.ok(parseProfil(p).fehler.some((f) => f.pfad === "ziele"));
+  const viele = mit(Array.from({ length: 200 }, (_, i) => E(`d${i}`, "icf", `d4${String(i % 60).padStart(2, "0")}.1`, { herkunft: i % 2 ? "interview" : "befund" })));
+  const h = call("fall_pruefen", { profil: viele }).hinweise.find((x) => x.kennung === "d_ohne_ursache");
+  assert.ok(h.text.length < 2000, String(h.text.length));
+});
