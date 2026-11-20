@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://icf-icd-mcp.netlify.app/fallprofil-1.schema.json",
+  "title": "Fallprofil Version 1",
+  "description": "Austauschformat für die strukturierte Erfassung eines Falls nach dem biopsychosozialen Modell der ICF (ICD-10-GM, ICF, Begutachtungsinstrument nach § 15 SGB XI, VersMedV). Enthält bewusst keine Felder für Namen, Anschriften, Versicherungs- oder Aktennummern; unbekannte Felder sind unzulässig. Keine Rechtsberatung.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fallprofil", "meta"],
+  "properties": {
+    "fallprofil": { "const": "1" },
+    "meta": { "$ref": "#/$defs/meta" },
+    "eintraege": { "type": "array", "maxItems": 500, "items": { "$ref": "#/$defs/eintrag" } },
+    "zusammenhaenge": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/zusammenhang" } },
+    "ziele": { "type": "array", "items": { "$ref": "#/$defs/ziel" } },
+    "verfahren": { "type": "array", "items": { "$ref": "#/$defs/verfahren" } }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9_-]{1,40}$" },
+    "datum": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "text": { "type": "string", "maxLength": 2000 },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pseudonym", "stichtag"],
+      "properties": {
+        "pseudonym": { "type": "string", "minLength": 1, "maxLength": 60, "description": "Frei gewählte Bezeichnung des Falls, kein Klarname" },
+        "alter": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Alter zum Stichtag; bei Kindern unter 11 Jahren bitte in Monaten. Kein Geburtsdatum.",
+          "properties": { "jahre": { "type": "integer", "minimum": 0, "maximum": 130 }, "monate": { "type": "integer", "minimum": 0, "maximum": 1560 } }
+        },
+        "antwortet": { "enum": ["person", "person_mit_unterstuetzung", "unterstuetzende_person"] },
+        "zweck": { "type": "array", "items": { "enum": ["gdb", "pflege", "teilhabe", "sonstiges"] } },
+        "stichtag": { "$ref": "#/$defs/datum" },
+        "fassung": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "beleg": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Verweis auf eine Unterlage (Bezeichnung, kein Dokumentinhalt)",
+      "properties": { "quelle": { "type": "string", "maxLength": 200 }, "datum": { "$ref": "#/$defs/datum" }, "seite": { "type": "string", "maxLength": 20 } }
+    },
+    "eintrag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "art", "herkunft"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "art": { "enum": ["icd", "icf", "bi", "vmg", "merkzeichen", "personbezogen"] },
+        "kode": { "type": "string", "maxLength": 40, "description": "Schreibweise des Moduls: F20.0 G · d450.23 · e310+3 · BI:4.1.3=2 · BI:4.5.1=3/Tag · VMG:B 3.7 · Merkzeichen G, aG, B, H, Bl, Gl, RF, TBl; Pflicht außer bei personbezogen" },
+        "gdb": { "type": "integer", "minimum": 10, "maximum": 100, "multipleOf": 10, "description": "Nur bei art vmg: Einzel-GdB" },
+        "text": { "$ref": "#/$defs/text", "description": "Pflicht bei art personbezogen" },
+        "begruendung": { "$ref": "#/$defs/text" },
+        "beleg": { "$ref": "#/$defs/beleg" },
+        "herkunft": { "enum": ["selbstauskunft", "interview", "material", "befund", "gutachten", "bescheid"] },
+        "verfahren": { "$ref": "#/$defs/id", "description": "Verweis auf verfahren[].id" },
+        "o_ton": { "$ref": "#/$defs/text", "description": "Aussage der Person in eigenen Worten" },
+        "status": { "enum": ["belegt", "geschildert", "offen"], "default": "geschildert" },
+        "dauer": { "enum": ["dauerhaft", "voruebergehend", "unbekannt"] },
+        "richtung": { "enum": ["eingliederungshilfe", "ueberschneidung", "pflege"], "description": "Nur bei ICF-d-Einträgen: Orientierung, an welche Stelle man sich wenden kann" }
+      }
+    },
+    "zusammenhang": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["von", "nach", "art"],
+      "properties": {
+        "von": { "$ref": "#/$defs/id" },
+        "nach": { "$ref": "#/$defs/id" },
+        "art": { "enum": ["verursacht", "beeintraechtigt", "foerdert", "hemmt", "entspricht"] },
+        "begruendung": { "$ref": "#/$defs/text" }
+      }
+    },
+    "ziel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "text"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "text": { "$ref": "#/$defs/text" },
+        "eintraege": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "gewuenschte_unterstuetzung": { "$ref": "#/$defs/text" }
+      }
+    },
+    "verfahren": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "art", "bereich"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "art": { "enum": ["antrag", "bescheid", "gutachten", "widerspruch", "sonstiges"] },
+        "bereich": { "enum": ["gdb", "pflege", "teilhabe", "sonstiges"] },
+        "datum": { "$ref": "#/$defs/datum" },
+        "ergebnis": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "pflegegrad nur bei bereich pflege, gdb/merkzeichen nur bei bereich gdb",
+          "properties": {
+            "pflegegrad": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "gdb": { "type": "integer", "minimum": 20, "maximum": 100, "multipleOf": 10 },
+            "merkzeichen": { "type": "array", "items": { "enum": ["G", "aG", "B", "H", "Bl", "Gl", "RF", "TBl"] } },
+            "text": { "$ref": "#/$defs/text" }
+          }
+        }
+      }
+    }
+  }
+}

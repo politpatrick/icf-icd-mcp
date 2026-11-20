@@ -1,0 +1,47 @@
+{
+  "fallprofil": "1",
+  "meta": {
+    "pseudonym": "Fall A (erfundenes Beispiel)",
+    "alter": { "jahre": 46 },
+    "antwortet": "person_mit_unterstuetzung",
+    "zweck": ["gdb", "pflege", "teilhabe"],
+    "stichtag": "2026-11-20",
+    "fassung": 1
+  },
+  "eintraege": [
+    { "id": "diag1", "art": "icd", "kode": "F20.0 G", "herkunft": "befund", "status": "belegt",
+      "beleg": { "quelle": "Arztbrief Psychiatrie", "datum": "2026-09-14", "seite": "1" }, "dauer": "dauerhaft" },
+    { "id": "denken", "art": "icf", "kode": "b160.2", "herkunft": "befund", "status": "belegt",
+      "begruendung": "Formale Denkstörungen, Gedankenabreißen bei Belastung",
+      "beleg": { "quelle": "Arztbrief Psychiatrie", "datum": "2026-09-14", "seite": "2" }, "dauer": "dauerhaft" },
+    { "id": "kontakte", "art": "icf", "kode": "d720.33", "herkunft": "selbstauskunft", "status": "geschildert",
+      "o_ton": "Wenn mehrere Leute reden, komme ich nicht mehr mit und ziehe mich zurück.",
+      "dauer": "dauerhaft", "richtung": "eingliederungshilfe" },
+    { "id": "schwester", "art": "icf", "kode": "e310+3", "herkunft": "selbstauskunft",
+      "begruendung": "Schwester begleitet zu Terminen und hilft beim Strukturieren" },
+    { "id": "laerm", "art": "icf", "kode": "e250.2", "herkunft": "selbstauskunft",
+      "begruendung": "Laute Umgebungen (Kantine, Bus) verstärken die Überforderung" },
+    { "id": "musik", "art": "personbezogen", "text": "Spielt seit der Jugend Gitarre, Musik hilft beim Abschalten",
+      "herkunft": "interview" },
+    { "id": "bi_entscheidungen", "art": "bi", "kode": "BI:4.2.8=2", "herkunft": "interview",
+      "o_ton": "Bei wichtigen Sachen brauche ich jemanden, der mit mir überlegt.", "status": "geschildert" },
+    { "id": "gds_psyche", "art": "vmg", "kode": "VMG:B 3.7", "gdb": 50, "herkunft": "selbstauskunft", "status": "offen",
+      "begruendung": "Orientierung aus Teil B, Befunde zur Teilhabebeeinträchtigung stehen noch aus" },
+    { "id": "mz_b", "art": "merkzeichen", "kode": "B", "herkunft": "selbstauskunft", "status": "offen" }
+  ],
+  "zusammenhaenge": [
+    { "von": "diag1", "nach": "denken", "art": "verursacht" },
+    { "von": "denken", "nach": "kontakte", "art": "beeintraechtigt", "begruendung": "Gesprächen in Gruppen kann nicht gefolgt werden" },
+    { "von": "schwester", "nach": "kontakte", "art": "foerdert" },
+    { "von": "laerm", "nach": "kontakte", "art": "hemmt" },
+    { "von": "musik", "nach": "kontakte", "art": "foerdert", "begruendung": "Kontakte gelingen eher über gemeinsames Musizieren" },
+    { "von": "kontakte", "nach": "bi_entscheidungen", "art": "entspricht" }
+  ],
+  "ziele": [
+    { "id": "ziel_band", "text": "Wieder regelmäßig mit anderen Musik machen", "eintraege": ["kontakte"],
+      "gewuenschte_unterstuetzung": "Begleitung zu einer offenen Musikgruppe, bis ich mich dort zurechtfinde" }
+  ],
+  "verfahren": [
+    { "id": "gutachten_pflege", "art": "gutachten", "bereich": "pflege", "datum": "2026-08-02", "ergebnis": { "pflegegrad": 1 } }
+  ]
+}

@@ -14,7 +14,9 @@
     "data/icd10gm.json",
     "data/icd10gm_alpha.json",
     "data/bi.json",
-    "data/versmedv.json"
+    "data/versmedv.json",
+    "data/fallprofil-1.schema.json",
+    "data/fallprofil-1.beispiel.json"
   ],
   "scripts": {
     "start": "node src/server.mjs",

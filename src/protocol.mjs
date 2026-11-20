@@ -6,6 +6,7 @@ import * as icd from "./icd.mjs";
 import { LookupError } from "./text.mjs";
 import { VMG_ENABLED, VMG_TOOLS, VMG_INSTRUCTIONS } from "./vmg_tools.mjs";
 import { BI_ENABLED, BI_TOOLS, BI_INSTRUCTIONS, withBiForIcf } from "./bi_tools.mjs";
+import { FALL_TOOLS } from "./fall_tools.mjs";
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26", "2024-11-05"];
 
@@ -214,6 +215,7 @@ const TOOLS = [
   },
   ...(BI_ENABLED ? BI_TOOLS : []),
   ...(VMG_ENABLED ? VMG_TOOLS : []),
+  ...FALL_TOOLS,
 ];
 
 const toolsByName = Object.fromEntries(TOOLS.map((t) => [t.name, t]));
