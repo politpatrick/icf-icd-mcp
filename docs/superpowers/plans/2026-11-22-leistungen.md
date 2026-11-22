@@ -15,7 +15,7 @@
 - Zielgruppe: antragsberechtigte Personen. **Keine Rechtsberatung**: keine Beträge, keine Einkommens-/Vermögensprüfung, keine Aussage, ob ein Anspruch besteht oder welche Stelle im Einzelfall zuständig ist; Texte im Konjunktiv der Möglichkeit („kann in Betracht kommen“).
 - Nur öffentliche Quellen. Jede Bundesnorm an `https://www.gesetze-im-internet.de/<gesetz>/__<nr>.html` mit `curl -4 -s` prüfen (ohne `-4` hängt der Abruf). Weicht die Quelle von der Liste unten ab, gilt die Quelle; Abweichung im Report nennen.
 - Herkunft: Erklärungen „kuratiert (nicht amtlich)“; Landesrecht nur als Hinweis ohne URL.
-- Sprache: Deutsch, einfache Sprache, keine Beträge in Euro, keine Prozentangaben außer wenn sie der Kern der Leistung sind (z. B. Kfz-Steuer 50 % ist erlaubt? — **nein**, auch das weglassen: „Ermäßigung“).
+- Sprache: Deutsch, einfache Sprache, keine Beträge in Euro und keine Prozentangaben (z. B. bei der Kfz-Steuer nur „Ermäßigung“).
 - Version 1.12.0 (`package.json`, `SERVER_INFO` in `src/protocol.mjs`).
 - Tests laufen mit `node --test test/<datei>.test.mjs`; die ganze Suite `npm test` ist langsam (bis 3 Min.).
 
