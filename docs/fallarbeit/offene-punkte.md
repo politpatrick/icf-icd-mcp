@@ -44,3 +44,8 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 - [ ] Fallprofil: `verfahren.art` kennt keinen Überprüfungs-, Neufeststellungs- oder Höherstufungsantrag und keine Akteneinsicht; Schema-Erweiterung (Version 1 abwärtskompatibel) prüfen. *mittel*
 - [ ] Normauszüge werden nicht automatisch gegen gesetze-im-internet.de geprüft; Prüfskript für die wöchentliche Prüfung (Abruf mit `curl -4`, Vergleich jedes Auszugs mit dem Normtext). *mittel*
 - [ ] Prompt-Argumente `bereich` und `wer_antwortet` werden nicht normalisiert („ Pflege“ → -32602), anders als `thema` in `verfahren_info`; ggf. einheitlich trimmen und klein schreiben. *klein*
+
+## GdB (`src/vmg.mjs`, `src/prompts.mjs`, Version 1.10.0)
+
+- [ ] Zeilenkennungen (`VMG:B 3.7 Z2`) zählen die GdS-Zeilen je Abschnitt; ändert der Verordnungsgeber einen Abschnitt, verschiebt sich die Zählung still. Bei einem Update von `versmedv.json` Zeilentexte je Kennung gegen die Vorfassung vergleichen und Änderungen melden. *mittel*
+- [ ] Zeilen der Sondertabellen (Hörverlust, Sehschärfe) haben keine Kennung und sind nicht mit `vmg_spanne_pruefen` prüfbar. *mittel*

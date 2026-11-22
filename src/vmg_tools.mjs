@@ -21,7 +21,8 @@ Teil B nennt typische Werte; Abweichung ist nach Teil A Nr. 1.4 mit Begründung 
 Der GdB bleibt eine gutachterliche Entscheidung; die Tools liefern Wortlaut und Fundstellen, keine Einstufung.
 vmg_gesamt_gdb ist eine Prüfhilfe zu Teil A Nr. 3 (zeigt Regeln, Funktionssysteme und Markierungen, bildet keinen Gesamt-GdB); vmg_merkzeichen nennt die Fundstellen der Merkzeichen (G, aG, B, H, Bl, Gl, RF, TBl).
 Ablauf: vmg_search findet Abschnitte über Wortlaut und Stichwörter (oder leitet über icd="E11.90" Stichwörter ab, nicht amtlich), vmg_get liefert den Abschnitt, vmg_list_structure die Gliederung.
-Zeilenkennungen wie VMG:B 3.7 Z2 bezeichnen eine GdS-Zeile (vmg_get zeigt sie); vmg_spanne_pruefen prüft einen Einzel-GdB gegen die Spanne dieser Zeile, ohne Wertung.`;
+Zeilenkennungen wie VMG:B 3.7 Z2 bezeichnen eine GdS-Zeile (vmg_get zeigt sie); vmg_spanne_pruefen prüft einen Einzel-GdB gegen die Spanne dieser Zeile, ohne Wertung.
+Geführte Abläufe als Prompts: gdb_antrag_vorbereiten und gdb_bescheid_verstehen.`;
 
 export const VMG_TOOLS = !vmg
   ? []

@@ -1,6 +1,6 @@
 {
   "name": "icf-icd-mcp",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "MCP-Server für die deutsche ICF, die ICD-10-GM, das Begutachtungsinstrument nach § 15 SGB XI und die Versorgungsmedizinischen Grundsätze (VersMedV)",
   "private": true,
   "type": "module",
