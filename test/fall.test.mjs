@@ -291,3 +291,20 @@ test("Listen haben Obergrenzen und Hinweistexte wiederholen sich nicht je Eintra
   const h = call("fall_pruefen", { profil: viele }).hinweise.find((x) => x.kennung === "d_ohne_ursache");
   assert.ok(h.text.length < 2000, String(h.text.length));
 });
+
+test("fall_pruefen: Einzel-GdB außerhalb der Spanne einer Zeilenkennung → Warnung (1.10.0)", () => {
+  const r = call("fall_pruefen", { profil: mit([E("v1", "vmg", "VMG:B 3.7 Z2", { gdb: 50 }), E("v2", "vmg", "b3.7 z2", { gdb: 30 }), E("v3", "vmg", "VMG:B 3.7", { gdb: 50 }), E("v4", "vmg", "VMG:B 3.7 Z2")]) });
+  assert.equal(r.gueltig, true, JSON.stringify(r.fehler));
+  const w = (id) => r.eintraege.find((e) => e.id === id);
+  assert.match(w("v1").warnungen.join(" "), /oberhalb.*30-40.*Teil A Nr\. 1\.4/);
+  assert.match(w("v1").klartext, /Stärker behindernde Störungen/);
+  assert.deepEqual(w("v2").warnungen, []);
+  assert.deepEqual(w("v3").warnungen, []);
+  assert.deepEqual(w("v4").warnungen, []);
+  assert.match(call("fall_pruefen", { profil: mit([E("v", "vmg", "VMG:B 3.7 Z9", { gdb: 50 })]) }).fehler?.map((f) => f.meldung).join(" ") ?? "", /Z9/);
+});
+
+test("fall_vergleichen: Zeilenkennungen werden zugeordnet", () => {
+  const r = call("fall_vergleichen", { alt: mit([E("v", "vmg", "VMG:B 3.7 Z2", { gdb: 30 })]), neu: mit([E("w", "vmg", "b3.7z2", { gdb: 40 })]) });
+  assert.deepEqual(r.gdb.map(({ kennung, alt: a, neu: n }) => [kennung, a, n]), [["VMG:B 3.7 Z2", 30, 40]]);
+});

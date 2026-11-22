@@ -160,7 +160,7 @@
         "kode": {
           "type": "string",
           "maxLength": 40,
-          "description": "Schreibweise des Moduls: F20.0 G · d450.23 · e310+3 · BI:4.1.3=2 · BI:4.5.1=3/Tag · VMG:B 3.7 · Merkzeichen G, aG, B, H, Bl, Gl, RF, TBl; Pflicht außer bei personbezogen"
+          "description": "Schreibweise des Moduls: F20.0 G · d450.23 · e310+3 · BI:4.1.3=2 · BI:4.5.1=3/Tag · VMG:B 3.7 bzw. Zeile VMG:B 3.7 Z2 · Merkzeichen G, aG, B, H, Bl, Gl, RF, TBl; Pflicht außer bei personbezogen"
         },
         "gdb": {
           "type": "integer",
