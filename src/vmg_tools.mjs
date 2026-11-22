@@ -11,7 +11,7 @@ const vmg = VMG_ENABLED ? vmgModule : null;
 
 const kennungProp = {
   type: "string",
-  description: 'Kennung der Anlage zu § 2 VersMedV, z. B. "B 3.7" (Neurosen), "A 5d jj" oder "D 1e"; "VMG:" und Schreibweise (b3.7) egal',
+  description: 'Kennung der Anlage zu § 2 VersMedV, z. B. "B 3.7" (Neurosen), "A 5d jj" oder "D 1e", oder eine GdS-Zeile wie "B 3.7 Z2"; "VMG:" und Schreibweise (b3.7) egal',
 };
 
 export const VMG_INSTRUCTIONS = `Versorgungsmedizinische Grundsätze (VersMedV, Anlage zu § 2)${vmg ? `: ${vmg.VMG_VERSION}` : ""}. Amtlicher Wortlaut für GdS/GdB und Hilflosigkeit.

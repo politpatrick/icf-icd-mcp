@@ -149,3 +149,15 @@ test("gdb-Prompts: Fehler und ICF_MCP_VMG=0", async () => {
   }).stdout;
   assert.ok(!JSON.parse(out).result.prompts.some((p) => p.name.startsWith("gdb_")));
 });
+
+test("Review: GdB-Prompts – Merkzeichen ohne Wortlaut, Herkunft eigener Werte, Zeilenzuordnung", () => {
+  const a = text("gdb_antrag_vorbereiten", {});
+  assert.match(a, /aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm/);
+  assert.match(a, /herkunft "interview".*status "geschildert"/);
+  assert.ok(!/herkunft "interview" bzw\. "befund"/.test(a));
+  assert.match(a, /bei anderen Leistungsträgern oder der Gemeinde gestellt/);
+  const b = text("gdb_bescheid_verstehen", {});
+  assert.match(b, /aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm/);
+  assert.match(b, /alle Zeilen des Abschnitts/);
+  assert.match(b, /nicht die des Versorgungsamts/);
+});

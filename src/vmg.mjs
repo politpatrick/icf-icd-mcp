@@ -30,7 +30,7 @@ const squash = (s) => s.replace(/\s+/g, "").toLowerCase();
 const byLoose = new Map(order.map((id) => [squash(id.slice(4)), id]));
 
 /** Zeilenkennung: Abschnitt + „Z“ + laufende Nummer der GdS-Zeile (ab 1), z. B. "VMG:B 3.7 Z2". */
-const ZEILE_RE = /^(.*?)\s*z\s*(\d+)$/i;
+const ZEILE_RE = /^(.*?)\s*z(?:eile)?\s*(\d+)$/i;
 
 /** "b3.7", "B 3.7", "VMG:B 3.7", "A 5 d jj" → "VMG:B 3.7", "VMG:A 5d jj" (unbekannte Kennungen nur sauber formatiert). */
 export function normalizeVmgId(raw) {
@@ -47,6 +47,9 @@ export function normalizeVmgId(raw) {
   const t = s.replace(/\s+/g, " ");
   return `VMG:${t.charAt(0).toUpperCase()}${t.slice(1).replace(/^(\d)/, " $1")}`.trimEnd();
 }
+
+/** Abschnitt zu einer Abschnitts- oder Zeilenkennung (Zeilenkennung → ihr Abschnitt). */
+const requireAbschnitt = (raw) => resolveZeile(raw)?.n ?? requireNode(raw);
 
 function requireNode(raw) {
   if (String(raw ?? "").trim() === "") throw new LookupError("VersMedV-Kennung fehlt, z. B. B 3.7 (Neurosen), A 5d jj oder D 1e.");
@@ -114,7 +117,7 @@ function tree(n, depth) {
 
 export function listStructure({ kennung, tiefe } = {}) {
   const hasKennung = kennung !== undefined && String(kennung).trim() !== "";
-  const roots = hasKennung ? [requireNode(kennung).id] : order.filter((id) => !nodes[id].parent);
+  const roots = hasKennung ? [requireAbschnitt(kennung).id] : order.filter((id) => !nodes[id].parent);
   let depth;
   if (tiefe === undefined || tiefe === null || tiefe === "") depth = 1;
   else {
@@ -189,7 +192,7 @@ function resultFor(entry, tokens, score) {
     .sort((a, b) => b.h - a.h || a.i - b.i)
     .slice(0, MAX_ZEILEN)
     .sort((a, b) => a.i - b.i)
-    .map((x) => row(x.r.z));
+    .map((x) => row(x.r.z, x.i, n));
   const sw = entry.stichwoerter.filter((s) => tokens.some((t) => s.c.includes(t))).sort((a, b) => hits(b.c) - hits(a.c))[0];
   let auszug;
   if (!n.titel && n.absaetze?.length) auszug = shorten(n.absaetze[0], 300);
@@ -311,7 +314,7 @@ export function gesamtGdb({ einzel } = {}) {
     let sys = { funktionssystem: null, quelle: null };
     let hinweis;
     if (e.kennung !== undefined && String(e.kennung).trim() !== "") {
-      const s = systemOf(requireNode(e.kennung));
+      const s = systemOf(requireAbschnitt(e.kennung));
       sys = { funktionssystem: s.funktionssystem, quelle: s.quelle ?? null };
       hinweis = s.hinweis;
     }
@@ -409,7 +412,7 @@ function descendants(n) {
         ...label(k),
         ...(k.status ? { status: k.status } : {}),
         absaetze: k.absaetze ?? [],
-        ...(k.zeilen ? { zeilen: k.zeilen.map(row) } : {}),
+        ...(k.zeilen ? { zeilen: k.zeilen.map((z, i) => row(z, i, k)) } : {}),
         ...(k.tabellen ? { tabellen: k.tabellen } : {}),
       },
       ...descendants(k),
@@ -478,7 +481,7 @@ export function spannePruefen({ kennung, gdb } = {}) {
         : `${n.id.slice(4)} hat keine GdS-Zeilen; bitte eine Zeile aus Teil B angeben, z. B. B 3.7 Z2.`
     );
   }
-  const wert = typeof gdb === "string" && gdb.trim() !== "" ? Number(gdb) : gdb;
+  const wert = typeof gdb === "string" && /^\s*\d{1,3}\s*$/.test(gdb) ? Number(gdb) : gdb;
   if (typeof wert !== "number" || !Number.isInteger(wert) || wert < 0 || wert > 100) throw new LookupError("gdb muss eine ganze Zahl von 0 bis 100 sein (Einzel-GdB bzw. GdS).");
   const { n, z, id } = zeile;
   const spanne = parseSpanne(z.gds);

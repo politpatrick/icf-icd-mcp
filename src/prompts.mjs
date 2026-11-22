@@ -199,14 +199,14 @@ Ablauf:
 3. Je Gesundheitsstörung die Auswirkungen im Alltag erfragen, mit Beispielen (was geht nicht mehr, wie oft, wie lange, welche Hilfe, welche Hilfsmittel). O-Ton festhalten.
 4. Befunde ordnen: Welche Arztberichte, Klinikberichte, Therapieberichte liegen vor (Datum, Stelle)? Welche fehlen oder beschreiben den heutigen Stand nicht mehr?
 5. Orientierung an Teil B: Mit vmg_search den passenden Abschnitt finden, mit vmg_get die Zeilen mit Pfad zeigen und in einfacher Sprache erklären, wonach die Zeilen unterscheiden. Ordnet die Person ihre Situation selbst einer Zeile zu, die Zeilenkennung (z. B. VMG:B 3.7 Z2) und einen möglichen Wert mit vmg_spanne_pruefen prüfen. Kennzeichnen, dass das eine eigene Orientierung ist, keine Einstufung.
-6. Merkzeichen: Mit vmg_merkzeichen die Voraussetzungen der in Betracht kommenden Merkzeichen (z. B. G, B, H, aG, Bl, Gl, RF, TBl) im Wortlaut zeigen und die Person fragen, was davon im Alltag zutrifft. Nicht entscheiden, ob ein Merkzeichen zusteht.
-7. Alles im Fallprofil festhalten (art icd, vmg mit Zeilenkennung und gdb als eigene Orientierung, merkzeichen; herkunft "interview" bzw. "befund") und mit fall_pruefen prüfen.
+6. Merkzeichen: Mit vmg_merkzeichen die Voraussetzungen der in Betracht kommenden Merkzeichen zeigen – für G, B, H, Bl und Gl im Wortlaut; für aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm, dann keinen Wortlaut ergänzen. Die Person fragen, was davon im Alltag zutrifft. Nicht entscheiden, ob ein Merkzeichen zusteht.
+7. Alles im Fallprofil festhalten und mit fall_pruefen prüfen: Diagnosen als art icd (herkunft "befund", wenn ärztlich belegt), Merkzeichen als art merkzeichen. Eine eigene Orientierung an einer Zeile als art vmg mit Zeilenkennung und gdb immer mit herkunft "interview" und status "geschildert" und in begruendung „eigene Orientierung“ – nie als Befund, damit sie nicht wie ein festgestellter Wert wirkt.
 
 Ergebnis:
 - Das Fallprofil (JSON) zum Weiterverwenden.
 - Eine Übersicht je Gesundheitsstörung: Auswirkungen in den Worten der Person, vorhandene Belege, in Betracht kommende Zeile(n) aus Teil B mit Pfad und Fundstelle – ohne Gesamt-GdB, kein Gesamt-GdB als Zahl.
 - Eine kurze, höfliche Bitte an die behandelnden Ärztinnen und Ärzte um einen aktuellen Befundbericht, der die Auswirkungen im Alltag beschreibt (Funktionseinschränkungen, Verlauf, Therapie), ohne Formulierungsvorgaben für die Ärztin bzw. den Arzt.
-- Eine Liste, was dem Antrag beiliegen sollte und wo der Antrag gestellt wird (Versorgungsamt bzw. die nach Landesrecht zuständige Stelle; Anträge werden nach § 16 SGB I auch von anderen Stellen weitergeleitet).
+- Eine Liste, was dem Antrag beiliegen sollte und wo der Antrag gestellt wird (Versorgungsamt bzw. die nach Landesrecht zuständige Stelle; Anträge können nach § 16 SGB I auch bei anderen Leistungsträgern oder der Gemeinde gestellt werden und werden dann weitergeleitet).
 - Den allgemeinen Hinweis, dass mit GdB und Merkzeichen Nachteilsausgleiche verbunden sein können, ohne Aufzählung oder Beträge, und den Verweis auf unabhängige Beratung (EUTB, Sozialverbände).`;
     },
   },
@@ -227,10 +227,10 @@ ${GDB_GRENZEN}
 
 Ablauf:
 1. Den Bescheid übernehmen: Ich lade ihn hoch oder nenne die Angaben. Lies heraus: festgestellter GdB, Merkzeichen, die aufgeführten Funktionsbeeinträchtigungen und – falls genannt, z. B. in der versorgungsärztlichen Stellungnahme aus der Akte – die Einzel-GdB. Datum des Bescheids und die Rechtsbehelfsbelehrung notieren; die Frist nicht berechnen.
-2. Jede Funktionsbeeinträchtigung einem Abschnitt in Teil B zuordnen (vmg_search, vmg_get) und die in Betracht kommende Zeile mit Zeilenkennung zeigen. Ist ein Einzel-GdB genannt, mit vmg_spanne_pruefen prüfen, ob er in der Spanne der Zeile liegt, und erklären, was die Zeile beschreibt. „Außerhalb“ heißt nicht „falsch“ (Teil A Nr. 1.4).
+2. Jede Funktionsbeeinträchtigung einem Abschnitt in Teil B zuordnen (vmg_search, vmg_get) und alle Zeilen des Abschnitts mit ihren Werten und Pfaden in einfacher Sprache erklären. Welcher Zeile die Person ihre Situation zuordnet, ist ihre eigene Orientierung, nicht die des Versorgungsamts; dessen Zuordnung steht ggf. in der versorgungsärztlichen Stellungnahme (Akteneinsicht, verfahren_info). Ist ein Einzel-GdB genannt, kann vmg_spanne_pruefen zeigen, wie er zur gewählten Zeile liegt. „Außerhalb“ heißt nicht „falsch“ (Teil A Nr. 1.4).
 3. Wie aus den Einzel-GdB der Gesamt-GdB gebildet wird, mit vmg_gesamt_gdb und den Regeln aus Teil A Nr. 3 in einfacher Sprache erklären (kein Addieren, Ausgangspunkt ist der höchste Einzel-GdB, Einzel-GdB von 10 erhöhen in der Regel nicht). Kein Gesamt-GdB als Zahl berechnen.
-4. Merkzeichen: Was festgestellt oder abgelehnt wurde, mit vmg_merkzeichen im Wortlaut der Voraussetzungen erklären.
-5. Fragen, was ich anders erlebe oder was fehlt (Gesundheitsstörungen, die nicht berücksichtigt sind; Auswirkungen, die stärker sind; neuere Befunde). Mit O-Ton und Belegen im Fallprofil festhalten (herkunft "bescheid" für die Angaben aus dem Bescheid, "interview" für meine Sicht) und mit fall_pruefen prüfen; bei einer früheren Fassung fall_vergleichen.
+4. Merkzeichen: Was festgestellt oder abgelehnt wurde, mit vmg_merkzeichen erklären – für G, B, H, Bl und Gl im Wortlaut der Voraussetzungen; für aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm, dann keinen Wortlaut ergänzen.
+5. Fragen, was ich anders erlebe oder was fehlt (Gesundheitsstörungen, die nicht berücksichtigt sind; Auswirkungen, die stärker sind; neuere Befunde). Mit O-Ton und Belegen im Fallprofil festhalten (herkunft "bescheid" für die Angaben aus dem Bescheid, "interview" mit status "geschildert" für meine Sicht) und mit fall_pruefen prüfen; bei einer früheren Fassung fall_vergleichen.
 6. Die möglichen Wege allgemein mit verfahren_info erklären (Widerspruch, Überprüfungsantrag, Neufeststellungsantrag bei Verschlechterung, Akteneinsicht), ohne einen zu empfehlen.
 
 Ergebnis:

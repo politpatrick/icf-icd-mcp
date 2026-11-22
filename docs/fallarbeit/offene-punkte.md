@@ -49,3 +49,5 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 
 - [ ] Zeilenkennungen (`VMG:B 3.7 Z2`) zählen die GdS-Zeilen je Abschnitt; ändert der Verordnungsgeber einen Abschnitt, verschiebt sich die Zählung still. Bei einem Update von `versmedv.json` Zeilentexte je Kennung gegen die Vorfassung vergleichen und Änderungen melden. *mittel*
 - [ ] Zeilen der Sondertabellen (Hörverlust, Sehschärfe) haben keine Kennung und sind nicht mit `vmg_spanne_pruefen` prüfbar. *mittel*
+- [ ] `fall_vergleichen` ordnet `VMG:B 3.7` (Abschnitt) und `VMG:B 3.7 Z2` (Zeile) nicht einander zu: Weggefallen plus neu statt einer GdB-Änderung; ggf. Hinweis, wenn Zeile und gleicher Abschnitt sich gegenüberstehen. *klein*
+- [ ] `fall_pruefen` nennt einen eigenen Orientierungswert wie einen festgestellten („angegebener Einzel-GdB“); bei Herkunft ungleich `bescheid`/`gutachten` „selbst angegebener Wert“ schreiben. *klein*

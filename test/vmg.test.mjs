@@ -445,3 +445,29 @@ test("tools/list enthält vmg_spanne_pruefen", () => {
   const t = tools.find((x) => x.name === "vmg_spanne_pruefen");
   assert.deepEqual(t.inputSchema.required, ["kennung", "gdb"]);
 });
+
+test("Review: vmg_gesamt_gdb und vmg_list_structure verstehen Zeilenkennungen", () => {
+  const r = call("vmg_gesamt_gdb", { einzel: [{ bezeichnung: "Depression", gdb: 40, kennung: "B 3.7 Z2" }, { bezeichnung: "Wirbelsäule", gdb: 20, kennung: "B 18.9 Z1" }] });
+  assert.ok(!r.error, r.error);
+  assert.equal(r.eintraege[0].kennung, "VMG:B 3.7 Z2");
+  assert.equal(r.eintraege[1].funktionssystem, "Rumpf");
+  const l = call("vmg_list_structure", { kennung: "B 3.7 Z2" });
+  assert.ok(!l.error, l.error);
+  assert.equal(l.knoten[0].id, "VMG:B 3.7");
+});
+
+test("Review: vmg_search liefert Zeilen mit Kennung; Schreibweise „Zeile 2“", async () => {
+  const { normalizeVmgId } = await import("../src/vmg.mjs");
+  const s = call("vmg_search", { query: "Zwangskrankheit" });
+  const z = s.ergebnisse?.flatMap((t) => t.zeilen ?? []) ?? s.results?.flatMap((t) => t.zeilen ?? []);
+  assert.ok(z.length && z.every((x) => /^VMG:B [\d.]+ Z\d+$/.test(x.id)), JSON.stringify(z));
+  assert.equal(normalizeVmgId("B 3.7 Zeile 2"), "VMG:B 3.7 Z2");
+});
+
+test("Review: gdb als Text nur aus Ziffern; alle Zeilen haben einen GdS-Wert", () => {
+  for (const gdb of ["4e1", "0x28", " 40 x"]) assert.match(call("vmg_spanne_pruefen", { kennung: "B 3.7 Z2", gdb }).error ?? "", /gdb/, gdb);
+  assert.equal(call("vmg_spanne_pruefen", { kennung: "B 3.7 Z2", gdb: " 40 " }).ergebnis, "innerhalb");
+  const zeilen = Object.values(data.nodes).flatMap((n) => n.zeilen ?? []);
+  assert.equal(zeilen.length, 767);
+  assert.ok(zeilen.every((z) => typeof z.gds === "string" && z.gds.trim()));
+});
