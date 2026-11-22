@@ -1,6 +1,6 @@
 # Offene Punkte
 
-Stand: 21.11.2026. Zurückgestellte Kleinigkeiten aus den Reviews, nach Modul geordnet. Jeder Punkt ist einzeln als
+Stand: 22.11.2026. Zurückgestellte Kleinigkeiten aus den Reviews, nach Modul geordnet. Jeder Punkt ist einzeln als
 kleiner PR umsetzbar (Test zuerst). Erledigte Punkte im selben PR **streichen** (Zeile entfernen und im PR nennen),
 damit die Liste aktuell bleibt. Neue zurückgestellte Punkte hier ergänzen.
 
@@ -38,3 +38,8 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 - [ ] Fehlermeldung bei Profil-Eingabe nennt nur eine Standard-Herkunft, wenn weder `interview` noch `selbstauskunft` vorkommt. *klein*
 - [ ] Gleiche Werte in anderer Schreibweise (`7/Woche` gegen `1/Tag`) gelten als Unterschied (mit Wirkung 0). *klein*
 - [ ] `bi_gegenueberstellen` nimmt `alter_monate` nicht als Text an (`bi_calculate` schon). *klein*
+
+## Verfahren (`src/verfahren.mjs`, `src/prompts.mjs`, Version 1.9.0)
+
+- [ ] Fallprofil: `verfahren.art` kennt keinen Überprüfungs-, Neufeststellungs- oder Höherstufungsantrag und keine Akteneinsicht; Schema-Erweiterung (Version 1 abwärtskompatibel) prüfen. *mittel*
+- [ ] Normauszüge werden nicht automatisch gegen gesetze-im-internet.de geprüft; Prüfskript für die wöchentliche Prüfung (Abruf mit `curl -4`, Vergleich jedes Auszugs mit dem Normtext). *mittel*

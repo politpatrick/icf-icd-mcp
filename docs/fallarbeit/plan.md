@@ -1,6 +1,6 @@
 # Fallarbeit: Gesamtplan
 
-Stand: 21.11.2026 · Pflege: bei jedem abgeschlossenen Schritt Status und PR-Link nachtragen.
+Stand: 22.11.2026 · Pflege: bei jedem abgeschlossenen Schritt Status und PR-Link nachtragen.
 Offene Kleinigkeiten stehen in [offene-punkte.md](offene-punkte.md); Designs und Umsetzungspläne der einzelnen
 Schritte unter [`docs/superpowers/`](../superpowers/).
 
@@ -46,7 +46,7 @@ an andere Skills, MCP-Server, Chats und Agenten weitergeben.
 | --- | --- | --- |
 | `fall_schema`, `fall_pruefen`, `fall_vergleichen` | Fallprofil: Format, Prüfung mit Lückenhinweisen und Lebensbereichen nach § 118 SGB IX, Vergleich zweier Fassungen | ✅ 1.7.0 ([#15](https://github.com/politpatrick/icf-icd-mcp/pull/15)) |
 | `bi_gegenueberstellen` | Pflegegutachten und eigene Einschätzung gegenüberstellen | ✅ 1.8.0 ([#16](https://github.com/politpatrick/icf-icd-mcp/pull/16)) |
-| `verfahren_info` | Allgemeine Erklärung von Widerspruch, Überprüfungs-, Neufeststellungs- und Höherstufungsantrag, Akteneinsicht; Frist nur mit Verweis auf die Rechtsbehelfsbelehrung, **keine** persönliche Fristberechnung | offen |
+| `verfahren_info` | Allgemeine Erklärung von Widerspruch, Überprüfungs-, Neufeststellungs- und Höherstufungsantrag, Akteneinsicht; Frist nur mit Verweis auf die Rechtsbehelfsbelehrung, **keine** persönliche Fristberechnung | ✅ 1.9.0 |
 | GdS-Zeilen-Kennungen + `vmg_spanne_pruefen` | Einzel-GdB gegen die Spanne der Teil-B-Zeile prüfen, mit Pfad und Fundstelle | offen |
 | `abgrenzung_egh_pflege` | ICF-d-Kategorien → BI-Kriterien mit Orientierung Eingliederungshilfe/Überschneidung/Pflege; kuratiert, auf `bi_icf_mapping` aufbauend | offen |
 | `leistungshinweise` | Signal → mögliche Leistung → Träger → Rang → nächster Schritt; Nachteilsausgleiche je GdB, Merkzeichen, Pflegegrad; Schnittstellen (§ 103 SGB IX, § 43a SGB XI, SGB XII, § 29 SGB IX, § 35a SGB VIII); kuratiert, ohne Beträge, keine Anspruchsprüfung | offen |
@@ -61,21 +61,21 @@ an andere Skills, MCP-Server, Chats und Agenten weitergeben.
 | `gdb_bescheid_verstehen` | Was festgestellt wurde, was die Werte bedeuten, wo die eigene Situation abweicht; Bescheid in einfacher Sprache | offen |
 | `teilhabebedarf_erfassen` | Bedarfe ICF-strukturiert und ICD-fundiert in Ich-Form mit O-Ton, Lebensbereiche, Orientierung zur Zuständigkeit | offen |
 | `bedarfsfeststellung_verstehen` | Kommen eigene Bedarfe, Wünsche und Ziele vor, wo fehlen Belege | offen |
-| `eigene_darstellung_vorbereiten` | Eigene Situation sachlich aufschreiben (Tatsachen, Beobachtungen, Belege); Wege allgemein erklären | offen |
+| `eigene_darstellung_vorbereiten` | Eigene Situation sachlich aufschreiben (Tatsachen, Beobachtungen, Belege); Wege allgemein erklären | ✅ 1.9.0 |
 | `leistungen_finden` | Mögliche weitere und vorrangige Leistungen und Nachteilsausgleiche, Zuständigkeit, Beratungsstellen | offen |
 
 ### Lokale Skills (nicht im öffentlichen Server)
 
 | Skill | Zweck | Stand |
 | --- | --- | --- |
-| `eigenes_schreiben` | Brief der Person mit ihrer Sachdarstellung als Word-Datei; allgemeine Vorlagen für Schweigepflichtentbindung und Akteneinsicht; keine rechtliche Begründung | offen |
+| `eigenes_schreiben` | Brief der Person mit ihrer Sachdarstellung als Word-Datei; allgemeine Vorlagen für Schweigepflichtentbindung und Akteneinsicht; keine rechtliche Begründung | Entwurf (lokal, nicht im Repo) |
 | `lwl-formulare` | EGH-Antrag und „Persönliche Sicht“ (öffentliche LWL-Formulare) als PDF aus dem Fallprofil; fachliche Stellungnahme wird nie ausgefüllt | offen |
 
 ## Reihenfolge
 
 1. ✅ Fallprofil (`fall_*`) – [#15](https://github.com/politpatrick/icf-icd-mcp/pull/15)
 2. ✅ Pflege: `bi_gegenueberstellen`, Prompts `pflegegrad_interview`, `pflegegutachten_verstehen` – [#16](https://github.com/politpatrick/icf-icd-mcp/pull/16)
-3. Verfahren: `verfahren_info`, Prompt `eigene_darstellung_vorbereiten`, Skill `eigenes_schreiben`
+3. ✅ Verfahren: `verfahren_info`, Prompt `eigene_darstellung_vorbereiten` (1.9.0); Skill `eigenes_schreiben` als Entwurf außerhalb des Repos
 4. GdB: Kennungen der GdS-Zeilen, `vmg_spanne_pruefen`, Prompts `gdb_antrag_vorbereiten`, `gdb_bescheid_verstehen`
 5. Teilhabe: `abgrenzung_egh_pflege`, Prompts `teilhabebedarf_erfassen`, `bedarfsfeststellung_verstehen`
 6. Leistungen: `leistungshinweise`, Prompt `leistungen_finden`

@@ -161,6 +161,14 @@ Das Format hat **keine Felder für Namen, Anschriften, Versicherungs- oder Akten
 
 Die Hinweise sagen, was noch fehlt, und bewerten den Fall nicht. Das Fallprofil ist **keine Rechtsberatung**. Schema und Beispiel liegen unter `data/fallprofil-1.schema.json` und `data/fallprofil-1.beispiel.json`. Gesamtplan der Fallarbeit und offene Punkte: [`docs/fallarbeit/`](docs/fallarbeit/).
 
+## Verfahrenswege
+
+`verfahren_info` erklärt **allgemein** und in einfacher Sprache, welche Wege es im Sozialrecht gibt: Widerspruch, Überprüfungsantrag (§ 44 SGB X), Neufeststellungs- bzw. Höherstufungsantrag (§ 48 SGB X), Akteneinsicht (§ 25 SGB X), Untätigkeitsklage (§ 88 SGG), Zuständigkeitsklärung bei Leistungen zur Teilhabe (§ 14 SGB IX) und Bekanntgabe eines Bescheids (§ 37 SGB X). Ohne Argument kommt eine Übersicht, mit `thema` ein Thema.
+
+Je Thema: eine Erklärung (kuratiert, nicht amtlich), die Normen mit Link auf gesetze-im-internet.de und einem wörtlichen Auszug (amtlich), was man allgemein braucht, verwandte Themen und Besonderheiten (z. B. VwGO statt SGG in der Kinder- und Jugendhilfe, kürzere Rückwirkung im SGB II und SGB XII) sowie unabhängige Beratungsstellen (EUTB, Pflegeberatung nach § 7a SGB XI, Pflegestützpunkt, Sozialverbände).
+
+Zur Frist verweist das Werkzeug nur auf die Rechtsbehelfsbelehrung des Bescheids; es **berechnet keine persönliche Frist** und empfiehlt keinen Weg im Einzelfall. Es ist **keine Rechtsberatung**.
+
 ## Prompts (geführte Abläufe)
 
 Der Server bietet MCP-Prompts an, die Schritt für Schritt durch einen Fall führen. Clients wie Claude Desktop und Claude Code zeigen sie als auswählbare Vorlagen. Den Zustand trägt das Fallprofil im Gespräch; der Server speichert nichts. Die Abläufe richten sich an antragsberechtigte Personen und sind **keine Rechtsberatung**.
@@ -170,7 +178,9 @@ Der Server bietet MCP-Prompts an, die Schritt für Schritt durch einen Fall füh
 | `pflegegrad_interview` | Selbsteinschätzung vor einer Pflegebegutachtung: Modul für Modul in einfacher Sprache, mit Zwischenständen, Fallprofil, Orientierung zum Pflegegrad (nur bei vollständigen Angaben), Vorbereitungsliste und Vorlage für ein Pflegetagebuch. Argumente: `wer_antwortet`, `alter_monate` |
 | `pflegegutachten_verstehen` | Ein Pflegegutachten verstehen: Einstufungen übernehmen, eigene Sicht zu zweifelhaften Kriterien erfragen, mit `bi_gegenueberstellen` jeden Unterschied erklären, Formulierungshilfen für eine eigene Darstellung, allgemeiner Hinweis auf Widerspruchsfrist laut Rechtsbehelfsbelehrung und unabhängige Beratung. Argument: `alter_monate` |
 
-Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts.
+| `eigene_darstellung_vorbereiten` | Die eigene Situation sachlich aufschreiben: Tatsachen, Beobachtungen, Belege und O-Ton getrennt erfassen (auch aus dem Fallprofil), Lücken mit `fall_pruefen` finden, Wege allgemein mit `verfahren_info` erklären, Gliederung der eigenen Darstellung ohne rechtliche Begründung, Verweis auf unabhängige Beratung. Argumente: `wer_antwortet`, `bereich` (`gdb`, `pflege`, `teilhabe`) |
+
+Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts; `eigene_darstellung_vorbereiten` bleibt und nennt dann keine BI-Werkzeuge.
 
 ## Online-Konnektor (ohne Installation)
 
@@ -235,6 +245,8 @@ src/                 MCP-Server
   bi_tools.mjs       Tool-Definitionen für bi.mjs (abschaltbar mit ICF_MCP_BI=0)
   vmg.mjs            VersMedV: Gliederung, Abruf, Suche, ICD-Ableitung, Prüfhilfen
   vmg_tools.mjs      Tool-Definitionen für vmg.mjs (abschaltbar mit ICF_MCP_VMG=0)
+  verfahren.mjs      Verfahrenswege: kuratierte Erklärungen und wörtliche Normauszüge
+  verfahren_tools.mjs Tool-Definition für verfahren_info
   data.mjs           Lädt die JSON-Daten (lokal und in Netlify Functions)
   graph.mjs          Wissensnetz: Kanten, Rückverweise, Bereiche, kürzeste Wege
   text.mjs           Gemeinsame Hilfen (Suche, Fehler)
