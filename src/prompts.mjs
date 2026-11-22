@@ -50,6 +50,15 @@ function bereichText(bereich) {
   }
 }
 
+/** Altershinweis für die GdB-Prompts (VersMedV Teil A Nr. 1.2 und Nr. 5). */
+function gdbAltersText(monate) {
+  if (monate === undefined || monate >= 18 * 12) return "";
+  return `Es geht um ein Kind bzw. eine jugendliche Person (${monate} Monate). Maßstab ist die Abweichung von dem für das Lebensalter typischen Zustand (Teil A Nr. 1.2). Für das Merkzeichen H gelten die Besonderheiten bei Kindern und Jugendlichen in Teil A Nr. 5 (vmg_get mit kennung "A 5"); manche Zeilen in Teil B nennen eigene Werte für Kinder.\n`;
+}
+
+const GDB_GRENZEN = `- Die VersMedV-Werkzeuge liefern Wortlaut, Pfad und Fundstelle. Ein GdS-Wert wird nie ohne seine Zeile, ihren Pfad und die Fundstelle genannt. Teil B nennt Anhaltswerte; nach Teil A Nr. 1.4 kann mit besonderer Begründung abgewichen werden.
+- Es gibt kein Gesamt-GdB als Zahl: Teil A Nr. 3 verbietet das Addieren und verlangt eine Gesamtschau. vmg_gesamt_gdb zeigt nur die Regeln und Markierungen. Die Einstufung bleibt eine gutachterliche Entscheidung.`;
+
 const GRUNDSAETZE = `Grundsätze für das ganze Gespräch:
 - Du hilfst einer antragsberechtigten Person, ihre Situation zu ordnen. Es findet keine Rechtsberatung statt: keine Einschätzung, ob ein Antrag oder Widerspruch Erfolg hat, keine Empfehlung eines Rechtswegs, keine Aussage, ob ein Gutachten oder Bescheid rechtmäßig ist. Bei Rechtsfragen auf unabhängige Beratung verweisen (Pflegeberatung nach § 7a SGB XI, Pflegestützpunkt, EUTB, Sozialverbände).
 - Einfache, freundliche Sprache. Höchstens drei Fragen auf einmal. Pausen anbieten; man kann jederzeit unterbrechen und später mit dem Fallprofil weitermachen.
@@ -163,9 +172,76 @@ Ergebnis:
 - Auf Wunsch das aktualisierte Fallprofil (fall_pruefen).`;
     },
   },
+  {
+    name: "gdb_antrag_vorbereiten",
+    title: "GdB-Antrag vorbereiten",
+    description:
+      "Geführter Ablauf zur Vorbereitung eines Antrags auf Feststellung eines GdB und von Merkzeichen: Diagnosen (ICD), Auswirkungen im Alltag mit O-Ton, vorhandene und fehlende Befunde, Orientierung an passenden Zeilen der GdS-Tabelle (Teil B) mit vmg_spanne_pruefen, Merkzeichen, eine Bitte um Befundberichte an Ärztinnen und Ärzte. Kein Gesamt-GdB als Zahl, keine Rechtsberatung.",
+    arguments: [
+      { name: "wer_antwortet", description: "person | person_mit_unterstuetzung | unterstuetzende_person", required: false },
+      { name: "alter_monate", description: "Bei Kindern und Jugendlichen: Alter in Monaten", required: false },
+    ],
+    vmg: true,
+    render(args) {
+      const wer = args.wer_antwortet ?? "person";
+      if (typeof wer !== "string" || !Object.hasOwn(WER, wer)) throw new PromptError(`wer_antwortet muss einer dieser Werte sein: ${Object.keys(WER).join(", ")}.`);
+      const monate = alterMonate(args.alter_monate);
+      return `Hilf mir, einen Antrag auf Feststellung eines Grades der Behinderung (GdB) und gegebenenfalls von Merkzeichen vorzubereiten. Maßstab sind die Versorgungsmedizinischen Grundsätze (Anlage zu § 2 VersMedV).
+
+${WER[wer]}
+${gdbAltersText(monate)}
+${GRUNDSAETZE}
+${GDB_GRENZEN}
+
+Ablauf:
+1. Kurz erklären, was der Ablauf leistet: eine geordnete Vorbereitung, keine Vorhersage des GdB. Fragen, ob schon ein Fallprofil vorliegt; wenn ja, daran anknüpfen.
+2. Gesundheitsstörungen sammeln: Diagnosen mit icd_search bzw. icd_get_code als ICD-10-GM-Kode festhalten (nur, was ärztlich festgestellt ist; sonst als geschildert kennzeichnen). Eine Diagnose allein sagt nichts über den GdB – es kommt auf die Auswirkungen an.
+3. Je Gesundheitsstörung die Auswirkungen im Alltag erfragen, mit Beispielen (was geht nicht mehr, wie oft, wie lange, welche Hilfe, welche Hilfsmittel). O-Ton festhalten.
+4. Befunde ordnen: Welche Arztberichte, Klinikberichte, Therapieberichte liegen vor (Datum, Stelle)? Welche fehlen oder beschreiben den heutigen Stand nicht mehr?
+5. Orientierung an Teil B: Mit vmg_search den passenden Abschnitt finden, mit vmg_get die Zeilen mit Pfad zeigen und in einfacher Sprache erklären, wonach die Zeilen unterscheiden. Ordnet die Person ihre Situation selbst einer Zeile zu, die Zeilenkennung (z. B. VMG:B 3.7 Z2) und einen möglichen Wert mit vmg_spanne_pruefen prüfen. Kennzeichnen, dass das eine eigene Orientierung ist, keine Einstufung.
+6. Merkzeichen: Mit vmg_merkzeichen die Voraussetzungen der in Betracht kommenden Merkzeichen zeigen – für G, B, H, Bl und Gl im Wortlaut; für aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm, dann keinen Wortlaut ergänzen. Die Person fragen, was davon im Alltag zutrifft. Nicht entscheiden, ob ein Merkzeichen zusteht.
+7. Alles im Fallprofil festhalten und mit fall_pruefen prüfen: Diagnosen als art icd (herkunft "befund", wenn ärztlich belegt), Merkzeichen als art merkzeichen. Eine eigene Orientierung an einer Zeile als art vmg mit Zeilenkennung und gdb immer mit herkunft "interview" und status "geschildert" und in begruendung „eigene Orientierung“ – nie als Befund, damit sie nicht wie ein festgestellter Wert wirkt.
+
+Ergebnis:
+- Das Fallprofil (JSON) zum Weiterverwenden.
+- Eine Übersicht je Gesundheitsstörung: Auswirkungen in den Worten der Person, vorhandene Belege, in Betracht kommende Zeile(n) aus Teil B mit Pfad und Fundstelle – ohne Gesamt-GdB, kein Gesamt-GdB als Zahl.
+- Eine kurze, höfliche Bitte an die behandelnden Ärztinnen und Ärzte um einen aktuellen Befundbericht, der die Auswirkungen im Alltag beschreibt (Funktionseinschränkungen, Verlauf, Therapie), ohne Formulierungsvorgaben für die Ärztin bzw. den Arzt.
+- Eine Liste, was dem Antrag beiliegen sollte und wo der Antrag gestellt wird (Versorgungsamt bzw. die nach Landesrecht zuständige Stelle; Anträge können nach § 16 SGB I auch bei anderen Leistungsträgern oder der Gemeinde gestellt werden und werden dann weitergeleitet).
+- Den allgemeinen Hinweis, dass mit GdB und Merkzeichen Nachteilsausgleiche verbunden sein können, ohne Aufzählung oder Beträge, und den Verweis auf unabhängige Beratung (EUTB, Sozialverbände).`;
+    },
+  },
+  {
+    name: "gdb_bescheid_verstehen",
+    title: "GdB-Bescheid verstehen und mit der eigenen Sicht vergleichen",
+    description:
+      "Geführter Ablauf, um einen Bescheid über GdB und Merkzeichen zu verstehen: festgestellte Funktionsbeeinträchtigungen und Einzel-GdB den Zeilen der GdS-Tabelle zuordnen und in einfacher Sprache erklären, vmg_gesamt_gdb als Prüfhilfe zu Teil A Nr. 3, Unterschiede zur eigenen Sicht festhalten, Verfahrenswege allgemein mit verfahren_info. Keine Bewertung des Bescheids, keine Rechtsberatung.",
+    arguments: [{ name: "alter_monate", description: "Bei Kindern und Jugendlichen: Alter in Monaten", required: false }],
+    vmg: true,
+    render(args) {
+      const monate = alterMonate(args.alter_monate);
+      return `Hilf mir, einen Bescheid über den Grad der Behinderung (GdB) und Merkzeichen zu verstehen und mit meiner eigenen Sicht zu vergleichen.
+${gdbAltersText(monate)}
+${GRUNDSAETZE}
+${GDB_GRENZEN}
+- Bewerte nicht, ob der Bescheid richtig oder rechtmäßig ist; zeige, was dort steht, was die Werte bedeuten und wo meine Sicht abweicht.
+
+Ablauf:
+1. Den Bescheid übernehmen: Ich lade ihn hoch oder nenne die Angaben. Lies heraus: festgestellter GdB, Merkzeichen, die aufgeführten Funktionsbeeinträchtigungen und – falls genannt, z. B. in der versorgungsärztlichen Stellungnahme aus der Akte – die Einzel-GdB. Datum des Bescheids und die Rechtsbehelfsbelehrung notieren; die Frist nicht berechnen.
+2. Jede Funktionsbeeinträchtigung einem Abschnitt in Teil B zuordnen (vmg_search, vmg_get) und alle Zeilen des Abschnitts mit ihren Werten und Pfaden in einfacher Sprache erklären. Welcher Zeile die Person ihre Situation zuordnet, ist ihre eigene Orientierung, nicht die des Versorgungsamts; dessen Zuordnung steht ggf. in der versorgungsärztlichen Stellungnahme (Akteneinsicht, verfahren_info). Ist ein Einzel-GdB genannt, kann vmg_spanne_pruefen zeigen, wie er zur gewählten Zeile liegt. „Außerhalb“ heißt nicht „falsch“ (Teil A Nr. 1.4).
+3. Wie aus den Einzel-GdB der Gesamt-GdB gebildet wird, mit vmg_gesamt_gdb und den Regeln aus Teil A Nr. 3 in einfacher Sprache erklären (kein Addieren, Ausgangspunkt ist der höchste Einzel-GdB, Einzel-GdB von 10 erhöhen in der Regel nicht). Kein Gesamt-GdB als Zahl berechnen.
+4. Merkzeichen: Was festgestellt oder abgelehnt wurde, mit vmg_merkzeichen erklären – für G, B, H, Bl und Gl im Wortlaut der Voraussetzungen; für aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm, dann keinen Wortlaut ergänzen.
+5. Fragen, was ich anders erlebe oder was fehlt (Gesundheitsstörungen, die nicht berücksichtigt sind; Auswirkungen, die stärker sind; neuere Befunde). Mit O-Ton und Belegen im Fallprofil festhalten (herkunft "bescheid" für die Angaben aus dem Bescheid, "interview" mit status "geschildert" für meine Sicht) und mit fall_pruefen prüfen; bei einer früheren Fassung fall_vergleichen.
+6. Die möglichen Wege allgemein mit verfahren_info erklären (Widerspruch, Überprüfungsantrag, Neufeststellungsantrag bei Verschlechterung, Akteneinsicht), ohne einen zu empfehlen.
+
+Ergebnis:
+- Den Bescheid in einfacher Sprache: was festgestellt wurde und was die Werte bedeuten, je Funktionsbeeinträchtigung mit Zeile, Pfad und Fundstelle.
+- Eine Übersicht der Unterschiede zur eigenen Sicht mit Belegen, die vorliegen oder fehlen.
+- Den allgemeinen Hinweis auf die Rechtsbehelfsbelehrung des Bescheids und auf unabhängige Beratung (EUTB, Sozialverbände). Auf Wunsch weiter mit eigene_darstellung_vorbereiten.`;
+    },
+  },
 ];
 
-export const PROMPTS = PROMPTS_ALLE.filter((p) => !p.bi || BI_ENABLED);
+export const PROMPTS = PROMPTS_ALLE.filter((p) => (!p.bi || BI_ENABLED) && (!p.vmg || VMG_ENABLED));
 
 /** prompts/list */
 export function listPrompts() {

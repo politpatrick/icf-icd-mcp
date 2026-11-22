@@ -115,7 +115,7 @@ Ein viertes Modul gibt die Versorgungsmedizinischen Grundsätze (Anlage zu § 2 
 claude mcp add icf-icd -e ICF_MCP_VMG=0 -- node ~/GitHub/icf-icd-mcp/src/server.mjs
 ```
 
-**Kennungen** tragen den Präfix `VMG:`: `VMG:A` ist Teil A, `VMG:B 3.7` der Abschnitt „Neurosen, Persönlichkeitsstörungen, Folgen psychischer Traumen“, `VMG:D 1` die Gehbehinderung (G). Buchstaben- und Doppelbuchstaben-Untergliederungen heißen etwa `A 4b` oder `A 5d jj`. Schreibweise und Präfix sind egal (`b3.7` genügt). Abschnitte ohne amtliche Überschrift tragen eine abgeleitete Bezeichnung (`titel_abgeleitet`).
+**Kennungen** tragen den Präfix `VMG:`: `VMG:A` ist Teil A, `VMG:B 3.7` der Abschnitt „Neurosen, Persönlichkeitsstörungen, Folgen psychischer Traumen“, `VMG:D 1` die Gehbehinderung (G). Buchstaben- und Doppelbuchstaben-Untergliederungen heißen etwa `A 4b` oder `A 5d jj`. Schreibweise und Präfix sind egal (`b3.7` genügt). Eine einzelne GdS-Zeile heißt `VMG:B 3.7 Z2` (zweite Zeile mit GdS-Wert im Abschnitt, gezählt ab 1); `vmg_get` zeigt die Kennung je Zeile. Abschnitte ohne amtliche Überschrift tragen eine abgeleitete Bezeichnung (`titel_abgeleitet`).
 
 | Tool | Zweck |
 | --- | --- |
@@ -124,6 +124,7 @@ claude mcp add icf-icd -e ICF_MCP_VMG=0 -- node ~/GitHub/icf-icd-mcp/src/server.
 | `vmg_search` | Suche in Überschriften, Stichwortverzeichnis, GdS-Zeilen und Fließtext, optional auf einen Teil beschränkt; mehrere Wörter werden UND-verknüpft. Mit `icd` (z. B. `E11.90`) werden passende Stichwörter über ICD-Titel und Alphabet-Begriffe abgeleitet, getrennt von den Treffern und als „nicht amtlich“ gekennzeichnet |
 | `vmg_gesamt_gdb` | Prüfhilfe zu Teil A Nr. 3: Ausgangswert, Markierungen und die Regeln A 3.1–3.5 im Wortlaut |
 | `vmg_merkzeichen` | Voraussetzungen von G, B, H, Bl und Gl im Wortlaut mit Fundstelle; für aG, RF und TBl ein Hinweis auf die maßgebliche Norm |
+| `vmg_spanne_pruefen` | Prüft einen Einzel-GdB bzw. GdS gegen die Spanne einer GdS-Zeile (`kennung` wie `B 3.7 Z2`, `gdb`): innerhalb, unterhalb, oberhalb oder nicht bestimmbar, mit Zeilentext, Pfad, Fundstelle und dem Hinweis auf Teil A Nr. 1.4. „Wenigstens 80“ gilt als 80 bis 100. Wertet nicht |
 
 Die Daten umfassen 356 Abschnitte (A 86, B 188, C 68, D 14), 767 GdS-Zeilen, 6 Sondertabellen und 330 Stichwörter. Ein GdS-Wert wird immer mit seinem Pfad und seiner Fundstelle ausgegeben; ohne diesen Kontext darf er nicht zitiert werden. Teil B nennt typische Werte, von denen nach Teil A Nr. 1.4 im Einzelfall mit Begründung abgewichen werden kann.
 
@@ -177,9 +178,11 @@ Der Server bietet MCP-Prompts an, die Schritt für Schritt durch einen Fall füh
 | --- | --- |
 | `pflegegrad_interview` | Selbsteinschätzung vor einer Pflegebegutachtung: Modul für Modul in einfacher Sprache, mit Zwischenständen, Fallprofil, Orientierung zum Pflegegrad (nur bei vollständigen Angaben), Vorbereitungsliste und Vorlage für ein Pflegetagebuch. Argumente: `wer_antwortet`, `alter_monate` |
 | `pflegegutachten_verstehen` | Ein Pflegegutachten verstehen: Einstufungen übernehmen, eigene Sicht zu zweifelhaften Kriterien erfragen, mit `bi_gegenueberstellen` jeden Unterschied erklären, Formulierungshilfen für eine eigene Darstellung, allgemeiner Hinweis auf Widerspruchsfrist laut Rechtsbehelfsbelehrung und unabhängige Beratung. Argument: `alter_monate` |
+| `gdb_antrag_vorbereiten` | Antrag auf GdB und Merkzeichen vorbereiten: Diagnosen (ICD), Auswirkungen mit O-Ton, Befunde, eigene Orientierung an Zeilen der GdS-Tabelle mit `vmg_spanne_pruefen`, Merkzeichen im Wortlaut, Bitte um Befundberichte; kein Gesamt-GdB als Zahl, Nachteilsausgleiche nur allgemein. Argumente: `wer_antwortet`, `alter_monate` |
+| `gdb_bescheid_verstehen` | GdB-Bescheid verstehen: Funktionsbeeinträchtigungen und Einzel-GdB Zeilen zuordnen und erklären, `vmg_gesamt_gdb` als Prüfhilfe, Unterschiede zur eigenen Sicht, Wege allgemein mit `verfahren_info`. Argument: `alter_monate` |
 | `eigene_darstellung_vorbereiten` | Die eigene Situation sachlich aufschreiben: Tatsachen, Beobachtungen, Belege und O-Ton getrennt erfassen (auch aus dem Fallprofil), Lücken mit `fall_pruefen` finden, Wege allgemein mit `verfahren_info` erklären, Gliederung der eigenen Darstellung ohne rechtliche Begründung, Verweis auf unabhängige Beratung. Argumente: `wer_antwortet`, `bereich` (`gdb`, `pflege`, `teilhabe`) |
 
-Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts; `eigene_darstellung_vorbereiten` bleibt und nennt dann keine BI-Werkzeuge.
+Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts, mit `ICF_MCP_VMG=0` beide GdB-Prompts; `eigene_darstellung_vorbereiten` bleibt und nennt dann keine Werkzeuge der abgeschalteten Module.
 
 ## Online-Konnektor (ohne Installation)
 

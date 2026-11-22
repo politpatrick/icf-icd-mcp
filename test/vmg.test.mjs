@@ -378,3 +378,96 @@ test("gdb 25 wird mit Begründung abgelehnt", () => {
   assert.match(e, /Nr\. 1\.1/);
   assert.match(e, /Zehnergrad/);
 });
+
+// ---------------------------------------------------------------------------
+// Zeilenkennungen und vmg_spanne_pruefen (1.10.0)
+// ---------------------------------------------------------------------------
+
+test("Zeilenkennungen: vmg_get zeigt ids, Schreibweisen werden erkannt", async () => {
+  const { normalizeVmgId } = await import("../src/vmg.mjs");
+  const g = call("vmg_get", { kennung: "B 3.7" });
+  assert.deepEqual(g.zeilen.map((z) => z.id), ["VMG:B 3.7 Z1", "VMG:B 3.7 Z2", "VMG:B 3.7 Z3", "VMG:B 3.7 Z4"]);
+  for (const s of ["b3.7z2", "B 3.7 Z 2", "VMG:B 3.7 z2", "vmg:b3.7 Z2"]) assert.equal(normalizeVmgId(s), "VMG:B 3.7 Z2", s);
+  assert.equal(normalizeVmgId("B 3.7"), "VMG:B 3.7");
+});
+
+test("vmg_get mit Zeilenkennung liefert genau die Zeile mit Pfad und Fundstelle", () => {
+  const r = call("vmg_get", { kennung: "B 3.7 Z2" });
+  assert.equal(r.id, "VMG:B 3.7 Z2");
+  assert.equal(r.zeile.gds, "30-40");
+  assert.deepEqual(r.zeile.pfad, ["Stärker behindernde Störungen", "mit wesentlicher Einschränkung der Erlebnis- und Gestaltungsfähigkeit"]);
+  assert.equal(r.fundstelle, "Anlage zu § 2 VersMedV, Teil B Nr. 3.7");
+  assert.equal(r.abschnitt.id, "VMG:B 3.7");
+  assert.match(r.hinweis, /Teil A Nr\. 1\.4/);
+});
+
+test("Zeilenkennung: Fehler bei unbekannter Zeile", () => {
+  for (const k of ["B 3.7 Z0", "B 3.7 Z5", "B 3 Z1", "A 3.5 Z1"]) assert.match(call("vmg_get", { kennung: k }).error ?? "", /Zeile|nicht gefunden/, k);
+  assert.match(call("vmg_get", { kennung: "B 3.7 Z5" }).error, /Z1.*Z4/);
+});
+
+test("vmg_spanne_pruefen: innerhalb, unterhalb, oberhalb", () => {
+  const p = (kennung, gdb) => call("vmg_spanne_pruefen", { kennung, gdb });
+  const r = p("B 3.7 Z2", 40);
+  assert.equal(r.ergebnis, "innerhalb");
+  assert.deepEqual(r.spanne, { von: 30, bis: 40 });
+  assert.equal(r.zeile.gds, "30-40");
+  assert.ok(r.zeile.pfad.length && r.fundstelle && r.abschnitt.titel);
+  assert.match(r.hinweis, /Teil A Nr\. 1\.4/);
+  assert.equal(p("B 3.7 Z2", 20).ergebnis, "unterhalb");
+  assert.equal(p("B 3.7 Z2", 50).ergebnis, "oberhalb");
+  assert.equal(p("B 3.7 Z2", 35).ergebnis, "innerhalb");
+  assert.equal(p("B 3.7 Z2", "30").ergebnis, "innerhalb");
+});
+
+test("vmg_spanne_pruefen: Einzelwert, Untergrenze, nicht bestimmbar", () => {
+  const p = (kennung, gdb) => call("vmg_spanne_pruefen", { kennung, gdb });
+  const w = p("B 8.4 Z1", 100);
+  assert.equal(w.ergebnis, "innerhalb");
+  assert.deepEqual(w.spanne, { von: 80, bis: 100 });
+  assert.equal(p("B 8.4 Z1", 70).ergebnis, "unterhalb");
+  assert.equal(p("B 9.1.5 Z1", 0).ergebnis, "innerhalb");
+  assert.equal(p("B 9.1.5 Z1", 10).ergebnis, "oberhalb");
+  const s = p("B 9.1.5 Z2", 30);
+  assert.equal(s.ergebnis, "nicht_bestimmbar");
+  assert.equal(s.spanne, null);
+});
+
+test("vmg_spanne_pruefen: Fehler", () => {
+  const p = (args) => call("vmg_spanne_pruefen", args).error ?? "";
+  assert.match(p({ kennung: "B 3.7", gdb: 30 }), /Zeile.*B 3\.7 Z1/);
+  for (const gdb of [110, -10, "abc", 35.5, undefined]) assert.match(p({ kennung: "B 3.7 Z2", gdb }), /gdb/, String(gdb));
+  assert.match(p({ kennung: "B 99 Z1", gdb: 30 }), /nicht gefunden/);
+});
+
+test("tools/list enthält vmg_spanne_pruefen", () => {
+  const { tools } = handleMessage({ jsonrpc: "2.0", id: 9001, method: "tools/list" }).result;
+  const t = tools.find((x) => x.name === "vmg_spanne_pruefen");
+  assert.deepEqual(t.inputSchema.required, ["kennung", "gdb"]);
+});
+
+test("Review: vmg_gesamt_gdb und vmg_list_structure verstehen Zeilenkennungen", () => {
+  const r = call("vmg_gesamt_gdb", { einzel: [{ bezeichnung: "Depression", gdb: 40, kennung: "B 3.7 Z2" }, { bezeichnung: "Wirbelsäule", gdb: 20, kennung: "B 18.9 Z1" }] });
+  assert.ok(!r.error, r.error);
+  assert.equal(r.eintraege[0].kennung, "VMG:B 3.7 Z2");
+  assert.equal(r.eintraege[1].funktionssystem, "Rumpf");
+  const l = call("vmg_list_structure", { kennung: "B 3.7 Z2" });
+  assert.ok(!l.error, l.error);
+  assert.equal(l.knoten[0].id, "VMG:B 3.7");
+});
+
+test("Review: vmg_search liefert Zeilen mit Kennung; Schreibweise „Zeile 2“", async () => {
+  const { normalizeVmgId } = await import("../src/vmg.mjs");
+  const s = call("vmg_search", { query: "Zwangskrankheit" });
+  const z = s.ergebnisse?.flatMap((t) => t.zeilen ?? []) ?? s.results?.flatMap((t) => t.zeilen ?? []);
+  assert.ok(z.length && z.every((x) => /^VMG:B [\d.]+ Z\d+$/.test(x.id)), JSON.stringify(z));
+  assert.equal(normalizeVmgId("B 3.7 Zeile 2"), "VMG:B 3.7 Z2");
+});
+
+test("Review: gdb als Text nur aus Ziffern; alle Zeilen haben einen GdS-Wert", () => {
+  for (const gdb of ["4e1", "0x28", " 40 x"]) assert.match(call("vmg_spanne_pruefen", { kennung: "B 3.7 Z2", gdb }).error ?? "", /gdb/, gdb);
+  assert.equal(call("vmg_spanne_pruefen", { kennung: "B 3.7 Z2", gdb: " 40 " }).ergebnis, "innerhalb");
+  const zeilen = Object.values(data.nodes).flatMap((n) => n.zeilen ?? []);
+  assert.equal(zeilen.length, 767);
+  assert.ok(zeilen.every((z) => typeof z.gds === "string" && z.gds.trim()));
+});

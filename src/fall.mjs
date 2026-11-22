@@ -17,7 +17,7 @@ const SCHEMA = readData("fallprofil-1.schema.json");
 const BEISPIEL = readData("fallprofil-1.beispiel.json");
 
 const FELDER = `Fallprofil Version 1 (JSON). Pflicht: fallprofil "1", meta.pseudonym (Pseudonym: frei gewählte Bezeichnung, kein Klarname), meta.stichtag (JJJJ-MM-TT).
-eintraege[]: id, art (icd | icf | bi | vmg | merkzeichen | personbezogen), kode in der Schreibweise des Moduls (F20.0 G, d450.23, e310+3, BI:4.1.3=2, VMG:B 3.7, Merkzeichen G/aG/B/H/Bl/Gl/RF/TBl; bei personbezogen stattdessen text), herkunft (selbstauskunft | interview | material | befund | gutachten | bescheid); optional begruendung, beleg {quelle, datum, seite}, o_ton, status (belegt | geschildert | offen), dauer, richtung (nur ICF-d), gdb (nur vmg), verfahren (Verweis).
+eintraege[]: id, art (icd | icf | bi | vmg | merkzeichen | personbezogen), kode in der Schreibweise des Moduls (F20.0 G, d450.23, e310+3, BI:4.1.3=2, VMG:B 3.7 bzw. GdS-Zeile VMG:B 3.7 Z2, Merkzeichen G/aG/B/H/Bl/Gl/RF/TBl; bei personbezogen stattdessen text), herkunft (selbstauskunft | interview | material | befund | gutachten | bescheid); optional begruendung, beleg {quelle, datum, seite}, o_ton, status (belegt | geschildert | offen), dauer, richtung (nur ICF-d), gdb (nur vmg), verfahren (Verweis).
 zusammenhaenge[]: von, nach, art (verursacht: icd → icf; beeintraechtigt: icf b/s → icf d; foerdert/hemmt: icf e oder personbezogen → icf; entspricht: zwischen icf, bi, vmg).
 ziele[]: id, text, eintraege[], gewuenschte_unterstuetzung. verfahren[]: id, art, bereich, datum, ergebnis.
 Keine Felder für Namen, Anschriften, Versicherungs- oder Aktennummern; unbekannte Felder werden abgelehnt.`;
@@ -237,8 +237,21 @@ function pruefeEintrag(e) {
     }
     case "vmg": {
       const r = vmg.get({ kennung: e.kode });
-      const titel = r.titel ?? r.bezeichnung ?? "";
-      return { klartext: `${r.fundstelle}${titel ? ` – ${titel}` : ""}${e.gdb ? `; angegebener Einzel-GdB ${e.gdb}` : ""}`, warnungen: [] };
+      const gdbText = e.gdb !== undefined ? `; angegebener Einzel-GdB ${e.gdb}` : "";
+      if (!r.zeile) {
+        const titel = r.titel ?? r.bezeichnung ?? "";
+        return { klartext: `${r.fundstelle}${titel ? ` – ${titel}` : ""}${gdbText}`, warnungen: [] };
+      }
+      const titel = r.abschnitt.titel ?? r.abschnitt.bezeichnung ?? "";
+      const zeile = [...r.zeile.pfad, r.zeile.text].join(" → ");
+      const warnungen = [];
+      if (e.gdb !== undefined) {
+        const s = vmg.spannePruefen({ kennung: e.kode, gdb: e.gdb });
+        if (s.ergebnis === "unterhalb" || s.ergebnis === "oberhalb") {
+          warnungen.push(`Der angegebene Einzel-GdB ${e.gdb} liegt ${s.ergebnis} der Spanne der Zeile (${r.zeile.gds}). Das ist keine Bewertung: Eine Abweichung ist nach Teil A Nr. 1.4 mit besonderer Begründung möglich; sonst Zeile und Wert prüfen.`);
+        }
+      }
+      return { klartext: `${r.fundstelle}${titel ? ` – ${titel}` : ""}: ${zeile} (GdS ${r.zeile.gds})${gdbText}`, warnungen };
     }
     case "merkzeichen": {
       if (!Object.hasOwn(MERKZEICHEN, e.kode)) throw new LookupError(`Unbekanntes Merkzeichen "${e.kode}". Erlaubt: ${Object.keys(MERKZEICHEN).join(", ")}.`);

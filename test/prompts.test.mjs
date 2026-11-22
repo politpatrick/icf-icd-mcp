@@ -108,3 +108,56 @@ test("ICF_MCP_BI=0 und ICF_MCP_VMG=0: eigene_darstellung_vorbereiten bleibt, ohn
   const gdb = run({ ICF_MCP_VMG: "0" }, get("gdb")).result.messages[0].content.text;
   assert.ok(!gdb.includes("vmg_"));
 });
+
+// --- GdB-Prompts (1.10.0) ---
+
+test("gdb-Prompts: in der Liste mit Argumenten", () => {
+  const { prompts } = rpc("prompts/list").result;
+  const antrag = prompts.find((p) => p.name === "gdb_antrag_vorbereiten");
+  const bescheid = prompts.find((p) => p.name === "gdb_bescheid_verstehen");
+  assert.deepEqual(antrag.arguments.map((a) => a.name), ["wer_antwortet", "alter_monate"]);
+  assert.deepEqual(bescheid.arguments.map((a) => a.name), ["alter_monate"]);
+  assert.ok([...antrag.arguments, ...bescheid.arguments].every((a) => !a.required));
+});
+
+test("gdb_antrag_vorbereiten: Ablauf, Werkzeuge, Grenzen", () => {
+  const t = text("gdb_antrag_vorbereiten", {});
+  for (const w of ["icd_search", "vmg_search", "vmg_get", "vmg_spanne_pruefen", "vmg_merkzeichen", "fall_pruefen", "O-Ton", "Befund", "Teil A Nr. 1.4", "kein Gesamt-GdB", "Nachteilsausgleiche", "EUTB", "keine Rechtsberatung"]) assert.ok(t.includes(w), w);
+  assert.ok(!/Erfolgsaussicht/i.test(t));
+  assert.ok(!/Teil A Nr\. 5/.test(t));
+  assert.match(text("gdb_antrag_vorbereiten", { alter_monate: "60" }), /Teil A Nr\. 5/);
+  assert.match(text("gdb_antrag_vorbereiten", { wer_antwortet: "unterstuetzende_person" }), /unterstützenden Person/);
+});
+
+test("gdb_bescheid_verstehen: Zuordnung, Prüfhilfe, Verfahren", () => {
+  const t = text("gdb_bescheid_verstehen", {});
+  for (const w of ["vmg_spanne_pruefen", "vmg_gesamt_gdb", "verfahren_info", "Rechtsbehelfsbelehrung", "Teil A Nr. 3", "kein Gesamt-GdB", "EUTB", "keine Rechtsberatung"]) assert.ok(t.includes(w), w);
+  assert.ok(!/Erfolgsaussicht|rechtswidrig/i.test(t));
+  assert.match(text("gdb_bescheid_verstehen", { alter_monate: "60" }), /Teil A Nr\. 5/);
+});
+
+test("gdb-Prompts: Fehler und ICF_MCP_VMG=0", async () => {
+  assert.equal(rpc("prompts/get", { name: "gdb_antrag_vorbereiten", arguments: { alter_monate: "-1" } }).error.code, -32602);
+  assert.equal(rpc("prompts/get", { name: "gdb_bescheid_verstehen", arguments: { alter_monate: "x" } }).error.code, -32602);
+  assert.equal(rpc("prompts/get", { name: "gdb_antrag_vorbereiten", arguments: { wer_antwortet: "nachbar" } }).error.code, -32602);
+  const { spawnSync } = await import("node:child_process");
+  const out = spawnSync(process.execPath, ["src/server.mjs"], {
+    input: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "prompts/list" }) + "\n",
+    env: { ...process.env, ICF_MCP_VMG: "0" },
+    cwd: new URL("..", import.meta.url).pathname,
+    encoding: "utf-8",
+  }).stdout;
+  assert.ok(!JSON.parse(out).result.prompts.some((p) => p.name.startsWith("gdb_")));
+});
+
+test("Review: GdB-Prompts – Merkzeichen ohne Wortlaut, Herkunft eigener Werte, Zeilenzuordnung", () => {
+  const a = text("gdb_antrag_vorbereiten", {});
+  assert.match(a, /aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm/);
+  assert.match(a, /herkunft "interview".*status "geschildert"/);
+  assert.ok(!/herkunft "interview" bzw\. "befund"/.test(a));
+  assert.match(a, /bei anderen Leistungsträgern oder der Gemeinde gestellt/);
+  const b = text("gdb_bescheid_verstehen", {});
+  assert.match(b, /aG, RF und TBl nennt das Werkzeug nur die maßgebliche Norm/);
+  assert.match(b, /alle Zeilen des Abschnitts/);
+  assert.match(b, /nicht die des Versorgungsamts/);
+});
