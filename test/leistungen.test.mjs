@@ -55,6 +55,13 @@ test("Merkzeichen H allein", () => {
   assert.match(r.hinweis, /Schwerbehinderung/);
 });
 
+test("Beförderung nach § 228 SGB IX: Bl ja, aG allein nein", () => {
+  assert.ok(!ids({ merkzeichen: ["aG"] }).includes("befoerderung"));
+  assert.ok(ids({ merkzeichen: ["Bl"] }).includes("befoerderung"));
+  assert.ok(ids({ merkzeichen: ["TBl"] }).includes("befoerderung"));
+  assert.match(ok({ merkzeichen: ["Bl"] }).eintraege.find((e) => e.id === "befoerderung").voraussetzung, /§ 228 Abs\. 4 Nr\. 1/);
+});
+
 test("Merkzeichen Bl: Landesrecht ohne Normen", () => {
   const r = ok({ merkzeichen: ["Bl"] });
   assert.ok(r.landesrecht.some((e) => e.id === "blindengeld"));

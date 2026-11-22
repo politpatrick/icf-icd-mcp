@@ -110,13 +110,13 @@ export const KATALOG = [
   {
     id: "befoerderung",
     gruppe: "merkzeichen",
-    wenn: [{ merkzeichen: ["G", "aG", "H", "Bl", "Gl", "TBl"] }],
+    wenn: [{ merkzeichen: ["G", "H", "Gl", "Bl", "TBl"] }],
     leistung: "Unentgeltliche Beförderung im öffentlichen Nahverkehr mit Wertmarke",
     normen: [norm("§ 228 SGB IX", "sgb_9_2018/__228")],
     stelle: "Versorgungsamt bzw. die nach Landesrecht zuständige Stelle (Wertmarke)",
     rang: "Nachteilsausgleich; schließt die Kraftfahrzeugsteuer-Ermäßigung für denselben Zeitraum aus (§ 3a Abs. 2 KraftStG).",
     naechster_schritt: "Wertmarke beantragen; ob sie eigenbeteiligungsfrei ausgegeben wird (z. B. bei Blindheit, Hilflosigkeit oder bestimmten Sozialleistungen), sagt die Stelle.",
-    voraussetzung: "Ausweis mit orangefarbenem Flächenaufdruck; § 228 Abs. 1 SGB IX nennt erhebliche Beeinträchtigung der Bewegungsfähigkeit im Straßenverkehr, Hilflosigkeit oder Gehörlosigkeit.",
+    voraussetzung: "Ausweis mit orangefarbenem Flächenaufdruck; § 228 Abs. 1 SGB IX nennt erhebliche Beeinträchtigung der Bewegungsfähigkeit im Straßenverkehr (G), Hilflosigkeit (H) oder Gehörlosigkeit (Gl). Blinde Menschen (Bl, TBl) sind über § 228 Abs. 4 Nr. 1 SGB IX erfasst (Wertmarke ohne Eigenbeteiligung).",
   },
   {
     id: "begleitperson",
