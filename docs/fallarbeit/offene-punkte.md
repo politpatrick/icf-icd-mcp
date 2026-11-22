@@ -43,3 +43,4 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 
 - [ ] Fallprofil: `verfahren.art` kennt keinen Überprüfungs-, Neufeststellungs- oder Höherstufungsantrag und keine Akteneinsicht; Schema-Erweiterung (Version 1 abwärtskompatibel) prüfen. *mittel*
 - [ ] Normauszüge werden nicht automatisch gegen gesetze-im-internet.de geprüft; Prüfskript für die wöchentliche Prüfung (Abruf mit `curl -4`, Vergleich jedes Auszugs mit dem Normtext). *mittel*
+- [ ] Prompt-Argumente `bereich` und `wer_antwortet` werden nicht normalisiert („ Pflege“ → -32602), anders als `thema` in `verfahren_info`; ggf. einheitlich trimmen und klein schreiben. *klein*

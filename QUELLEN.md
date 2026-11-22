@@ -133,8 +133,8 @@ zu erzeugen (`scripts/k710_extract.py`, mit `pypdf`). Die Seitenzahlen der Brosc
 ## Gesetzesauszüge für `verfahren_info`
 
 - Quelle: Rechtsinformationsportal gesetze-im-internet.de (Bundesministerium der Justiz in Zusammenarbeit mit der juris GmbH),
-  am 22.11.2026 abgerufen und geprüft: § 16 SGB I; § 14 SGB IX; §§ 25, 27, 37, 44, 48 SGB X; §§ 66, 78, 84, 88 SGG;
-  §§ 70, 75 VwGO; für die Hinweise außerdem § 32 SGB IX, §§ 7a, 7c SGB XI, § 40 SGB II und § 116a SGB XII.
+  am 22.11.2026 abgerufen und geprüft: § 16 SGB I; § 14 SGB IX; §§ 25, 37, 44, 48 SGB X; §§ 66, 67, 78, 84, 88 SGG;
+  §§ 70, 75 VwGO; für die Hinweise außerdem § 32 SGB IX, §§ 7a, 7c SGB XI, § 40 SGB II, § 116a SGB XII, § 33 SGB XI, § 83 SGB X und §§ 58, 60 VwGO.
 - Gesetze sind amtliche Werke nach § 5 Absatz 1 UrhG. Die Auszüge in `src/verfahren.mjs` sind wörtlich; Auslassungen sind mit „[…]“
   gekennzeichnet. Die Erklärungen in einfacher Sprache sind kuratiert (nicht amtlich) und keine Rechtsberatung.
 - Bei Gesetzesänderungen die Auszüge mit dem aktuellen Wortlaut abgleichen (wöchentliche Prüfung).

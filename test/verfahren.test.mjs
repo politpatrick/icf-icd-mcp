@@ -91,3 +91,36 @@ test("keine Rechtsberatung: keine Erfolgsaussichten, keine Fristberechnung", () 
   assert.ok(!/Erfolgsaussicht|empfehlen wir|sollten Sie Widerspruch/i.test(alles));
   assert.match(ok({}).frist, /keine.*Berechnung|nicht berechnet/i);
 });
+
+test("Review: arguments null und Thema nur aus Leerzeichen liefern die Übersicht", () => {
+  const r = handleMessage({ jsonrpc: "2.0", id: nextId++, method: "tools/call", params: { name: "verfahren_info", arguments: null } });
+  assert.ok(r.result && !r.result.isError, JSON.stringify(r.error));
+  assert.ok(r.result.structuredContent.themen);
+  assert.ok(ok({ thema: "   " }).themen);
+});
+
+test("Review: Wiedereinsetzung nach § 67 SGG bzw. § 60 VwGO, nicht § 27 SGB X", () => {
+  const w = ok({ thema: "widerspruch" });
+  const z = w.normen.map((n) => n.zitat);
+  assert.ok(z.includes("§ 67 SGG") && !z.includes("§ 27 SGB X"));
+  assert.match(w.besonderheiten.join(" "), /§ 67 SGG.*§ 60 VwGO/);
+});
+
+test("Review: § 48 SGB X nennt Wirkung ab Änderung zugunsten, § 25 SGB X die Auskunft nach Verfahrensende", () => {
+  const n = ok({ thema: "neufeststellungsantrag" });
+  assert.match(n.erklaerung, /Zeitpunkt der Änderung/);
+  assert.match(n.normen.find((x) => x.zitat === "§ 48 SGB X").auszug, /soll mit Wirkung vom Zeitpunkt der Änderung der Verhältnisse aufgehoben werden/);
+  assert.match(ok({ thema: "akteneinsicht" }).besonderheiten.join(" "), /Art\. 15 DSGVO.*§ 83 SGB X|§ 83 SGB X.*Art\. 15 DSGVO/);
+});
+
+test("Review: VwGO-Hinweise bei Frist und Untätigkeitsklage, Auslassungen gekennzeichnet", () => {
+  assert.match(ok({}).frist, /§ 58 VwGO/);
+  assert.match(ok({ thema: "untaetigkeitsklage" }).erklaerung, /Sozialgericht.*nicht auf ein bestimmtes Ergebnis/);
+  assert.match(ok({ thema: "zustaendigkeit" }).normen[0].auszug, /\[…\]$/);
+});
+
+test("Review: keine wertenden oder fristberechnenden Formulierungen außerhalb der Normauszüge", () => {
+  const ohneAuszug = [ok({}), ...IDS.map((id) => ok({ thema: id }))].map(({ normen, ...rest }) => rest);
+  const alles = JSON.stringify(ohneAuszug);
+  assert.ok(!/gute Chancen|lohnt sich|rechtswidrig|bis zum \d|\d+ Tage nach/i.test(alles));
+});

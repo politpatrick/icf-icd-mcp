@@ -12,13 +12,13 @@ const N = {
   sgg66: norm("§ 66 SGG", "sgg/__66", "Ist die Belehrung unterblieben oder unrichtig erteilt, so ist die Einlegung des Rechtsbehelfs nur innerhalb eines Jahres seit Zustellung, Eröffnung oder Verkündung zulässig, außer wenn die Einlegung vor Ablauf der Jahresfrist infolge höherer Gewalt unmöglich war oder eine schriftliche oder elektronische Belehrung dahin erfolgt ist, daß ein Rechtsbehelf nicht gegeben sei."),
   sgg78: norm("§ 78 SGG", "sgg/__78", "Vor Erhebung der Anfechtungsklage sind Rechtmäßigkeit und Zweckmäßigkeit des Verwaltungsakts in einem Vorverfahren nachzuprüfen."),
   vwgo70: norm("§ 70 VwGO", "vwgo/__70", "Der Widerspruch ist innerhalb eines Monats, nachdem der Verwaltungsakt dem Beschwerten bekanntgegeben worden ist, schriftlich, in elektronischer Form nach § 3a Absatz 2 des Verwaltungsverfahrensgesetzes, schriftformersetzend nach § 3a Absatz 3 des Verwaltungsverfahrensgesetzes und § 9a Absatz 5 des Onlinezugangsgesetzes oder zur Niederschrift bei der Behörde zu erheben, die den Verwaltungsakt erlassen hat."),
-  sgb10_27: norm("§ 27 SGB X", "sgb_10/__27", "War jemand ohne Verschulden verhindert, eine gesetzliche Frist einzuhalten, ist ihm auf Antrag Wiedereinsetzung in den vorigen Stand zu gewähren."),
+  sgg67: norm("§ 67 SGG", "sgg/__67", "Wenn jemand ohne Verschulden verhindert war, eine gesetzliche Verfahrensfrist einzuhalten, so ist ihm auf Antrag Wiedereinsetzung in den vorigen Stand zu gewähren."),
   sgb10_44: norm("§ 44 SGB X", "sgb_10/__44", "Soweit sich im Einzelfall ergibt, dass bei Erlass eines Verwaltungsaktes das Recht unrichtig angewandt oder von einem Sachverhalt ausgegangen worden ist, der sich als unrichtig erweist, und soweit deshalb Sozialleistungen zu Unrecht nicht erbracht oder Beiträge zu Unrecht erhoben worden sind, ist der Verwaltungsakt, auch nachdem er unanfechtbar geworden ist, mit Wirkung für die Vergangenheit zurückzunehmen."),
-  sgb10_48: norm("§ 48 SGB X", "sgb_10/__48", "Soweit in den tatsächlichen oder rechtlichen Verhältnissen, die beim Erlass eines Verwaltungsaktes mit Dauerwirkung vorgelegen haben, eine wesentliche Änderung eintritt, ist der Verwaltungsakt mit Wirkung für die Zukunft aufzuheben."),
+  sgb10_48: norm("§ 48 SGB X", "sgb_10/__48", "Soweit in den tatsächlichen oder rechtlichen Verhältnissen, die beim Erlass eines Verwaltungsaktes mit Dauerwirkung vorgelegen haben, eine wesentliche Änderung eintritt, ist der Verwaltungsakt mit Wirkung für die Zukunft aufzuheben. Der Verwaltungsakt soll mit Wirkung vom Zeitpunkt der Änderung der Verhältnisse aufgehoben werden, soweit 1. die Änderung zugunsten des Betroffenen erfolgt, […]"),
   sgb10_25: norm("§ 25 SGB X", "sgb_10/__25", "Die Behörde hat den Beteiligten Einsicht in die das Verfahren betreffenden Akten zu gestatten, soweit deren Kenntnis zur Geltendmachung oder Verteidigung ihrer rechtlichen Interessen erforderlich ist."),
   sgg88: norm("§ 88 SGG", "sgg/__88", "Ist ein Antrag auf Vornahme eines Verwaltungsakts ohne zureichenden Grund in angemessener Frist sachlich nicht beschieden worden, so ist die Klage nicht vor Ablauf von sechs Monaten seit dem Antrag auf Vornahme des Verwaltungsakts zulässig. […] Das gleiche gilt, wenn über einen Widerspruch nicht entschieden worden ist, mit der Maßgabe, daß als angemessene Frist eine solche von drei Monaten gilt."),
   vwgo75: norm("§ 75 VwGO", "vwgo/__75", "Die Klage kann nicht vor Ablauf von drei Monaten seit der Einlegung des Widerspruchs oder seit dem Antrag auf Vornahme des Verwaltungsakts erhoben werden, außer wenn wegen besonderer Umstände des Falles eine kürzere Frist geboten ist."),
-  sgb9_14: norm("§ 14 SGB IX", "sgb_9_2018/__14", "Werden Leistungen zur Teilhabe beantragt, stellt der Rehabilitationsträger innerhalb von zwei Wochen nach Eingang des Antrages bei ihm fest, ob er nach dem für ihn geltenden Leistungsgesetz für die Leistung zuständig ist"),
+  sgb9_14: norm("§ 14 SGB IX", "sgb_9_2018/__14", "Werden Leistungen zur Teilhabe beantragt, stellt der Rehabilitationsträger innerhalb von zwei Wochen nach Eingang des Antrages bei ihm fest, ob er nach dem für ihn geltenden Leistungsgesetz für die Leistung zuständig ist […]"),
   sgb1_16: norm("§ 16 SGB I", "sgb_1/__16", "Anträge, die bei einem unzuständigen Leistungsträger, bei einer für die Sozialleistung nicht zuständigen Gemeinde oder bei einer amtlichen Vertretung der Bundesrepublik Deutschland im Ausland gestellt werden, sind unverzüglich an den zuständigen Leistungsträger weiterzuleiten."),
   sgb10_37: norm("§ 37 SGB X", "sgb_10/__37", "Ein schriftlicher Verwaltungsakt, der im Inland durch die Post übermittelt wird, gilt am vierten Tag nach der Aufgabe zur Post als bekannt gegeben. […] Dies gilt nicht, wenn der Verwaltungsakt nicht oder zu einem späteren Zeitpunkt zugegangen ist; im Zweifel hat die Behörde den Zugang des Verwaltungsaktes und den Zeitpunkt des Zugangs nachzuweisen."),
 };
@@ -34,7 +34,7 @@ export const THEMEN = [
     kurz: "Mit dem Widerspruch lässt man einen Bescheid von der Behörde selbst noch einmal prüfen, bevor er bestandskräftig wird.",
     erklaerung:
       "Ein Bescheid ist eine Entscheidung der Behörde (Verwaltungsakt). Mit dem Widerspruch bittet man die Stelle, die den Bescheid erlassen hat, ihn noch einmal zu prüfen. Das Widerspruchsverfahren (Vorverfahren) ist im Sozialrecht in der Regel Voraussetzung für eine spätere Klage beim Sozialgericht. Der Widerspruch muss innerhalb der Frist eingehen; welche Frist gilt und wo er einzureichen ist, steht in der Rechtsbehelfsbelehrung am Ende des Bescheids. Eine Begründung kann auch später nachgereicht werden. Über den Widerspruch entscheidet die Behörde mit einem Widerspruchsbescheid.",
-    normen: [N.sgg84, N.sgg78, N.sgg66, N.vwgo70, N.sgb10_27],
+    normen: [N.sgg84, N.sgg78, N.sgg66, N.sgg67, N.vwgo70],
     was_man_braucht: [
       "den Bescheid mit Datum und Rechtsbehelfsbelehrung",
       "ein Schreiben, aus dem hervorgeht, gegen welchen Bescheid sich der Widerspruch richtet, mit Unterschrift",
@@ -44,7 +44,7 @@ export const THEMEN = [
     verwandt: ["bekanntgabe", "akteneinsicht", "ueberpruefungsantrag", "untaetigkeitsklage"],
     besonderheiten: [
       JUGENDHILFE,
-      "Wer eine Frist ohne eigenes Verschulden versäumt hat, kann Wiedereinsetzung in den vorigen Stand beantragen (§ 27 SGB X); ob das im Einzelfall gilt, klärt eine Beratung.",
+      "Wer eine Frist ohne eigenes Verschulden versäumt hat, kann Wiedereinsetzung in den vorigen Stand beantragen (§ 84 Absatz 2 Satz 3 in Verbindung mit § 67 SGG; in der Jugendhilfe § 70 Absatz 2 in Verbindung mit § 60 VwGO); ob das im Einzelfall gilt, klärt eine Beratung.",
     ],
   },
   {
@@ -70,7 +70,7 @@ export const THEMEN = [
     titel: "Neufeststellungs- bzw. Höherstufungsantrag (§ 48 SGB X)",
     kurz: "Hat sich die Situation seit dem Bescheid wesentlich verändert, kann man eine neue Feststellung beantragen.",
     erklaerung:
-      "Viele Bescheide wirken auf Dauer, etwa die Feststellung eines GdB oder eines Pflegegrads. Ändern sich die Verhältnisse wesentlich – zum Beispiel weil eine Erkrankung hinzukommt oder sich die Selbstständigkeit verringert –, ist der Bescheid nach § 48 SGB X für die Zukunft anzupassen. Im Schwerbehindertenrecht heißt das Neufeststellungsantrag (beim Versorgungsamt bzw. der nach Landesrecht zuständigen Stelle), in der Pflegeversicherung Antrag auf Höherstufung (bei der Pflegekasse); dabei wird in der Regel erneut begutachtet. Eine Neufeststellung kann auch zu einem niedrigeren Ergebnis führen.",
+      "Viele Bescheide wirken auf Dauer, etwa die Feststellung eines GdB oder eines Pflegegrads. Ändern sich die Verhältnisse wesentlich – zum Beispiel weil eine Erkrankung hinzukommt oder sich die Selbstständigkeit verringert –, ist der Bescheid nach § 48 SGB X anzupassen. Verbesserungen sollen nach § 48 Absatz 1 Satz 2 SGB X ab dem Zeitpunkt der Änderung wirken; ab wann genau, hängt auch von Sonderregeln ab (in der Pflegeversicherung werden Leistungen nach § 33 SGB XI ab Antragstellung gewährt) und klärt im Einzelfall eine Beratung. Im Schwerbehindertenrecht heißt das Neufeststellungsantrag (beim Versorgungsamt bzw. der nach Landesrecht zuständigen Stelle), in der Pflegeversicherung Antrag auf Höherstufung (bei der Pflegekasse); dabei wird in der Regel erneut begutachtet. Eine Neufeststellung kann auch zu einem niedrigeren Ergebnis führen.",
     normen: [N.sgb10_48],
     was_man_braucht: [
       "den bisherigen Bescheid",
@@ -96,6 +96,7 @@ export const THEMEN = [
     verwandt: ["widerspruch", "ueberpruefungsantrag"],
     besonderheiten: [
       "Ein Pflegegutachten des Medizinischen Dienstes erhält man in der Regel ohnehin von der Pflegekasse; nach weiteren Unterlagen kann man fragen.",
+      "§ 25 SGB X gilt im laufenden Verfahren einschließlich Widerspruchsverfahren. Unabhängig davon besteht ein Recht auf Auskunft über die eigenen gespeicherten Daten nach Art. 15 DSGVO mit den Einschränkungen nach § 83 SGB X.",
     ],
   },
   {
@@ -103,7 +104,7 @@ export const THEMEN = [
     titel: "Untätigkeitsklage (§ 88 SGG)",
     kurz: "Entscheidet die Behörde lange nicht, ist nach bestimmten Zeiträumen eine Klage beim Sozialgericht möglich.",
     erklaerung:
-      "Wird über einen Antrag ohne zureichenden Grund nicht entschieden, ist nach § 88 SGG eine Untätigkeitsklage beim Sozialgericht frühestens sechs Monate nach dem Antrag zulässig, bei einem Widerspruch frühestens drei Monate nach seiner Einlegung. Das Gericht prüft dann, ob es einen zureichenden Grund für die Verzögerung gibt. Die Klage richtet sich darauf, dass überhaupt entschieden wird, nicht auf ein bestimmtes Ergebnis. Oft hilft vorher eine schriftliche Nachfrage nach dem Stand.",
+      "Wird über einen Antrag ohne zureichenden Grund nicht entschieden, ist nach § 88 SGG eine Untätigkeitsklage beim Sozialgericht frühestens sechs Monate nach dem Antrag zulässig, bei einem Widerspruch frühestens drei Monate nach seiner Einlegung. Das Gericht prüft dann, ob es einen zureichenden Grund für die Verzögerung gibt. Vor dem Sozialgericht richtet sich die Klage darauf, dass überhaupt entschieden wird, nicht auf ein bestimmtes Ergebnis. Oft hilft vorher eine schriftliche Nachfrage nach dem Stand.",
     normen: [N.sgg88, N.vwgo75],
     was_man_braucht: [
       "Datum und Nachweis des Antrags bzw. Widerspruchs",
@@ -150,7 +151,7 @@ export const THEMEN = [
 const HERKUNFT = { erklaerung: "kuratiert (nicht amtlich)", normen: "amtlich: wörtliche Auszüge von gesetze-im-internet.de (Stand der Prüfung 22.11.2026)" };
 
 const FRIST =
-  "Welche Frist gilt und wo ein Rechtsbehelf einzureichen ist, steht in der Rechtsbehelfsbelehrung des Bescheids. Dieses Werkzeug nimmt keine Berechnung einer persönlichen Frist vor. Fehlt die Rechtsbehelfsbelehrung oder ist sie unrichtig, gilt nach § 66 SGG allgemein eine längere Frist; ob das im Einzelfall zutrifft, klärt eine Beratung.";
+  "Welche Frist gilt und wo ein Rechtsbehelf einzureichen ist, steht in der Rechtsbehelfsbelehrung des Bescheids. Dieses Werkzeug nimmt keine Berechnung einer persönlichen Frist vor. Fehlt die Rechtsbehelfsbelehrung oder ist sie unrichtig, gilt nach § 66 SGG (in der Jugendhilfe § 58 VwGO) allgemein eine längere Frist; ob das im Einzelfall zutrifft, klärt eine Beratung.";
 
 const BERATUNG = [
   "Ergänzende unabhängige Teilhabeberatung (EUTB, § 32 SGB IX) – kostenlos, unabhängig von Leistungsträgern",
@@ -163,8 +164,9 @@ const HINWEIS =
   "Allgemeine Information, keine Rechtsberatung: Welcher Weg im Einzelfall passt, ob er Erfolg haben kann und welche Frist gilt, beurteilt eine Beratungsstelle oder eine Rechtsanwältin bzw. ein Rechtsanwalt.";
 
 /** verfahren_info: Übersicht oder ein Thema. */
-export function info({ thema } = {}) {
-  if (thema === undefined || thema === null || thema === "") {
+export function info(args) {
+  const thema = args?.thema;
+  if (thema === undefined || thema === null || (typeof thema === "string" && !thema.trim())) {
     return { herkunft: HERKUNFT, themen: THEMEN.map(({ id, titel, kurz }) => ({ id, titel, kurz })), frist: FRIST, beratung: BERATUNG, hinweis: HINWEIS };
   }
   const gesucht = typeof thema === "string" ? fold(thema.trim()) : null;

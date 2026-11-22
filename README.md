@@ -177,7 +177,6 @@ Der Server bietet MCP-Prompts an, die Schritt für Schritt durch einen Fall füh
 | --- | --- |
 | `pflegegrad_interview` | Selbsteinschätzung vor einer Pflegebegutachtung: Modul für Modul in einfacher Sprache, mit Zwischenständen, Fallprofil, Orientierung zum Pflegegrad (nur bei vollständigen Angaben), Vorbereitungsliste und Vorlage für ein Pflegetagebuch. Argumente: `wer_antwortet`, `alter_monate` |
 | `pflegegutachten_verstehen` | Ein Pflegegutachten verstehen: Einstufungen übernehmen, eigene Sicht zu zweifelhaften Kriterien erfragen, mit `bi_gegenueberstellen` jeden Unterschied erklären, Formulierungshilfen für eine eigene Darstellung, allgemeiner Hinweis auf Widerspruchsfrist laut Rechtsbehelfsbelehrung und unabhängige Beratung. Argument: `alter_monate` |
-
 | `eigene_darstellung_vorbereiten` | Die eigene Situation sachlich aufschreiben: Tatsachen, Beobachtungen, Belege und O-Ton getrennt erfassen (auch aus dem Fallprofil), Lücken mit `fall_pruefen` finden, Wege allgemein mit `verfahren_info` erklären, Gliederung der eigenen Darstellung ohne rechtliche Begründung, Verweis auf unabhängige Beratung. Argumente: `wer_antwortet`, `bereich` (`gdb`, `pflege`, `teilhabe`) |
 
 Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts; `eigene_darstellung_vorbereiten` bleibt und nennt dann keine BI-Werkzeuge.
