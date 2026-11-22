@@ -20,7 +20,8 @@ GdS-Werte stehen immer mit ihrem Pfad (Überschriften der Zeile) und der Fundste
 Teil B nennt typische Werte; Abweichung ist nach Teil A Nr. 1.4 mit Begründung im Einzelfall möglich. Abschnitte ohne amtliche Überschrift tragen eine abgeleitete Bezeichnung (titel_abgeleitet).
 Der GdB bleibt eine gutachterliche Entscheidung; die Tools liefern Wortlaut und Fundstellen, keine Einstufung.
 vmg_gesamt_gdb ist eine Prüfhilfe zu Teil A Nr. 3 (zeigt Regeln, Funktionssysteme und Markierungen, bildet keinen Gesamt-GdB); vmg_merkzeichen nennt die Fundstellen der Merkzeichen (G, aG, B, H, Bl, Gl, RF, TBl).
-Ablauf: vmg_search findet Abschnitte über Wortlaut und Stichwörter (oder leitet über icd="E11.90" Stichwörter ab, nicht amtlich), vmg_get liefert den Abschnitt, vmg_list_structure die Gliederung.`;
+Ablauf: vmg_search findet Abschnitte über Wortlaut und Stichwörter (oder leitet über icd="E11.90" Stichwörter ab, nicht amtlich), vmg_get liefert den Abschnitt, vmg_list_structure die Gliederung.
+Zeilenkennungen wie VMG:B 3.7 Z2 bezeichnen eine GdS-Zeile (vmg_get zeigt sie); vmg_spanne_pruefen prüft einen Einzel-GdB gegen die Spanne dieser Zeile, ohne Wertung.`;
 
 export const VMG_TOOLS = !vmg
   ? []
@@ -103,5 +104,21 @@ export const VMG_TOOLS = !vmg
         inputSchema: { type: "object", properties: { merkzeichen: { type: "string", description: "Optional: G, aG, B, H, Bl, Gl, RF oder TBl" } } },
         annotations: readOnly,
         run: vmg.merkzeichen,
+      },
+      {
+        name: "vmg_spanne_pruefen",
+        title: "VersMedV: Einzel-GdB gegen eine GdS-Zeile prüfen",
+        description:
+          "Prüft, ob ein Einzel-GdB bzw. GdS in der Spanne einer Zeile der GdS-Tabelle (Teil B) liegt: innerhalb, unterhalb, oberhalb oder nicht bestimmbar. Liefert Zeilentext, Pfad (Überschriften), Fundstelle, Spanne und den Hinweis auf Teil A Nr. 1.4. Zeilenkennungen wie \"B 3.7 Z2\" zeigt vmg_get. Bewertet nicht, ob die Zeile passt oder ein Bescheid richtig ist.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            kennung: { type: "string", description: 'Zeilenkennung: Abschnitt + Z + Nummer der GdS-Zeile, z. B. "B 3.7 Z2"' },
+            gdb: { type: "integer", minimum: 0, maximum: 100, description: "Einzel-GdB bzw. GdS, z. B. 40" },
+          },
+          required: ["kennung", "gdb"],
+        },
+        annotations: readOnly,
+        run: vmg.spannePruefen,
       },
     ];

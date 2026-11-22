@@ -29,6 +29,9 @@ const MAX_ICD_STICHWOERTER = 10;
 const squash = (s) => s.replace(/\s+/g, "").toLowerCase();
 const byLoose = new Map(order.map((id) => [squash(id.slice(4)), id]));
 
+/** Zeilenkennung: Abschnitt + „Z“ + laufende Nummer der GdS-Zeile (ab 1), z. B. "VMG:B 3.7 Z2". */
+const ZEILE_RE = /^(.*?)\s*z\s*(\d+)$/i;
+
 /** "b3.7", "B 3.7", "VMG:B 3.7", "A 5 d jj" → "VMG:B 3.7", "VMG:A 5d jj" (unbekannte Kennungen nur sauber formatiert). */
 export function normalizeVmgId(raw) {
   const s = String(raw ?? "")
@@ -37,6 +40,8 @@ export function normalizeVmgId(raw) {
     .replace(/^teil\s+([A-D])\b\s*(?:nr\.?\s*)?/i, "$1 ")
     .trim()
     .replace(/^vmg\s*:?\s*/i, "");
+  const zeile = s.match(ZEILE_RE);
+  if (zeile && zeile[1]) return `${normalizeVmgId(zeile[1])} Z${Number(zeile[2])}`;
   const known = byLoose.get(squash(s));
   if (known) return known;
   const t = s.replace(/\s+/g, " ");
@@ -53,6 +58,21 @@ function requireNode(raw) {
     `VersMedV-Kennung "${raw}" nicht gefunden.` + (near.length ? ` Ähnliche Kennungen: ${near.map((k) => k.slice(4)).join(", ")}` : " Gliederung mit vmg_list_structure.")
   );
 }
+
+/** Löst eine Zeilenkennung auf: { n, nr, z, id } oder null, wenn die Kennung keine Zeile bezeichnet. */
+function resolveZeile(raw) {
+  const id = normalizeVmgId(raw);
+  const m = id.match(/^(VMG:.+) Z(\d+)$/);
+  if (!m) return null;
+  const n = requireNode(m[1]);
+  const nr = Number(m[2]);
+  if (!n.zeilen?.length) throw new LookupError(`${m[1].slice(4)} hat keine GdS-Zeilen; Zeilenkennungen gibt es nur in Abschnitten von Teil B mit GdS-Tabelle.`);
+  if (nr < 1 || nr > n.zeilen.length) throw new LookupError(`Zeile Z${nr} gibt es in ${m[1].slice(4)} nicht; vorhanden sind ${zeilenBereich(n)}.`);
+  return { n, nr, z: n.zeilen[nr - 1], id };
+}
+
+const zeilenId = (n, i) => `${n.id} Z${i + 1}`;
+const zeilenBereich = (n) => (n.zeilen.length === 1 ? zeilenId(n, 0).slice(4) : `${zeilenId(n, 0).slice(4)} bis Z${n.zeilen.length}`);
 
 function fundstelle(n) {
   return `Anlage zu § 2 VersMedV, Teil ${n.teil}` + (n.nummer ? ` Nr. ${n.nummer}` : "");
@@ -73,7 +93,7 @@ function label(n) {
   return { titel: null, bezeichnung: n.status ? `(${n.status})` : null };
 }
 
-const row = (z) => ({ text: z.text, ...(z.gds !== undefined ? { gds: z.gds } : {}), pfad: z.pfad ?? [] });
+const row = (z, i, n) => ({ ...(n ? { id: zeilenId(n, i) } : {}), text: z.text, ...(z.gds !== undefined ? { gds: z.gds } : {}), pfad: z.pfad ?? [] });
 
 const stichwoerterOf = {};
 for (const s of data.stichwoerter) for (const id of s.ids) (stichwoerterOf[id] ??= []).push(s.wort);
@@ -105,7 +125,12 @@ export function listStructure({ kennung, tiefe } = {}) {
   return { version: VMG_VERSION, tiefe: depth === Infinity ? 0 : depth, knoten: roots.map((id) => tree(nodes[id], depth)) };
 }
 
-export function get({ kennung }) {
+export function get({ kennung } = {}) {
+  const zeile = resolveZeile(kennung);
+  if (zeile) {
+    const { n, z, id } = zeile;
+    return { version: VMG_VERSION, id, fundstelle: fundstelle(n), abschnitt: { id: n.id, ...label(n) }, zeile: row(z), hinweis: ABWEICHUNG_HINWEIS };
+  }
   const n = requireNode(kennung);
   return {
     version: VMG_VERSION,
@@ -114,7 +139,7 @@ export function get({ kennung }) {
     ...label(n),
     ...(n.status ? { status: n.status } : {}),
     ...(n.absaetze ? { absaetze: n.absaetze } : {}),
-    ...(n.zeilen ? { zeilen: n.zeilen.map(row) } : {}),
+    ...(n.zeilen ? { zeilen: n.zeilen.map((z, i) => row(z, i, n)) } : {}),
     ...(n.tabellen ? { tabellen: n.tabellen } : {}),
     children: (n.children ?? []).map((c) => ({ id: c, ...label(nodes[c]) })),
     parent: n.parent ?? null,
@@ -415,5 +440,57 @@ export function merkzeichen({ merkzeichen: wanted } = {}) {
           }
         : { zeichen: m.zeichen, bezeichnung: m.bezeichnung, norm: m.norm, hinweis: m.hinweis }
     ),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Spanne einer GdS-Zeile
+// ---------------------------------------------------------------------------
+
+const SPANNE_HINWEIS =
+  "Die Prüfung zeigt nur, ob der Wert in der Spanne der Zeile liegt, und bewertet ihn nicht. Teil B nennt Anhaltswerte; eine Abweichung ist nach Teil A Nr. 1.4 mit besonderer Begründung im Einzelfall möglich. Ob die Zeile zur Funktionsbeeinträchtigung passt, ist eine gutachterliche Frage.";
+
+/** "30-40" → {30, 40}; "50" → {50, 50}; "wenigstens 80" → {80, 100}; sonst null (z. B. "siehe oben"). */
+export function parseSpanne(gds) {
+  const s = String(gds ?? "").trim();
+  let m = s.match(/^(\d+)(?:\s*-\s*(\d+))?$/);
+  if (m) return { von: Number(m[1]), bis: Number(m[2] ?? m[1]) };
+  m = s.match(/^(?:wenigstens|mindestens)\s+(\d+)$/i);
+  if (m) return { von: Number(m[1]), bis: 100 };
+  return null;
+}
+
+/** Ergebnis der Spannenprüfung für einen Wert: innerhalb | unterhalb | oberhalb | nicht_bestimmbar. */
+export function lageZurSpanne(spanne, gdb) {
+  if (!spanne) return "nicht_bestimmbar";
+  if (gdb < spanne.von) return "unterhalb";
+  if (gdb > spanne.bis) return "oberhalb";
+  return "innerhalb";
+}
+
+export function spannePruefen({ kennung, gdb } = {}) {
+  const zeile = resolveZeile(kennung);
+  if (!zeile) {
+    const n = requireNode(kennung);
+    throw new LookupError(
+      n.zeilen?.length
+        ? `Bitte eine Zeile angeben, nicht den Abschnitt: ${n.zeilen.map((z, i) => `${zeilenId(n, i).slice(4)} (${z.gds})`).join(", ")}. vmg_get zeigt Text und Pfad je Zeile.`
+        : `${n.id.slice(4)} hat keine GdS-Zeilen; bitte eine Zeile aus Teil B angeben, z. B. B 3.7 Z2.`
+    );
+  }
+  const wert = typeof gdb === "string" && gdb.trim() !== "" ? Number(gdb) : gdb;
+  if (typeof wert !== "number" || !Number.isInteger(wert) || wert < 0 || wert > 100) throw new LookupError("gdb muss eine ganze Zahl von 0 bis 100 sein (Einzel-GdB bzw. GdS).");
+  const { n, z, id } = zeile;
+  const spanne = parseSpanne(z.gds);
+  return {
+    version: VMG_VERSION,
+    id,
+    fundstelle: fundstelle(n),
+    abschnitt: { id: n.id, ...label(n) },
+    zeile: row(z),
+    spanne,
+    gdb: wert,
+    ergebnis: lageZurSpanne(spanne, wert),
+    hinweis: spanne ? SPANNE_HINWEIS : `Der Wert der Zeile („${z.gds}“) ist keine Zahl oder Spanne; den Zusammenhang im Abschnitt mit vmg_get nachlesen. ${SPANNE_HINWEIS}`,
   };
 }
