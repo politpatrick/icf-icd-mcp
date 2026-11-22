@@ -2,6 +2,7 @@
 // den Zustand trägt das Fallprofil im Gespräch. Keine Rechtsberatung, keine Interna.
 
 import { BI_ENABLED } from "./bi_tools.mjs";
+import { VMG_ENABLED } from "./vmg_tools.mjs";
 import { ADULT_FROM_MONTHS, INFANT_BELOW_MONTHS } from "./bi.mjs";
 
 /** Fehler in Prompt-Argumenten (wird als JSON-RPC-Fehler -32602 gemeldet). */
@@ -30,6 +31,23 @@ function altersText(monate, werkzeug) {
   }
   if (monate < ADULT_FROM_MONTHS) return `${basis} Bis zum vollendeten 11. Lebensjahr werden Kinder mit gleichaltrigen Kindern ohne Beeinträchtigung verglichen.`;
   return `${basis} Ab dem vollendeten 11. Lebensjahr gilt die Punktesystematik für Erwachsene; die Texte der Kinderfassung beschreiben die Kriterien altersgerecht.`;
+}
+
+/** Bereichsbezogene Hinweise für eigene_darstellung_vorbereiten; Werkzeuge nur, wenn ihr Modul eingeschaltet ist. */
+function bereichText(bereich) {
+  switch (bereich) {
+    case undefined:
+    case "":
+      return "Frag zu Beginn, worum es geht (z. B. GdB/Schwerbehinderung, Pflegegrad, Leistungen zur Teilhabe).";
+    case "pflege":
+      return `Es geht um die Pflegeversicherung (Pflegegrad).${BI_ENABLED ? " Liegt ein Pflegegutachten vor, kann bi_gegenueberstellen die Unterschiede zur eigenen Sicht je Kriterium zeigen; bi_get_item liefert die Definitionen der Begutachtungs-Richtlinien." : ""}`;
+    case "gdb":
+      return `Es geht um die Feststellung eines GdB bzw. von Merkzeichen.${VMG_ENABLED ? " Die Versorgungsmedizinischen Grundsätze (VersMedV) beschreiben, wonach beurteilt wird; vmg_search und vmg_get liefern den amtlichen Wortlaut." : " Grundlage der Beurteilung sind die Versorgungsmedizinischen Grundsätze (VersMedV)."}`;
+    case "teilhabe":
+      return "Es geht um Leistungen zur Teilhabe (z. B. Eingliederungshilfe). Zur Zuständigkeit und zu den Entscheidungsfristen nach § 14 SGB IX: verfahren_info mit Thema zustaendigkeit. Bei Leistungen nach SGB VIII (z. B. § 35a) gelten für Widerspruch und Klage die VwGO.";
+    default:
+      throw new PromptError("bereich muss einer dieser Werte sein: gdb, pflege, teilhabe.");
+  }
 }
 
 const GRUNDSAETZE = `Grundsätze für das ganze Gespräch:
@@ -103,6 +121,46 @@ Ergebnis:
 - Formulierungshilfen für eine eigene Darstellung in meinen Worten: was ich im Alltag erlebe, mit Beispielen und Belegen (Befunde, Pflegetagebuch). Keine rechtliche Begründung.
 - Den allgemeinen Hinweis, dass gegen einen Bescheid Widerspruch möglich ist und die Frist in der Rechtsbehelfsbelehrung des Bescheids steht, sowie den Verweis auf unabhängige Beratung (Pflegeberatung nach § 7a SGB XI, Pflegestützpunkt, EUTB, Sozialverbände).
 - Auf Wunsch das Fallprofil mit den Einträgen aus Gutachten und eigener Sicht (fall_pruefen).`;
+    },
+  },
+  {
+    name: "eigene_darstellung_vorbereiten",
+    title: "Eigene Situation sachlich aufschreiben",
+    description:
+      "Geführter Ablauf, um die eigene Situation zu einem Antrag, Bescheid oder Gutachten sachlich aufzuschreiben: Tatsachen, Beobachtungen, Belege und O-Ton getrennt erfassen (auch aus einem Fallprofil), mit fall_pruefen Lücken finden, Verfahrenswege allgemein mit verfahren_info erklären und eine Gliederung der eigenen Darstellung erstellen. Keine Rechtsberatung, keine Fristberechnung, keine Empfehlung eines Wegs.",
+    arguments: [
+      { name: "wer_antwortet", description: "person | person_mit_unterstuetzung | unterstuetzende_person", required: false },
+      { name: "bereich", description: "gdb | pflege | teilhabe", required: false },
+    ],
+    render(args) {
+      const wer = args.wer_antwortet ?? "person";
+      if (typeof wer !== "string" || !Object.hasOwn(WER, wer)) throw new PromptError(`wer_antwortet muss einer dieser Werte sein: ${Object.keys(WER).join(", ")}.`);
+      return `Hilf mir, meine Situation sachlich aufzuschreiben – zum Beispiel für einen Antrag, als Reaktion auf einen Bescheid oder ein Gutachten oder für ein Beratungsgespräch.
+
+${WER[wer]}
+${bereichText(args.bereich)}
+
+${GRUNDSAETZE}
+- Du schreibst keine rechtliche Begründung, berechnest keine Fristen und empfiehlst keinen Weg. Ob ein Widerspruch, ein Überprüfungsantrag oder ein neuer Antrag im Einzelfall passt, klärt die Person mit einer Beratungsstelle.
+
+Ablauf:
+1. Anlass klären: Was liegt vor (Antrag, Bescheid, Gutachten, Untätigkeit der Behörde)? Mit welchem Datum, und wann ist es angekommen? Gibt es schon ein Fallprofil? Wenn ja, daran anknüpfen und den O-Ton daraus übernehmen.
+2. Liegt ein Bescheid vor: Weise darauf hin, dass Frist und Stelle für einen Rechtsbehelf in der Rechtsbehelfsbelehrung am Ende des Bescheids stehen, und bitte darum, sie selbst nachzulesen. Rechne keine Frist aus.
+3. Die eigene Sicht in vier getrennten Teilen erfassen und nicht vermischen:
+   - Tatsachen: was nachprüfbar ist (Diagnosen, Hilfsmittel, Termine, wer wann hilft).
+   - Beobachtungen: was die Person bzw. Angehörige im Alltag erleben, mit konkreten Beispielen (wann, wie oft, wie lange, was passiert ohne Hilfe).
+   - Belege: welche Unterlagen das stützen (Befunde, Arztberichte, Pflegetagebuch, Bescheinigungen) und welche noch fehlen.
+   - O-Ton: die eigenen Worte der Person, unverändert.
+   Wenn ein Bescheid oder Gutachten vorliegt: Stelle gegenüber, was dort steht und was die Person anders erlebt – ohne zu bewerten, ob der Bescheid richtig ist.
+4. Die Angaben im Fallprofil festhalten oder ergänzen (Format mit fall_schema) und mit fall_pruefen auf Lücken prüfen; fehlende Belege benennen.
+5. Die möglichen Wege allgemein erklären, ohne einen zu empfehlen: verfahren_info liefert Widerspruch, Überprüfungsantrag, Neufeststellungs- bzw. Höherstufungsantrag, Akteneinsicht, Untätigkeitsklage, Zuständigkeitsklärung und Bekanntgabe mit den Normen. Kennzeichne die Erklärungen als kuratiert und die Normauszüge als amtlich.
+6. Eine Gliederung der eigenen Darstellung erstellen und auf Wunsch ausformulieren – in der Ich-Form bzw. aus Sicht der unterstützenden Person, sachlich, mit Beispielen und Verweisen auf die Belege.
+
+Ergebnis:
+- Die eigene Darstellung (Gliederung oder Text) mit Tatsachen, Beobachtungen, Belegen und O-Ton, ohne rechtliche Begründung.
+- Eine Liste der Belege, die vorliegen, und der Belege, die noch fehlen.
+- Den allgemeinen Hinweis auf die Rechtsbehelfsbelehrung des Bescheids und auf unabhängige Beratung: EUTB (§ 32 SGB IX), Pflegeberatung nach § 7a SGB XI, Pflegestützpunkt, Sozialverbände.
+- Auf Wunsch das aktualisierte Fallprofil (fall_pruefen).`;
     },
   },
 ];

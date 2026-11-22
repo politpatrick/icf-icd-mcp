@@ -69,3 +69,42 @@ test("wer_antwortet akzeptiert keine eingebauten Namen; params null", () => {
   assert.equal(rpc("prompts/get", { name: "pflegegrad_interview", arguments: { wer_antwortet: "constructor" } }).error.code, -32602);
   assert.equal(handleMessage({ jsonrpc: "2.0", id: 500, method: "prompts/get", params: null }).error.code, -32602);
 });
+
+test("eigene_darstellung_vorbereiten: in der Liste mit Argumenten", () => {
+  const p = rpc("prompts/list").result.prompts.find((x) => x.name === "eigene_darstellung_vorbereiten");
+  assert.ok(p);
+  assert.deepEqual(p.arguments.map((a) => a.name), ["wer_antwortet", "bereich"]);
+  assert.ok(p.arguments.every((a) => !a.required));
+});
+
+test("eigene_darstellung_vorbereiten: Ablauf, Trennung der Angaben, Beratung, keine Rechtsberatung", () => {
+  const t = text("eigene_darstellung_vorbereiten", {});
+  for (const w of ["verfahren_info", "fall_pruefen", "O-Ton", "Tatsachen", "Beobachtungen", "Belege", "EUTB", "§ 7a SGB XI", "Pflegestützpunkt", "Sozialverb", "keine Rechtsberatung", "Rechtsbehelfsbelehrung"]) assert.ok(t.includes(w), w);
+  assert.ok(!/Erfolgsaussicht/i.test(t));
+  assert.ok(!t.includes("bi_gegenueberstellen"));
+  assert.match(text("eigene_darstellung_vorbereiten", { wer_antwortet: "unterstuetzende_person" }), /unterstützenden Person/);
+});
+
+test("eigene_darstellung_vorbereiten: Bereich", () => {
+  assert.match(text("eigene_darstellung_vorbereiten", { bereich: "pflege" }), /bi_gegenueberstellen/);
+  assert.match(text("eigene_darstellung_vorbereiten", { bereich: "gdb" }), /VersMedV|vmg_/);
+  assert.match(text("eigene_darstellung_vorbereiten", { bereich: "teilhabe" }), /§ 14 SGB IX|zustaendigkeit/);
+  assert.match(text("eigene_darstellung_vorbereiten", { bereich: "" }), /Frag zu Beginn, worum es geht/);
+  for (const bereich of ["rente", "constructor"]) assert.equal(rpc("prompts/get", { name: "eigene_darstellung_vorbereiten", arguments: { bereich } }).error.code, -32602, bereich);
+  assert.equal(rpc("prompts/get", { name: "eigene_darstellung_vorbereiten", arguments: { wer_antwortet: "nachbar" } }).error.code, -32602);
+});
+
+test("ICF_MCP_BI=0 und ICF_MCP_VMG=0: eigene_darstellung_vorbereiten bleibt, ohne abgeschaltete Werkzeuge", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const run = (env, msg) => JSON.parse(spawnSync(process.execPath, ["src/server.mjs"], {
+    input: JSON.stringify(msg) + "\n",
+    env: { ...process.env, ...env },
+    cwd: new URL("..", import.meta.url).pathname,
+    encoding: "utf-8",
+  }).stdout);
+  const get = (bereich) => ({ jsonrpc: "2.0", id: 1, method: "prompts/get", params: { name: "eigene_darstellung_vorbereiten", arguments: { bereich } } });
+  const pflege = run({ ICF_MCP_BI: "0" }, get("pflege")).result.messages[0].content.text;
+  assert.ok(!pflege.includes("bi_"));
+  const gdb = run({ ICF_MCP_VMG: "0" }, get("gdb")).result.messages[0].content.text;
+  assert.ok(!gdb.includes("vmg_"));
+});
