@@ -314,6 +314,37 @@ Ergebnis:
 - Den allgemeinen Hinweis auf die Rechtsbehelfsbelehrung und auf unabhängige Beratung (EUTB nach § 32 SGB IX, Sozialverbände); auf Wunsch weiter mit eigene_darstellung_vorbereiten.`;
     },
   },
+  {
+    name: "leistungen_finden",
+    title: "Mögliche Leistungen und Nachteilsausgleiche finden",
+    description:
+      "Geführter Ablauf, um zu den festgestellten Werten (GdB, Merkzeichen, Pflegegrad) mögliche Leistungen und Nachteilsausgleiche zu finden: leistungshinweise aufrufen, die Einträge nach Lebenslage ordnen, den nächsten Schritt und die typische Stelle je gewünschtem Eintrag allgemein erklären, Landesrecht als je Land verschieden kennzeichnen. Keine Beträge, keine Anspruchsprüfung, keine Rechtsberatung.",
+    arguments: [{ name: "wer_antwortet", description: "person | person_mit_unterstuetzung | unterstuetzende_person", required: false }],
+    render(args) {
+      const wer = args.wer_antwortet ?? "person";
+      if (typeof wer !== "string" || !Object.hasOwn(WER, wer)) throw new PromptError(`wer_antwortet muss einer dieser Werte sein: ${Object.keys(WER).join(", ")}.`);
+      return `Hilf mir herauszufinden, welche Leistungen und Nachteilsausgleiche zu meinem GdB, meinen Merkzeichen und meinem Pflegegrad in Betracht kommen können.
+
+${WER[wer]}
+${GRUNDSAETZE}
+- Das Werkzeug leistungshinweise zeigt Hinweise aus einem kuratierten Katalog, keine Prüfung meines Anspruchs: keine Beträge, keine Einkommens- oder Vermögensprüfung, keine Entscheidung, welche Stelle im Einzelfall zuständig ist, keine Fristen. Formuliere „kann in Betracht kommen“, nie „steht zu“.
+- Nur festgestellte Werte aus einem Bescheid gehen als Eingabe in leistungshinweise. Ein eigener Orientierungswert (z. B. aus gdb_antrag_vorbereiten oder ein Fallprofil-Eintrag mit herkunft "interview" und status "geschildert") ist nicht festgestellt. Ihn nur ausdrücklich als „was wäre, wenn“ verwenden und die Ausgabe dann so kennzeichnen.
+
+Ablauf:
+1. Fragen, ob ein Fallprofil vorliegt; wenn ja, mit fall_pruefen prüfen und die Angaben aus den Bescheiden (herkunft "bescheid") übernehmen. Sonst frage nach dem GdB und den Merkzeichen im Feststellungsbescheid (G, aG, B, H, Bl, Gl, RF, TBl) und nach dem Pflegegrad im Bescheid der Pflegekasse. Bei einem Kind nach dem Alter in Monaten fragen. Fehlt ein Bescheid, nicht raten: dann gibt es dafür keinen festgestellten Wert.
+2. leistungshinweise mit gdb, merkzeichen, pflegegrad (und ggf. alter_monate) aufrufen.
+3. Die Einträge nach meiner Lebenslage ordnen, etwa Arbeit, Mobilität, Steuern, Pflege zu Hause, Wohnen. Je Eintrag kurz in einfacher Sprache sagen, was es ist und warum der Hinweis erscheint (signal), mit Norm und Link. Vorrang und Nachrang (rang) erklären.
+4. Fragen, was mir davon am wichtigsten ist, und die Einträge dazu auswählen.
+5. Je gewünschtem Eintrag den nächsten Schritt und die typische Stelle allgemein erklären (naechster_schritt, stelle, voraussetzung); die Voraussetzungen als „worauf es ankommt“, nicht als Ergebnis für mich. Welche Unterlagen helfen, aus dem Fallprofil und den Bescheiden ableiten.
+6. Landesrecht (z. B. Blindengeld, Gehörlosengeld, Rundfunkbeitrag, Parkerleichterungen) als „je Land verschieden“ kennzeichnen: das Werkzeug liefert dazu keine Norm. Ich soll die Regelung meines Bundeslandes bei der zuständigen Stelle erfragen.
+7. Bei einem Kind alter_hinweis beachten und wiedergeben. Ist unklar, ob ein Eintrag zum Alter passt, offen sagen.
+
+Ergebnis:
+- Eine Übersicht nach Lebenslage: Leistung, warum sie erscheint, Norm mit Link, typische Stelle, nächster Schritt.
+- Eine Liste der Hinweise, die ich weiterverfolgen möchte, mit den Unterlagen, die dafür helfen können.
+- Den Hinweis, dass dies keine Rechtsberatung und keine Anspruchsprüfung ist, und den Verweis auf unabhängige Beratung: EUTB (§ 32 SGB IX), Sozialverbände, bei Pflege die Pflegeberatung nach § 7a SGB XI.`;
+    },
+  },
 ];
 
 export const PROMPTS = PROMPTS_ALLE.filter((p) => (!p.bi || BI_ENABLED) && (!p.vmg || VMG_ENABLED));

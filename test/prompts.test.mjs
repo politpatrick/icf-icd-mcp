@@ -224,3 +224,16 @@ test("Review: Teilhabe-Prompts – Wünsche nach § 117, Kinder § 10 Abs. 4 SGB
   assert.match(ins, /teilhabebedarf_erfassen/);
   assert.ok(!ins.includes("abgrenzung_egh_pflege"));
 });
+
+test("leistungen_finden: in der Liste, Ablauf, Grenzen, Fehler", () => {
+  const p = rpc("prompts/list").result.prompts.find((x) => x.name === "leistungen_finden");
+  assert.ok(p);
+  assert.ok(p.arguments.some((a) => a.name === "wer_antwortet" && !a.required));
+  const t = text("leistungen_finden", {});
+  for (const w of ["leistungshinweise", "fall_pruefen", "Bescheid", "Landesrecht", "EUTB", "§ 7a SGB XI", "keine Rechtsberatung", "keine Beträge", "was wäre, wenn"]) assert.ok(t.includes(w), w);
+  assert.match(t, /nächsten? Schritt/);
+  assert.ok(!/Erfolgsaussicht/i.test(t));
+  assert.match(text("leistungen_finden", { wer_antwortet: "unterstuetzende_person" }), /unterstützenden Person/);
+  assert.equal(rpc("prompts/get", { name: "leistungen_finden", arguments: { wer_antwortet: "nachbar" } }).error.code, -32602);
+  assert.equal(rpc("prompts/get", { name: "leistungen_finden", arguments: { wer_antwortet: "constructor" } }).error.code, -32602);
+});

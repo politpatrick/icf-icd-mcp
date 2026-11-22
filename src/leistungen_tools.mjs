@@ -3,7 +3,8 @@
 import { MERKZEICHEN, hinweise } from "./leistungen.mjs";
 
 export const LEISTUNGEN_INSTRUCTIONS = `Leistungen – leistungshinweise zeigt zu GdB, Merkzeichen und Pflegegrad (optional Alter in Monaten) mögliche Leistungen und Nachteilsausgleiche aus einem kuratierten Katalog: je Eintrag Signal, Leistung, Norm mit Link, typische Stelle, Rang (Vorrang/Nachrang) und nächster Schritt; Landesrecht (Blindengeld, Gehörlosengeld, Rundfunkbeitrag, Parkerleichterungen) nur als Hinweis ohne Normlink.
-Keine Beträge, keine Anspruchsprüfung, keine Einkommens- oder Vermögensprüfung, keine Zuständigkeitsentscheidung im Einzelfall; formulieren als „kann in Betracht kommen“, auf Beratung verweisen.`;
+Keine Beträge, keine Anspruchsprüfung, keine Einkommens- oder Vermögensprüfung, keine Zuständigkeitsentscheidung im Einzelfall; formulieren als „kann in Betracht kommen“, auf Beratung verweisen.
+Geführter Ablauf als Prompt: leistungen_finden.`;
 
 const zahl = (beschreibung) => ({ type: ["integer", "string"], description: beschreibung });
 
