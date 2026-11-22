@@ -47,7 +47,7 @@ an andere Skills, MCP-Server, Chats und Agenten weitergeben.
 | `fall_schema`, `fall_pruefen`, `fall_vergleichen` | Fallprofil: Format, Prüfung mit Lückenhinweisen und Lebensbereichen nach § 118 SGB IX, Vergleich zweier Fassungen | ✅ 1.7.0 ([#15](https://github.com/politpatrick/icf-icd-mcp/pull/15)) |
 | `bi_gegenueberstellen` | Pflegegutachten und eigene Einschätzung gegenüberstellen | ✅ 1.8.0 ([#16](https://github.com/politpatrick/icf-icd-mcp/pull/16)) |
 | `verfahren_info` | Allgemeine Erklärung von Widerspruch, Überprüfungs-, Neufeststellungs- und Höherstufungsantrag, Akteneinsicht; Frist nur mit Verweis auf die Rechtsbehelfsbelehrung, **keine** persönliche Fristberechnung | ✅ 1.9.0 ([#18](https://github.com/politpatrick/icf-icd-mcp/pull/18)) |
-| GdS-Zeilen-Kennungen + `vmg_spanne_pruefen` | Einzel-GdB gegen die Spanne der Teil-B-Zeile prüfen, mit Pfad und Fundstelle | ✅ 1.10.0 |
+| GdS-Zeilen-Kennungen + `vmg_spanne_pruefen` | Einzel-GdB gegen die Spanne der Teil-B-Zeile prüfen, mit Pfad und Fundstelle | ✅ 1.10.0 ([#19](https://github.com/politpatrick/icf-icd-mcp/pull/19)) |
 | `abgrenzung_egh_pflege` | ICF-d-Kategorien → BI-Kriterien mit Orientierung Eingliederungshilfe/Überschneidung/Pflege; kuratiert, auf `bi_icf_mapping` aufbauend | offen |
 | `leistungshinweise` | Signal → mögliche Leistung → Träger → Rang → nächster Schritt; Nachteilsausgleiche je GdB, Merkzeichen, Pflegegrad; Schnittstellen (§ 103 SGB IX, § 43a SGB XI, SGB XII, § 29 SGB IX, § 35a SGB VIII); kuratiert, ohne Beträge, keine Anspruchsprüfung | offen |
 
@@ -57,8 +57,8 @@ an andere Skills, MCP-Server, Chats und Agenten weitergeben.
 | --- | --- | --- |
 | `pflegegrad_interview` | Selbsteinschätzung vor der Pflegebegutachtung | ✅ 1.8.0 |
 | `pflegegutachten_verstehen` | Gutachten verstehen und mit der eigenen Sicht vergleichen | ✅ 1.8.0 |
-| `gdb_antrag_vorbereiten` | Diagnosen, Auswirkungen, Befunde; Orientierung aus Teil B; Merkzeichen; Nachteilsausgleiche; Befundanforderung an die Ärztin | ✅ 1.10.0 |
-| `gdb_bescheid_verstehen` | Was festgestellt wurde, was die Werte bedeuten, wo die eigene Situation abweicht; Bescheid in einfacher Sprache | ✅ 1.10.0 |
+| `gdb_antrag_vorbereiten` | Diagnosen, Auswirkungen, Befunde; Orientierung aus Teil B; Merkzeichen; Nachteilsausgleiche; Befundanforderung an die Ärztin | ✅ 1.10.0 ([#19](https://github.com/politpatrick/icf-icd-mcp/pull/19)) |
+| `gdb_bescheid_verstehen` | Was festgestellt wurde, was die Werte bedeuten, wo die eigene Situation abweicht; Bescheid in einfacher Sprache | ✅ 1.10.0 ([#19](https://github.com/politpatrick/icf-icd-mcp/pull/19)) |
 | `teilhabebedarf_erfassen` | Bedarfe ICF-strukturiert und ICD-fundiert in Ich-Form mit O-Ton, Lebensbereiche, Orientierung zur Zuständigkeit | offen |
 | `bedarfsfeststellung_verstehen` | Kommen eigene Bedarfe, Wünsche und Ziele vor, wo fehlen Belege | offen |
 | `eigene_darstellung_vorbereiten` | Eigene Situation sachlich aufschreiben (Tatsachen, Beobachtungen, Belege); Wege allgemein erklären | ✅ 1.9.0 ([#18](https://github.com/politpatrick/icf-icd-mcp/pull/18)) |
@@ -76,7 +76,7 @@ an andere Skills, MCP-Server, Chats und Agenten weitergeben.
 1. ✅ Fallprofil (`fall_*`) – [#15](https://github.com/politpatrick/icf-icd-mcp/pull/15)
 2. ✅ Pflege: `bi_gegenueberstellen`, Prompts `pflegegrad_interview`, `pflegegutachten_verstehen` – [#16](https://github.com/politpatrick/icf-icd-mcp/pull/16)
 3. ✅ Verfahren: `verfahren_info`, Prompt `eigene_darstellung_vorbereiten` (1.9.0) – [#18](https://github.com/politpatrick/icf-icd-mcp/pull/18); Skill `eigenes_schreiben` als Entwurf außerhalb des Repos
-4. ✅ GdB: Kennungen der GdS-Zeilen, `vmg_spanne_pruefen`, Prompts `gdb_antrag_vorbereiten`, `gdb_bescheid_verstehen` (1.10.0)
+4. ✅ GdB: Kennungen der GdS-Zeilen, `vmg_spanne_pruefen`, Prompts `gdb_antrag_vorbereiten`, `gdb_bescheid_verstehen` (1.10.0) – [#19](https://github.com/politpatrick/icf-icd-mcp/pull/19)
 5. Teilhabe: `abgrenzung_egh_pflege`, Prompts `teilhabebedarf_erfassen`, `bedarfsfeststellung_verstehen`
 6. Leistungen: `leistungshinweise`, Prompt `leistungen_finden`
 7. Skill `lwl-formulare`
