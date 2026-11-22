@@ -166,8 +166,10 @@ Die Hinweise sagen, was noch fehlt, und bewerten den Fall nicht. Das Fallprofil 
 
 `abgrenzung_egh_pflege` zeigt zu ICF-Kategorien aus Aktivitäten und Teilhabe (`d510`, auch `d510.3`) den Lebensbereich nach § 118 SGB IX und eine **Orientierung**:
 
-- `ueberschneidung`: Das Begutachtungsinstrument der Pflegeversicherung erfasst den Bereich. Ausgegeben werden die zugeordneten BI-Kriterien und ob sie in den Pflegegrad eingehen (außerhäusliche Aktivitäten und Haushaltsführung gehen nicht ein). Pflege (§ 36 SGB XI) und Eingliederungshilfe, etwa als Assistenz (§ 78 SGB IX), können nebeneinander in Betracht kommen.
-- `teilhabe`: Das Begutachtungsinstrument erfasst den Bereich nicht; in Betracht kommen Leistungen zur Teilhabe (Soziale Teilhabe nach § 113 SGB IX, bei Bildung und Arbeit §§ 111, 112 SGB IX, vorrangig ggf. andere Rehabilitationsträger).
+- `ueberschneidung`: Nach der kuratierten Zuordnung ist dem Bereich ein Kriterium des Begutachtungsinstruments zugeordnet (über eine Oberkategorie nur bei „entspricht“). Ausgegeben werden die BI-Kriterien, je Kriterium die getroffenen ICF-Kategorien, ob sie in den Pflegegrad eingehen (außerhäusliche Aktivitäten und Haushaltsführung gehen nicht ein), Kinderkriterien und Sonderregeln. Pflege (§ 36 SGB XI) und Eingliederungshilfe, etwa als Assistenz (§ 78 SGB IX), können nebeneinander in Betracht kommen.
+- `teilhabe`: Kein BI-Kriterium zugeordnet; in Betracht kommen Leistungen zur Teilhabe.
+
+Je Kategorie nennt die Erläuterung die Leistungsgruppe der Eingliederungshilfe: Bildung (d810–d839) § 112 SGB IX, Arbeit und Beschäftigung (d840–d859) § 111 SGB IX mit Hinweis auf vorrangige Rehabilitationsträger, sonst Soziale Teilhabe (§ 113 SGB IX). In besonderen Wohnformen umfasst die Eingliederungshilfe auch die Pflege (§ 103 SGB IX, § 43a SGB XI).
 
 Eine Kennzeichnung „nur Pflege“ gibt es bewusst nicht: Die Eingliederungshilfe ist gegenüber der Pflegeversicherung nicht nachrangig (§ 13 Abs. 3 SGB XI, § 91 Abs. 3 SGB IX); es kommt auf den Zweck der Unterstützung an. Die Zuordnung baut auf der kuratierten Zuordnung von `bi_icf_mapping` auf und ist nicht amtlich. Das Werkzeug trifft **keine Zuständigkeitsentscheidung** und prüft keinen Anspruch. Mit `ICF_MCP_BI=0` entfällt es.
 

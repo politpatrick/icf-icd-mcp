@@ -62,13 +62,13 @@ const GDB_GRENZEN = `- Die VersMedV-Werkzeuge liefern Wortlaut, Pfad und Fundste
 /** Altershinweis für die Teilhabe-Prompts (§ 35a SGB VIII, § 99 SGB IX). */
 function teilhabeAltersText(monate) {
   if (monate === undefined || monate >= 18 * 12) return "";
-  return `Es geht um ein Kind bzw. eine jugendliche Person (${monate} Monate). Maßstab ist der für das Lebensalter typische Zustand. Bei (drohender) seelischer Behinderung leistet die Eingliederungshilfe das Jugendamt (§ 35a SGB VIII); für Widerspruch und Klage gelten dort die VwGO und die Verwaltungsgerichte. Bei körperlicher oder geistiger Behinderung ist es die Eingliederungshilfe nach dem SGB IX. Welche Behinderung im Vordergrund steht, beurteilen Fachleute; das Gespräch nimmt das nicht vorweg.\n`;
+  return `Es geht um ein Kind bzw. eine jugendliche Person (${monate} Monate). Maßstab ist der für das Lebensalter typische Zustand. Bei (drohender) seelischer Behinderung leistet die Eingliederungshilfe das Jugendamt (§ 35a SGB VIII, für junge Volljährige § 41 SGB VIII); für Rechtsbehelfe gelten dort die VwGO und die Verwaltungsgerichte, das Nähere steht in der Rechtsbehelfsbelehrung. Bei körperlicher oder geistiger Behinderung ist es die Eingliederungshilfe nach dem SGB IX; liegt sie zusätzlich zu einer seelischen Behinderung vor, geht die Eingliederungshilfe nach dem SGB IX vor (§ 10 Abs. 4 SGB VIII). Die Zuordnung klären die Träger; das Gespräch nimmt sie nicht vorweg.\n`;
 }
 
 const ABGRENZUNG_SCHRITT = () =>
   BI_ENABLED
     ? "Mit abgrenzung_egh_pflege je d-Kategorie zeigen, ob das Begutachtungsinstrument der Pflegeversicherung den Bereich erfasst (ueberschneidung) oder nicht (teilhabe). Erklären, dass Pflege und Eingliederungshilfe nebeneinander stehen und es auf den Zweck der Unterstützung ankommt (§ 13 Abs. 3 SGB XI); das ist eine Orientierung, keine Zuständigkeitsentscheidung."
-    : "Erklären, dass Pflege und Eingliederungshilfe nebeneinander stehen und es auf den Zweck der Unterstützung ankommt (§ 13 Abs. 3 SGB XI): Pflege bei den Bereichen der Pflegebegutachtung, Eingliederungshilfe bei Befähigung und Teilhabe (§§ 78, 113 SGB IX). Das ist eine Orientierung, keine Zuständigkeitsentscheidung.";
+    : "Erklären, dass Pflege und Eingliederungshilfe nebeneinander stehen und es auf den Zweck der Unterstützung ankommt (§ 13 Abs. 3 SGB XI): Pflege versorgt, Eingliederungshilfe befähigt und begleitet (§§ 78, 113 SGB IX); beides kann denselben Lebensbereich betreffen. Das ist eine Orientierung, keine Zuständigkeitsentscheidung.";
 
 const GRUNDSAETZE = `Grundsätze für das ganze Gespräch:
 - Du hilfst einer antragsberechtigten Person, ihre Situation zu ordnen. Es findet keine Rechtsberatung statt: keine Einschätzung, ob ein Antrag oder Widerspruch Erfolg hat, keine Empfehlung eines Rechtswegs, keine Aussage, ob ein Gutachten oder Bescheid rechtmäßig ist. Bei Rechtsfragen auf unabhängige Beratung verweisen (Pflegeberatung nach § 7a SGB XI, Pflegestützpunkt, EUTB, Sozialverbände).
@@ -269,6 +269,7 @@ ${WER[wer]}
 ${teilhabeAltersText(monate)}
 ${GRUNDSAETZE}
 - Es geht um die Sicht der Person: was sie im Alltag erlebt, was sie sich wünscht und welche Ziele sie hat. Das Gespräch nimmt keine Bedarfsfeststellung des Trägers vorweg und sagt nicht, welche Leistung zusteht.
+- Herkunft kennzeichnen: Die Lebensbereiche nach § 118 SGB IX und die ICF-Kategorien sind amtlich, die Zuordnung zu Pflege und Teilhabe ist kuratiert, Zusammenfassungen sind deine Einschätzung.
 
 Ablauf:
 1. Kurz erklären, was der Ablauf leistet, und fragen, ob schon ein Fallprofil vorliegt; wenn ja, daran anknüpfen. Erwähnen, dass man zum Gesamtplanverfahren eine Person des Vertrauens mitbringen kann (§ 117 Abs. 2 SGB IX).
@@ -303,7 +304,7 @@ Ablauf:
 1. Das Dokument übernehmen: Ich lade es hoch oder nenne die Angaben. Lies heraus: festgestellte Bedarfe je Lebensbereich, Ziele, Wünsche, Leistungen nach Inhalt, Umfang und Dauer, Überprüfungszeitpunkt, beteiligte Träger. Bei einem Bescheid Datum und Rechtsbehelfsbelehrung notieren; die Frist nicht berechnen.
 2. In einfacher Sprache erklären, was dort steht. Kennzeichnen, was aus dem Dokument stammt und was deine Erklärung ist.
 3. Mit meiner Sicht abgleichen: Liegt ein Fallprofil vor (z. B. aus teilhabebedarf_erfassen), die Angaben aus dem Dokument als zweite Fassung mit herkunft "bescheid" bzw. "material" festhalten und mit fall_vergleichen gegenüberstellen; sonst meine Sicht mit O-Ton erfragen.
-4. Für jeden Lebensbereich zeigen: Kommen meine Bedarfe vor? Kommen meine Wünsche und Ziele vor (der Gesamtplan dokumentiert nach § 121 Abs. 4 SGB IX auch die Berücksichtigung des Wunsch- und Wahlrechts)? Wo fehlen Belege, die meine Sicht stützen?
+4. Für jeden Lebensbereich zeigen: Kommen meine Bedarfe vor? Kommen meine Wünsche und Ziele vor (das Gesamtplanverfahren sieht die Dokumentation der Wünsche zu Ziel und Art der Leistungen vor, § 117 Abs. 1 Nr. 2 SGB IX)? Wo fehlen Belege, die meine Sicht stützen?
 5. ${ABGRENZUNG_SCHRITT()}
 6. Die möglichen Wege allgemein mit verfahren_info erklären (z. B. Widerspruch, Akteneinsicht, Überprüfungsantrag, neuer Antrag bei veränderter Situation), ohne einen zu empfehlen.
 

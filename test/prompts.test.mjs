@@ -202,3 +202,25 @@ test("ICF_MCP_BI=0: Teilhabe-Prompts bleiben, ohne abgrenzung_egh_pflege; Tool f
   assert.ok(!tools.result.tools.some((t) => t.name === "abgrenzung_egh_pflege"));
   for (const p of [p1, p2]) assert.ok(!p.result.messages[0].content.text.includes("abgrenzung_egh_pflege"));
 });
+
+test("Review: Teilhabe-Prompts – Wünsche nach § 117, Kinder § 10 Abs. 4 SGB VIII, Herkunft, Instructions ohne BI", async () => {
+  const b = text("bedarfsfeststellung_verstehen", {});
+  assert.ok(!b.includes("§ 121 Abs. 4"));
+  assert.match(b, /§ 117 Abs\. 1 Nr\. 2 SGB IX/);
+  const k = text("teilhabebedarf_erfassen", { alter_monate: "120" });
+  assert.match(k, /§ 10 Abs\. 4 SGB VIII/);
+  assert.match(k, /§ 41 SGB VIII/);
+  assert.match(k, /Rechtsbehelfsbelehrung/);
+  assert.ok(!/beurteilen Fachleute/.test(k));
+  assert.match(text("teilhabebedarf_erfassen", {}), /§ 118 SGB IX.*amtlich.*kuratiert/s);
+  const { spawnSync } = await import("node:child_process");
+  const out = spawnSync(process.execPath, ["src/server.mjs"], {
+    input: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize" }) + "\n",
+    env: { ...process.env, ICF_MCP_BI: "0" },
+    cwd: new URL("..", import.meta.url).pathname,
+    encoding: "utf-8",
+  }).stdout;
+  const ins = JSON.parse(out).result.instructions;
+  assert.match(ins, /teilhabebedarf_erfassen/);
+  assert.ok(!ins.includes("abgrenzung_egh_pflege"));
+});
