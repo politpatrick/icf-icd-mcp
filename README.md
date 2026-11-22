@@ -162,6 +162,15 @@ Das Format hat **keine Felder für Namen, Anschriften, Versicherungs- oder Akten
 
 Die Hinweise sagen, was noch fehlt, und bewerten den Fall nicht. Das Fallprofil ist **keine Rechtsberatung**. Schema und Beispiel liegen unter `data/fallprofil-1.schema.json` und `data/fallprofil-1.beispiel.json`. Gesamtplan der Fallarbeit und offene Punkte: [`docs/fallarbeit/`](docs/fallarbeit/).
 
+## Teilhabe oder Pflege?
+
+`abgrenzung_egh_pflege` zeigt zu ICF-Kategorien aus Aktivitäten und Teilhabe (`d510`, auch `d510.3`) den Lebensbereich nach § 118 SGB IX und eine **Orientierung**:
+
+- `ueberschneidung`: Das Begutachtungsinstrument der Pflegeversicherung erfasst den Bereich. Ausgegeben werden die zugeordneten BI-Kriterien und ob sie in den Pflegegrad eingehen (außerhäusliche Aktivitäten und Haushaltsführung gehen nicht ein). Pflege (§ 36 SGB XI) und Eingliederungshilfe, etwa als Assistenz (§ 78 SGB IX), können nebeneinander in Betracht kommen.
+- `teilhabe`: Das Begutachtungsinstrument erfasst den Bereich nicht; in Betracht kommen Leistungen zur Teilhabe (Soziale Teilhabe nach § 113 SGB IX, bei Bildung und Arbeit §§ 111, 112 SGB IX, vorrangig ggf. andere Rehabilitationsträger).
+
+Eine Kennzeichnung „nur Pflege“ gibt es bewusst nicht: Die Eingliederungshilfe ist gegenüber der Pflegeversicherung nicht nachrangig (§ 13 Abs. 3 SGB XI, § 91 Abs. 3 SGB IX); es kommt auf den Zweck der Unterstützung an. Die Zuordnung baut auf der kuratierten Zuordnung von `bi_icf_mapping` auf und ist nicht amtlich. Das Werkzeug trifft **keine Zuständigkeitsentscheidung** und prüft keinen Anspruch. Mit `ICF_MCP_BI=0` entfällt es.
+
 ## Verfahrenswege
 
 `verfahren_info` erklärt **allgemein** und in einfacher Sprache, welche Wege es im Sozialrecht gibt: Widerspruch, Überprüfungsantrag (§ 44 SGB X), Neufeststellungs- bzw. Höherstufungsantrag (§ 48 SGB X), Akteneinsicht (§ 25 SGB X), Untätigkeitsklage (§ 88 SGG), Zuständigkeitsklärung bei Leistungen zur Teilhabe (§ 14 SGB IX) und Bekanntgabe eines Bescheids (§ 37 SGB X). Ohne Argument kommt eine Übersicht, mit `thema` ein Thema.
@@ -180,9 +189,11 @@ Der Server bietet MCP-Prompts an, die Schritt für Schritt durch einen Fall füh
 | `pflegegutachten_verstehen` | Ein Pflegegutachten verstehen: Einstufungen übernehmen, eigene Sicht zu zweifelhaften Kriterien erfragen, mit `bi_gegenueberstellen` jeden Unterschied erklären, Formulierungshilfen für eine eigene Darstellung, allgemeiner Hinweis auf Widerspruchsfrist laut Rechtsbehelfsbelehrung und unabhängige Beratung. Argument: `alter_monate` |
 | `gdb_antrag_vorbereiten` | Antrag auf GdB und Merkzeichen vorbereiten: Diagnosen (ICD), Auswirkungen mit O-Ton, Befunde, eigene Orientierung an Zeilen der GdS-Tabelle mit `vmg_spanne_pruefen`, Merkzeichen im Wortlaut, Bitte um Befundberichte; kein Gesamt-GdB als Zahl, Nachteilsausgleiche nur allgemein. Argumente: `wer_antwortet`, `alter_monate` |
 | `gdb_bescheid_verstehen` | GdB-Bescheid verstehen: Funktionsbeeinträchtigungen und Einzel-GdB Zeilen zuordnen und erklären, `vmg_gesamt_gdb` als Prüfhilfe, Unterschiede zur eigenen Sicht, Wege allgemein mit `verfahren_info`. Argument: `alter_monate` |
+| `teilhabebedarf_erfassen` | Eigenen Teilhabebedarf beschreiben: Ziele und Wünsche, die neun Lebensbereiche nach § 118 SGB IX in Ich-Form mit O-Ton, ICF- und ICD-Kodes, Umweltfaktoren, Orientierung Pflege/Eingliederungshilfe, Zuständigkeit allgemein; bei Kindern § 35a SGB VIII. Argumente: `wer_antwortet`, `alter_monate` |
+| `bedarfsfeststellung_verstehen` | Bedarfsermittlung, Gesamtplan bzw. Teilhabeplan oder Bescheid verstehen: kommen eigene Bedarfe, Wünsche und Ziele vor, wo fehlen Belege; Abgleich mit `fall_vergleichen`, Wege allgemein mit `verfahren_info`. Argument: `alter_monate` |
 | `eigene_darstellung_vorbereiten` | Die eigene Situation sachlich aufschreiben: Tatsachen, Beobachtungen, Belege und O-Ton getrennt erfassen (auch aus dem Fallprofil), Lücken mit `fall_pruefen` finden, Wege allgemein mit `verfahren_info` erklären, Gliederung der eigenen Darstellung ohne rechtliche Begründung, Verweis auf unabhängige Beratung. Argumente: `wer_antwortet`, `bereich` (`gdb`, `pflege`, `teilhabe`) |
 
-Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts, mit `ICF_MCP_VMG=0` beide GdB-Prompts; `eigene_darstellung_vorbereiten` bleibt und nennt dann keine Werkzeuge der abgeschalteten Module.
+Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts, mit `ICF_MCP_VMG=0` beide GdB-Prompts; die Teilhabe-Prompts und `eigene_darstellung_vorbereiten` bleiben und nennen dann keine Werkzeuge der abgeschalteten Module.
 
 ## Online-Konnektor (ohne Installation)
 
@@ -249,6 +260,8 @@ src/                 MCP-Server
   vmg_tools.mjs      Tool-Definitionen für vmg.mjs (abschaltbar mit ICF_MCP_VMG=0)
   verfahren.mjs      Verfahrenswege: kuratierte Erklärungen und wörtliche Normauszüge
   verfahren_tools.mjs Tool-Definition für verfahren_info
+  teilhabe.mjs       Orientierung Eingliederungshilfe/Pflege je ICF-d-Kategorie
+  teilhabe_tools.mjs Tool-Definition für abgrenzung_egh_pflege (mit dem BI-Modul abschaltbar)
   data.mjs           Lädt die JSON-Daten (lokal und in Netlify Functions)
   graph.mjs          Wissensnetz: Kanten, Rückverweise, Bereiche, kürzeste Wege
   text.mjs           Gemeinsame Hilfen (Suche, Fehler)

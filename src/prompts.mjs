@@ -59,6 +59,17 @@ function gdbAltersText(monate) {
 const GDB_GRENZEN = `- Die VersMedV-Werkzeuge liefern Wortlaut, Pfad und Fundstelle. Ein GdS-Wert wird nie ohne seine Zeile, ihren Pfad und die Fundstelle genannt. Teil B nennt Anhaltswerte; nach Teil A Nr. 1.4 kann mit besonderer Begründung abgewichen werden.
 - Es gibt kein Gesamt-GdB als Zahl: Teil A Nr. 3 verbietet das Addieren und verlangt eine Gesamtschau. vmg_gesamt_gdb zeigt nur die Regeln und Markierungen. Die Einstufung bleibt eine gutachterliche Entscheidung.`;
 
+/** Altershinweis für die Teilhabe-Prompts (§ 35a SGB VIII, § 99 SGB IX). */
+function teilhabeAltersText(monate) {
+  if (monate === undefined || monate >= 18 * 12) return "";
+  return `Es geht um ein Kind bzw. eine jugendliche Person (${monate} Monate). Maßstab ist der für das Lebensalter typische Zustand. Bei (drohender) seelischer Behinderung leistet die Eingliederungshilfe das Jugendamt (§ 35a SGB VIII); für Widerspruch und Klage gelten dort die VwGO und die Verwaltungsgerichte. Bei körperlicher oder geistiger Behinderung ist es die Eingliederungshilfe nach dem SGB IX. Welche Behinderung im Vordergrund steht, beurteilen Fachleute; das Gespräch nimmt das nicht vorweg.\n`;
+}
+
+const ABGRENZUNG_SCHRITT = () =>
+  BI_ENABLED
+    ? "Mit abgrenzung_egh_pflege je d-Kategorie zeigen, ob das Begutachtungsinstrument der Pflegeversicherung den Bereich erfasst (ueberschneidung) oder nicht (teilhabe). Erklären, dass Pflege und Eingliederungshilfe nebeneinander stehen und es auf den Zweck der Unterstützung ankommt (§ 13 Abs. 3 SGB XI); das ist eine Orientierung, keine Zuständigkeitsentscheidung."
+    : "Erklären, dass Pflege und Eingliederungshilfe nebeneinander stehen und es auf den Zweck der Unterstützung ankommt (§ 13 Abs. 3 SGB XI): Pflege bei den Bereichen der Pflegebegutachtung, Eingliederungshilfe bei Befähigung und Teilhabe (§§ 78, 113 SGB IX). Das ist eine Orientierung, keine Zuständigkeitsentscheidung.";
+
 const GRUNDSAETZE = `Grundsätze für das ganze Gespräch:
 - Du hilfst einer antragsberechtigten Person, ihre Situation zu ordnen. Es findet keine Rechtsberatung statt: keine Einschätzung, ob ein Antrag oder Widerspruch Erfolg hat, keine Empfehlung eines Rechtswegs, keine Aussage, ob ein Gutachten oder Bescheid rechtmäßig ist. Bei Rechtsfragen auf unabhängige Beratung verweisen (Pflegeberatung nach § 7a SGB XI, Pflegestützpunkt, EUTB, Sozialverbände).
 - Einfache, freundliche Sprache. Höchstens drei Fragen auf einmal. Pausen anbieten; man kann jederzeit unterbrechen und später mit dem Fallprofil weitermachen.
@@ -237,6 +248,69 @@ Ergebnis:
 - Den Bescheid in einfacher Sprache: was festgestellt wurde und was die Werte bedeuten, je Funktionsbeeinträchtigung mit Zeile, Pfad und Fundstelle.
 - Eine Übersicht der Unterschiede zur eigenen Sicht mit Belegen, die vorliegen oder fehlen.
 - Den allgemeinen Hinweis auf die Rechtsbehelfsbelehrung des Bescheids und auf unabhängige Beratung (EUTB, Sozialverbände). Auf Wunsch weiter mit eigene_darstellung_vorbereiten.`;
+    },
+  },
+  {
+    name: "teilhabebedarf_erfassen",
+    title: "Teilhabebedarf erfassen",
+    description:
+      "Geführter Ablauf, um den eigenen Bedarf an Leistungen zur Teilhabe (z. B. Eingliederungshilfe) zu beschreiben: nach den neun Lebensbereichen des § 118 SGB IX, in Ich-Form mit O-Ton, ICF-strukturiert und mit Diagnosen (ICD), mit Umweltfaktoren, Wünschen und Zielen. Orientierung Pflege/Eingliederungshilfe und Zuständigkeit allgemein. Ergebnis: Fallprofil und eine Darstellung für das Gesamtplan- bzw. Teilhabeplanverfahren. Keine Rechtsberatung.",
+    arguments: [
+      { name: "wer_antwortet", description: "person | person_mit_unterstuetzung | unterstuetzende_person", required: false },
+      { name: "alter_monate", description: "Bei Kindern und Jugendlichen: Alter in Monaten", required: false },
+    ],
+    render(args) {
+      const wer = args.wer_antwortet ?? "person";
+      if (typeof wer !== "string" || !Object.hasOwn(WER, wer)) throw new PromptError(`wer_antwortet muss einer dieser Werte sein: ${Object.keys(WER).join(", ")}.`);
+      const monate = alterMonate(args.alter_monate);
+      return `Hilf mir, meinen Bedarf an Unterstützung zur Teilhabe zu beschreiben – zum Beispiel für einen Antrag auf Eingliederungshilfe oder für das Gesamtplan- bzw. Teilhabeplanverfahren.
+
+${WER[wer]}
+${teilhabeAltersText(monate)}
+${GRUNDSAETZE}
+- Es geht um die Sicht der Person: was sie im Alltag erlebt, was sie sich wünscht und welche Ziele sie hat. Das Gespräch nimmt keine Bedarfsfeststellung des Trägers vorweg und sagt nicht, welche Leistung zusteht.
+
+Ablauf:
+1. Kurz erklären, was der Ablauf leistet, und fragen, ob schon ein Fallprofil vorliegt; wenn ja, daran anknüpfen. Erwähnen, dass man zum Gesamtplanverfahren eine Person des Vertrauens mitbringen kann (§ 117 Abs. 2 SGB IX).
+2. Ziele und Wünsche zuerst: Wie möchte die Person wohnen, arbeiten oder lernen, ihre Freizeit verbringen, Kontakte pflegen? Was soll sich ändern? Wünsche zur Gestaltung der Unterstützung festhalten (§ 104 Abs. 2 SGB IX).
+3. Die neun Lebensbereiche nach § 118 SGB IX nacheinander durchgehen (Lernen und Wissensanwendung, Allgemeine Aufgaben und Anforderungen, Kommunikation, Mobilität, Selbstversorgung, häusliches Leben, interpersonelle Interaktionen und Beziehungen, bedeutende Lebensbereiche, Gemeinschafts-, soziales und staatsbürgerliches Leben). Je Bereich: Was klappt, was nicht, welche Unterstützung gibt es heute, welche fehlt? In Ich-Form mit O-Ton festhalten; Bereiche ohne Bedarf kurz bestätigen.
+4. Die Schilderungen ICF-strukturiert festhalten: passende d-Kategorien mit icf_search finden und mit icf_get_code prüfen (Beurteilungsmerkmal nur, wenn die Person die Schwere selbst einschätzt); Ursachen als Diagnosen mit icd_search; Körperfunktionen (b) nur, wenn sie zur Erklärung nötig sind. Umweltfaktoren (e) als Barrieren oder Förderfaktoren festhalten (z. B. Wohnung, Hilfsmittel, Unterstützung durch Angehörige).
+5. ${ABGRENZUNG_SCHRITT()}
+6. Zuständigkeit allgemein: Der Träger, bei dem der Antrag eingeht, klärt sie (verfahren_info mit Thema zustaendigkeit). Keine Aussage, welcher Träger im Einzelfall zuständig ist.
+7. Alles im Fallprofil festhalten (Einträge mit Herkunft "interview", Zusammenhänge verursacht/beeintraechtigt/foerdert/hemmt, ziele mit gewuenschter Unterstützung) und mit fall_pruefen prüfen; die Lebensbereiche und Lücken aus fall_pruefen besprechen.
+
+Ergebnis:
+- Das Fallprofil (JSON) zum Weiterverwenden.
+- Eine Darstellung „Mein Unterstützungsbedarf“ in Ich-Form: Ziele und Wünsche, je Lebensbereich Situation, Unterstützung heute und gewünschte Unterstützung, mit O-Ton und Belegen.
+- Eine Liste der Belege, die vorliegen oder noch fehlen (Befunde, Berichte von Schule, Werkstatt oder Diensten).
+- Den Verweis auf unabhängige Beratung (EUTB nach § 32 SGB IX, Sozialverbände); auf Wunsch weiter mit eigene_darstellung_vorbereiten.`;
+    },
+  },
+  {
+    name: "bedarfsfeststellung_verstehen",
+    title: "Bedarfsfeststellung oder Gesamtplan verstehen",
+    description:
+      "Geführter Ablauf, um eine Bedarfsermittlung, einen Gesamtplan (§ 121 SGB IX) oder Teilhabeplan bzw. einen Bescheid über Leistungen zur Teilhabe zu verstehen: Kommen die eigenen Bedarfe, Wünsche und Ziele vor, wo weicht die eigene Sicht ab, wo fehlen Belege? Abgleich mit dem Fallprofil (fall_vergleichen), Wege allgemein mit verfahren_info. Keine Bewertung, keine Rechtsberatung.",
+    arguments: [{ name: "alter_monate", description: "Bei Kindern und Jugendlichen: Alter in Monaten", required: false }],
+    render(args) {
+      const monate = alterMonate(args.alter_monate);
+      return `Hilf mir, eine Bedarfsermittlung, einen Gesamtplan (§ 121 SGB IX) bzw. Teilhabeplan oder einen Bescheid über Leistungen zur Teilhabe zu verstehen und mit meiner eigenen Sicht abzugleichen.
+${teilhabeAltersText(monate)}
+${GRUNDSAETZE}
+- Bewerte nicht, ob die Feststellung oder der Bescheid richtig ist. Zeige, was dort steht, und wo meine Sicht abweicht oder Belege fehlen.
+
+Ablauf:
+1. Das Dokument übernehmen: Ich lade es hoch oder nenne die Angaben. Lies heraus: festgestellte Bedarfe je Lebensbereich, Ziele, Wünsche, Leistungen nach Inhalt, Umfang und Dauer, Überprüfungszeitpunkt, beteiligte Träger. Bei einem Bescheid Datum und Rechtsbehelfsbelehrung notieren; die Frist nicht berechnen.
+2. In einfacher Sprache erklären, was dort steht. Kennzeichnen, was aus dem Dokument stammt und was deine Erklärung ist.
+3. Mit meiner Sicht abgleichen: Liegt ein Fallprofil vor (z. B. aus teilhabebedarf_erfassen), die Angaben aus dem Dokument als zweite Fassung mit herkunft "bescheid" bzw. "material" festhalten und mit fall_vergleichen gegenüberstellen; sonst meine Sicht mit O-Ton erfragen.
+4. Für jeden Lebensbereich zeigen: Kommen meine Bedarfe vor? Kommen meine Wünsche und Ziele vor (der Gesamtplan dokumentiert nach § 121 Abs. 4 SGB IX auch die Berücksichtigung des Wunsch- und Wahlrechts)? Wo fehlen Belege, die meine Sicht stützen?
+5. ${ABGRENZUNG_SCHRITT()}
+6. Die möglichen Wege allgemein mit verfahren_info erklären (z. B. Widerspruch, Akteneinsicht, Überprüfungsantrag, neuer Antrag bei veränderter Situation), ohne einen zu empfehlen.
+
+Ergebnis:
+- Das Dokument in einfacher Sprache.
+- Eine Übersicht je Lebensbereich: was festgestellt ist, was ich anders sehe, welche Belege vorliegen oder fehlen.
+- Den allgemeinen Hinweis auf die Rechtsbehelfsbelehrung und auf unabhängige Beratung (EUTB nach § 32 SGB IX, Sozialverbände); auf Wunsch weiter mit eigene_darstellung_vorbereiten.`;
     },
   },
 ];

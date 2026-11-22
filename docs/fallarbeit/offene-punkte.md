@@ -51,3 +51,8 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 - [ ] Zeilen der Sondertabellen (Hörverlust, Sehschärfe) haben keine Kennung und sind nicht mit `vmg_spanne_pruefen` prüfbar. *mittel*
 - [ ] `fall_vergleichen` ordnet `VMG:B 3.7` (Abschnitt) und `VMG:B 3.7 Z2` (Zeile) nicht einander zu: Weggefallen plus neu statt einer GdB-Änderung; ggf. Hinweis, wenn Zeile und gleicher Abschnitt sich gegenüberstehen. *klein*
 - [ ] `fall_pruefen` nennt einen eigenen Orientierungswert wie einen festgestellten („angegebener Einzel-GdB“); bei Herkunft ungleich `bescheid`/`gutachten` „selbst angegebener Wert“ schreiben. *klein*
+
+## Teilhabe (`src/teilhabe.mjs`, `src/prompts.mjs`, Version 1.11.0)
+
+- [ ] `abgrenzung_egh_pflege` nimmt nur eine Kodeliste; ein Fallprofil direkt (alle d-Einträge) wäre bequemer. *klein*
+- [ ] Für ein ganzes Kapitel (`d5`) werden alle zugeordneten BI-Kriterien der Unterkategorien gelistet; ggf. kürzen. *klein*
