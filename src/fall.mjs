@@ -133,7 +133,7 @@ export function parseProfil(input) {
 
 
 /** Lebensbereiche nach § 118 Abs. 1 Satz 3 SGB IX (= Kapitel d1–d9 der ICF). */
-const LEBENSBEREICHE = [
+export const LEBENSBEREICHE = [
   "Lernen und Wissensanwendung",
   "Allgemeine Aufgaben und Anforderungen",
   "Kommunikation",

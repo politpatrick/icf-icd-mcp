@@ -161,3 +161,66 @@ test("Review: GdB-Prompts – Merkzeichen ohne Wortlaut, Herkunft eigener Werte,
   assert.match(b, /alle Zeilen des Abschnitts/);
   assert.match(b, /nicht die des Versorgungsamts/);
 });
+
+// --- Teilhabe-Prompts (1.11.0) ---
+
+test("Teilhabe-Prompts: in der Liste mit Argumenten", () => {
+  const { prompts } = rpc("prompts/list").result;
+  assert.deepEqual(prompts.find((p) => p.name === "teilhabebedarf_erfassen").arguments.map((a) => a.name), ["wer_antwortet", "alter_monate"]);
+  assert.deepEqual(prompts.find((p) => p.name === "bedarfsfeststellung_verstehen").arguments.map((a) => a.name), ["alter_monate"]);
+});
+
+test("teilhabebedarf_erfassen: Lebensbereiche, ICF, Wünsche, Abgrenzung, Grenzen", () => {
+  const t = text("teilhabebedarf_erfassen", {});
+  for (const w of ["§ 118 SGB IX", "icf_search", "icf_get_code", "icd_search", "O-Ton", "Ich-Form", "Umweltfaktoren", "Ziele", "abgrenzung_egh_pflege", "verfahren_info", "§ 117 Abs. 2 SGB IX", "§ 104 Abs. 2 SGB IX", "fall_pruefen", "EUTB", "keine Rechtsberatung"]) assert.ok(t.includes(w), w);
+  assert.ok(!/Erfolgsaussicht|nur Pflege/i.test(t));
+  assert.ok(!t.includes("§ 35a SGB VIII"));
+  assert.match(text("teilhabebedarf_erfassen", { alter_monate: "120" }), /§ 35a SGB VIII.*VwGO/s);
+});
+
+test("bedarfsfeststellung_verstehen: Abgleich ohne Bewertung", () => {
+  const t = text("bedarfsfeststellung_verstehen", {});
+  for (const w of ["§ 121 SGB IX", "Wünsche", "Ziele", "Belege", "fall_vergleichen", "abgrenzung_egh_pflege", "verfahren_info", "Rechtsbehelfsbelehrung", "EUTB", "keine Rechtsberatung"]) assert.ok(t.includes(w), w);
+  assert.ok(!/Erfolgsaussicht|rechtswidrig/i.test(t));
+  assert.equal(rpc("prompts/get", { name: "bedarfsfeststellung_verstehen", arguments: { alter_monate: "x" } }).error.code, -32602);
+  assert.equal(rpc("prompts/get", { name: "teilhabebedarf_erfassen", arguments: { wer_antwortet: "nachbar" } }).error.code, -32602);
+});
+
+test("ICF_MCP_BI=0: Teilhabe-Prompts bleiben, ohne abgrenzung_egh_pflege; Tool fehlt", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const run = (msgs) => spawnSync(process.execPath, ["src/server.mjs"], {
+    input: msgs.map((m) => JSON.stringify(m)).join("\n") + "\n",
+    env: { ...process.env, ICF_MCP_BI: "0" },
+    cwd: new URL("..", import.meta.url).pathname,
+    encoding: "utf-8",
+  }).stdout.trim().split("\n").map((l) => JSON.parse(l));
+  const [tools, p1, p2] = run([
+    { jsonrpc: "2.0", id: 1, method: "tools/list" },
+    { jsonrpc: "2.0", id: 2, method: "prompts/get", params: { name: "teilhabebedarf_erfassen", arguments: {} } },
+    { jsonrpc: "2.0", id: 3, method: "prompts/get", params: { name: "bedarfsfeststellung_verstehen", arguments: {} } },
+  ]);
+  assert.ok(!tools.result.tools.some((t) => t.name === "abgrenzung_egh_pflege"));
+  for (const p of [p1, p2]) assert.ok(!p.result.messages[0].content.text.includes("abgrenzung_egh_pflege"));
+});
+
+test("Review: Teilhabe-Prompts – Wünsche nach § 117, Kinder § 10 Abs. 4 SGB VIII, Herkunft, Instructions ohne BI", async () => {
+  const b = text("bedarfsfeststellung_verstehen", {});
+  assert.ok(!b.includes("§ 121 Abs. 4"));
+  assert.match(b, /§ 117 Abs\. 1 Nr\. 2 SGB IX/);
+  const k = text("teilhabebedarf_erfassen", { alter_monate: "120" });
+  assert.match(k, /§ 10 Abs\. 4 SGB VIII/);
+  assert.match(k, /§ 41 SGB VIII/);
+  assert.match(k, /Rechtsbehelfsbelehrung/);
+  assert.ok(!/beurteilen Fachleute/.test(k));
+  assert.match(text("teilhabebedarf_erfassen", {}), /§ 118 SGB IX.*amtlich.*kuratiert/s);
+  const { spawnSync } = await import("node:child_process");
+  const out = spawnSync(process.execPath, ["src/server.mjs"], {
+    input: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "initialize" }) + "\n",
+    env: { ...process.env, ICF_MCP_BI: "0" },
+    cwd: new URL("..", import.meta.url).pathname,
+    encoding: "utf-8",
+  }).stdout;
+  const ins = JSON.parse(out).result.instructions;
+  assert.match(ins, /teilhabebedarf_erfassen/);
+  assert.ok(!ins.includes("abgrenzung_egh_pflege"));
+});
