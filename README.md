@@ -173,6 +173,12 @@ Je Kategorie nennt die Erläuterung die Leistungsgruppe der Eingliederungshilfe:
 
 Eine Kennzeichnung „nur Pflege“ gibt es bewusst nicht: Die Eingliederungshilfe ist gegenüber der Pflegeversicherung nicht nachrangig (§ 13 Abs. 3 SGB XI, § 91 Abs. 3 SGB IX); es kommt auf den Zweck der Unterstützung an. Die Zuordnung baut auf der kuratierten Zuordnung von `bi_icf_mapping` auf und ist nicht amtlich. Das Werkzeug trifft **keine Zuständigkeitsentscheidung** und prüft keinen Anspruch. Mit `ICF_MCP_BI=0` entfällt es.
 
+## Leistungen und Nachteilsausgleiche
+
+`leistungshinweise` zeigt zu **festgestellten** Werten mögliche Leistungen und Nachteilsausgleiche. Eingaben: `gdb` (0–100), `merkzeichen` (G, aG, B, H, Bl, Gl, RF, TBl), `pflegegrad` (1–5) und optional `alter_monate`. Die Ausgabe enthält je Eintrag die Gruppe (`gdb`, `merkzeichen`, `pflege`, `schnittstelle`, `landesrecht`), das Signal, die Leistung, Normen mit Link auf gesetze-im-internet.de, die typische Stelle, den Rang (Vorrang/Nachrang), die Voraussetzung allgemein und einen nächsten Schritt; dazu die Herkunft und einen Beratungshinweis.
+
+Der Katalog ist kuratiert (nicht amtlich); die Normen wurden an gesetze-im-internet.de geprüft. Das Werkzeug nennt **keine Beträge** und prüft weder Anspruch noch Einkommen oder Vermögen noch die Zuständigkeit im Einzelfall. Landesrecht (Blindengeld, Gehörlosengeld, Rundfunkbeitrag, Parkerleichterungen) erscheint nur als Hinweis „je Land verschieden“ ohne Normlink. Ein eigener Orientierungswert gehört nicht als festgestellter Wert hinein. Es ist **keine Rechtsberatung**.
+
 ## Verfahrenswege
 
 `verfahren_info` erklärt **allgemein** und in einfacher Sprache, welche Wege es im Sozialrecht gibt: Widerspruch, Überprüfungsantrag (§ 44 SGB X), Neufeststellungs- bzw. Höherstufungsantrag (§ 48 SGB X), Akteneinsicht (§ 25 SGB X), Untätigkeitsklage (§ 88 SGG), Zuständigkeitsklärung bei Leistungen zur Teilhabe (§ 14 SGB IX) und Bekanntgabe eines Bescheids (§ 37 SGB X). Ohne Argument kommt eine Übersicht, mit `thema` ein Thema.
@@ -193,9 +199,10 @@ Der Server bietet MCP-Prompts an, die Schritt für Schritt durch einen Fall füh
 | `gdb_bescheid_verstehen` | GdB-Bescheid verstehen: Funktionsbeeinträchtigungen und Einzel-GdB Zeilen zuordnen und erklären, `vmg_gesamt_gdb` als Prüfhilfe, Unterschiede zur eigenen Sicht, Wege allgemein mit `verfahren_info`. Argument: `alter_monate` |
 | `teilhabebedarf_erfassen` | Eigenen Teilhabebedarf beschreiben: Ziele und Wünsche, die neun Lebensbereiche nach § 118 SGB IX in Ich-Form mit O-Ton, ICF- und ICD-Kodes, Umweltfaktoren, Orientierung Pflege/Eingliederungshilfe, Zuständigkeit allgemein; bei Kindern § 35a SGB VIII. Argumente: `wer_antwortet`, `alter_monate` |
 | `bedarfsfeststellung_verstehen` | Bedarfsermittlung, Gesamtplan bzw. Teilhabeplan oder Bescheid verstehen: kommen eigene Bedarfe, Wünsche und Ziele vor, wo fehlen Belege; Abgleich mit `fall_vergleichen`, Wege allgemein mit `verfahren_info`. Argument: `alter_monate` |
+| `leistungen_finden` | Mögliche Leistungen und Nachteilsausgleiche zu festgestellten Werten finden: `leistungshinweise`, Einträge nach Lebenslage ordnen, nächster Schritt und typische Stelle allgemein, Landesrecht als „je Land verschieden“, Beratung (EUTB, § 7a SGB XI). Argument: `wer_antwortet` |
 | `eigene_darstellung_vorbereiten` | Die eigene Situation sachlich aufschreiben: Tatsachen, Beobachtungen, Belege und O-Ton getrennt erfassen (auch aus dem Fallprofil), Lücken mit `fall_pruefen` finden, Wege allgemein mit `verfahren_info` erklären, Gliederung der eigenen Darstellung ohne rechtliche Begründung, Verweis auf unabhängige Beratung. Argumente: `wer_antwortet`, `bereich` (`gdb`, `pflege`, `teilhabe`) |
 
-Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts, mit `ICF_MCP_VMG=0` beide GdB-Prompts; die Teilhabe-Prompts und `eigene_darstellung_vorbereiten` bleiben und nennen dann keine Werkzeuge der abgeschalteten Module.
+Mit `ICF_MCP_BI=0` entfallen beide Pflege-Prompts, mit `ICF_MCP_VMG=0` beide GdB-Prompts; die Teilhabe-Prompts, `leistungen_finden` und `eigene_darstellung_vorbereiten` bleiben und nennen dann keine Werkzeuge der abgeschalteten Module.
 
 ## Online-Konnektor (ohne Installation)
 
@@ -264,6 +271,8 @@ src/                 MCP-Server
   verfahren_tools.mjs Tool-Definition für verfahren_info
   teilhabe.mjs       Orientierung Eingliederungshilfe/Pflege je ICF-d-Kategorie
   teilhabe_tools.mjs Tool-Definition für abgrenzung_egh_pflege (mit dem BI-Modul abschaltbar)
+  leistungen.mjs     Leistungen und Nachteilsausgleiche: kuratierter Katalog, Auswahl nach GdB, Merkzeichen, Pflegegrad
+  leistungen_tools.mjs Tool-Definition für leistungshinweise
   data.mjs           Lädt die JSON-Daten (lokal und in Netlify Functions)
   graph.mjs          Wissensnetz: Kanten, Rückverweise, Bereiche, kürzeste Wege
   text.mjs           Gemeinsame Hilfen (Suche, Fehler)

@@ -56,3 +56,16 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 
 - [ ] `abgrenzung_egh_pflege` nimmt nur eine Kodeliste; ein Fallprofil direkt (alle d-Einträge) wäre bequemer. *klein*
 - [ ] Für ein ganzes Kapitel (`d5`) werden alle zugeordneten BI-Kriterien der Unterkategorien gelistet; ggf. kürzen. *klein*
+
+## Leistungen (`src/leistungen.mjs`, Version 1.12.0)
+
+- [ ] `alter_hinweis` ist statischer Text, auch wenn `alter_monate` nicht angegeben ist; ohne Alter ggf. weglassen oder als Rückfrage kennzeichnen. *klein*
+- [ ] `gdb: 0` allein liefert leere Listen ohne Hinweis, warum (kein GdB ab 20, kein Merkzeichen, kein Pflegegrad); ein Hinweis wäre verständlicher. *klein*
+- [ ] `signal` nennt nur die tatsächlich angegebenen Merkzeichen, nicht die weiteren Alternativen, die einen Eintrag ebenfalls auslösen würden. *klein*
+- [ ] Der Katalog ist eine Auswahl; weitere Leistungen (z. B. Hilfsmittel, Wohngeld, Assistenzleistungen) und je Land die Landesrecht-Regelungen sind nicht abgedeckt. Katalog bei Gesetzesänderungen abgleichen (wöchentliche Prüfung). *mittel*
+- [ ] Der Prompt `leistungen_finden` übernimmt festgestellte Werte nur nach Anweisung im Text; `fall_pruefen` unterscheidet Orientierungswert und festgestellten Wert noch nicht (siehe Abschnitt GdB). *klein*
+- [ ] Rundfunkbeitrag auch bei Merkzeichen Gl (Rundfunkbeitragsstaatsvertrag § 4 Abs. 2, Landesrecht, nicht verifiziert). *klein*
+- [ ] `alter_monate` wird nur für `kind` genutzt: Erwachsenen-Einträge (Altersrente, Zusatzurlaub, Kündigungsschutz, Mehrbedarf) erscheinen auch bei Kindern; § 41 SGB VIII für 18- bis 20-Jährige ist nicht erreichbar. *klein*
+- [ ] `gdb` nimmt auch Nicht-Zehnergrade an (Feststellung nur in Zehnergraden ab 20, § 152 Abs. 1 SGB IX); `pflegegrad: 0` wirft einen Fehler statt „kein Pflegegrad“. *klein*
+- [ ] Bei Eingabe nur mit Pflegegrad fehlt der Hinweis, dass ein GdB beantragt werden kann. *klein*
+- [ ] TBl (taubblind) löst `kfz_befreiung` und `parkerleichterung` nicht aus; § 3a Abs. 1 KraftStG nennt nur H, Bl und aG. Bei Bedarf klären. *klein*

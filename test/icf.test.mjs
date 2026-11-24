@@ -32,7 +32,7 @@ test("tools/list liefert alle Tools ohne interne Felder", () => {
   assert.deepEqual(tools.map((t) => t.name).sort(), [
     "icd_check_code", "icd_compare", "icd_get_code", "icd_list_chapters", "icd_relations", "icd_search",
     "icf_compare", "icf_get_code", "icf_get_qualifiers", "icf_get_related", "icf_interpret_coding", "icf_list_chapters", "icf_search",
-  ].concat(["bi_calculate", "bi_compare", "bi_gegenueberstellen", "bi_get_item", "bi_icf_mapping", "bi_interpret_coding", "bi_list_structure", "bi_related", "bi_scoring_rules", "bi_search"]).concat(["vmg_gesamt_gdb", "vmg_get", "vmg_list_structure", "vmg_merkzeichen", "vmg_search", "vmg_spanne_pruefen"]).concat(["fall_pruefen", "fall_schema", "fall_vergleichen", "verfahren_info", "abgrenzung_egh_pflege"]).sort());
+  ].concat(["bi_calculate", "bi_compare", "bi_gegenueberstellen", "bi_get_item", "bi_icf_mapping", "bi_interpret_coding", "bi_list_structure", "bi_related", "bi_scoring_rules", "bi_search"]).concat(["vmg_gesamt_gdb", "vmg_get", "vmg_list_structure", "vmg_merkzeichen", "vmg_search", "vmg_spanne_pruefen"]).concat(["fall_pruefen", "fall_schema", "fall_vergleichen", "verfahren_info", "abgrenzung_egh_pflege", "leistungshinweise"]).sort());
   assert.ok(tools.every((t) => !("run" in t) && t.inputSchema));
 });
 

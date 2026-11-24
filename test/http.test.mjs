@@ -51,5 +51,5 @@ test("Netlify-Function ist unter /mcp mit Ratenbegrenzung konfiguriert", async (
   assert.equal(config.path, "/mcp");
   assert.ok(config.rateLimit.windowLimit > 0);
   const res = await netlifyFunction(post({ jsonrpc: "2.0", id: 4, method: "tools/list" }));
-  assert.equal((await res.json()).result.tools.length, 34); // 13 ICF/ICD + 10 BI + 6 VersMedV + 3 Fallprofil + 1 Verfahren + 1 Teilhabe
+  assert.equal((await res.json()).result.tools.length, 35); // 13 ICF/ICD + 10 BI + 6 VersMedV + 3 Fallprofil + 1 Verfahren + 1 Teilhabe + 1 Leistungen
 });
