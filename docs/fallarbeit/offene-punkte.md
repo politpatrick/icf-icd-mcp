@@ -64,3 +64,8 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 - [ ] `signal` nennt nur die tatsächlich angegebenen Merkzeichen, nicht die weiteren Alternativen, die einen Eintrag ebenfalls auslösen würden. *klein*
 - [ ] Der Katalog ist eine Auswahl; weitere Leistungen (z. B. Hilfsmittel, Wohngeld, Assistenzleistungen) und je Land die Landesrecht-Regelungen sind nicht abgedeckt. Katalog bei Gesetzesänderungen abgleichen (wöchentliche Prüfung). *mittel*
 - [ ] Der Prompt `leistungen_finden` übernimmt festgestellte Werte nur nach Anweisung im Text; `fall_pruefen` unterscheidet Orientierungswert und festgestellten Wert noch nicht (siehe Abschnitt GdB). *klein*
+- [ ] Rundfunkbeitrag auch bei Merkzeichen Gl (Rundfunkbeitragsstaatsvertrag § 4 Abs. 2, Landesrecht, nicht verifiziert). *klein*
+- [ ] `alter_monate` wird nur für `kind` genutzt: Erwachsenen-Einträge (Altersrente, Zusatzurlaub, Kündigungsschutz, Mehrbedarf) erscheinen auch bei Kindern; § 41 SGB VIII für 18- bis 20-Jährige ist nicht erreichbar. *klein*
+- [ ] `gdb` nimmt auch Nicht-Zehnergrade an (Feststellung nur in Zehnergraden ab 20, § 152 Abs. 1 SGB IX); `pflegegrad: 0` wirft einen Fehler statt „kein Pflegegrad“. *klein*
+- [ ] Bei Eingabe nur mit Pflegegrad fehlt der Hinweis, dass ein GdB beantragt werden kann. *klein*
+- [ ] TBl (taubblind) löst `kfz_befreiung` und `parkerleichterung` nicht aus; § 3a Abs. 1 KraftStG nennt nur H, Bl und aG. Bei Bedarf klären. *klein*

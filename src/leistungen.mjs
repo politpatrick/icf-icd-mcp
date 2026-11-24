@@ -76,13 +76,13 @@ export const KATALOG = [
   {
     id: "kuendigungsschutz",
     gruppe: "gdb",
-    wenn: [{ gdb_ab: 50 }],
+    wenn: [{ gdb_ab: 50 }, { gdb_ab: 30, gdb_bis: 40 }],
     leistung: "Besonderer Kündigungsschutz: Kündigung durch den Arbeitgeber nur mit vorheriger Zustimmung des Integrationsamts",
     normen: [norm("§ 168 SGB IX", "sgb_9_2018/__168")],
     stelle: "Integrationsamt; im Betrieb auch die Schwerbehindertenvertretung",
     rang: SCHWERBEHINDERT,
     naechster_schritt: "Bei drohender Kündigung frühzeitig Integrationsamt, Schwerbehindertenvertretung oder Beratung einbeziehen.",
-    voraussetzung: "Gilt auch für Gleichgestellte (§ 151 Abs. 3 SGB IX); weitere Voraussetzungen und Ausnahmen prüft das Integrationsamt.",
+    voraussetzung: "Gilt auch für Gleichgestellte (§ 151 Abs. 3 SGB IX); bei GdB 30 oder 40 erst nach erfolgter Gleichstellung; weitere Voraussetzungen und Ausnahmen prüft das Integrationsamt.",
   },
   {
     id: "begleitende_hilfe",
@@ -214,7 +214,7 @@ export const KATALOG = [
     normen: [norm("§ 40 SGB XI", "sgb_11/__40")],
     stelle: "Pflegekasse",
     rang: "Nachrangig gegenüber Hilfsmitteln der Krankenversicherung und anderer Träger (§ 40 Abs. 1 SGB XI).",
-    naechster_schritt: "Bei der Pflegekasse Pflegehilfsmittel bzw. einen Zuschuss für Umbauten vor Beginn der Maßnahme beantragen.",
+    naechster_schritt: "Bei der Pflegekasse Pflegehilfsmittel bzw. einen Zuschuss für Umbauten möglichst vor Beginn beantragen.",
     voraussetzung: "Die Hilfsmittel erleichtern die Pflege, lindern Beschwerden oder ermöglichen eine selbständigere Lebensführung.",
   },
   {
@@ -275,13 +275,13 @@ export const KATALOG = [
   {
     id: "pflege_pauschbetrag",
     gruppe: "pflege",
-    wenn: [{ pflegegrad_ab: 2 }],
+    wenn: [{ pflegegrad_ab: 2 }, { merkzeichen: ["H"] }],
     leistung: "Pflege-Pauschbetrag in der Einkommensteuer der pflegenden Person",
     normen: [norm("§ 33b EStG", "estg/__33b")],
     stelle: "Finanzamt der pflegenden Person",
     rang: "Steuerlicher Nachteilsausgleich für die pflegende Person.",
     naechster_schritt: "Die pflegende Person gibt den Pflege-Pauschbetrag in ihrer Steuererklärung an.",
-    voraussetzung: "Persönliche, unentgeltliche Pflege in der eigenen Wohnung oder der Wohnung der pflegebedürftigen Person (§ 33b Abs. 6 EStG).",
+    voraussetzung: "Persönliche, unentgeltliche Pflege in der eigenen Wohnung oder der Wohnung der pflegebedürftigen Person (§ 33b Abs. 6 EStG); die gepflegte Person hat mindestens Pflegegrad 2 oder ist hilflos (Merkzeichen H, § 33b Abs. 6 Satz 4 EStG).",
   },
   {
     id: "besondere_wohnform",
@@ -368,9 +368,9 @@ export const KATALOG = [
     leistung: "Parkerleichterungen (z. B. Behindertenparkplätze, blauer bzw. orangefarbener Parkausweis)",
     normen: [],
     stelle: "Straßenverkehrsbehörde der Kommune",
-    rang: "Für aG und Bl bundesweit über die Straßenverkehrs-Ordnung; darüber hinaus Landesrecht, je Land verschieden (z. B. für bestimmte Personen mit Merkzeichen G).",
+    rang: "Parkerleichterungen sind Ausnahmegenehmigungen nach dem Straßenverkehrsrecht; welche Ausnahmen über aG und Bl hinaus gelten, regeln die Länder unterschiedlich.",
     naechster_schritt: "Bei der Straßenverkehrsbehörde einen Parkausweis beantragen und nach den Regeln im eigenen Land fragen.",
-    voraussetzung: "Ausnahmegenehmigung der Straßenverkehrsbehörde; erweiterte Regeln je nach Land.",
+    voraussetzung: "Ausnahmegenehmigung der Straßenverkehrsbehörde; weitere Regeln nach Landesrecht.",
   },
 ];
 

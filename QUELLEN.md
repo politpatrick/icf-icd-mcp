@@ -142,8 +142,8 @@ zu erzeugen (`scripts/k710_extract.py`, mit `pypdf`). Die Seitenzahlen der Brosc
 ## Normen für `leistungshinweise`
 
 - Quelle: Rechtsinformationsportal gesetze-im-internet.de (Bundesministerium der Justiz in Zusammenarbeit mit der juris GmbH),
-  am 22.11.2026 abgerufen und geprüft: § 2, § 29, § 32, § 103, § 151, § 152, § 168, § 185, § 208, § 228 SGB IX; §§ 7a, 13, 36, 37, 38, 39, 40, 41, 42, 42a, 43a, 44, 45b SGB XI;
-  §§ 30, 61 SGB XII; § 37 SGB VI; § 35a und § 10 SGB VIII; §§ 33, 33b EStG; § 3a KraftStG.
+  am 22.11.2026 abgerufen und geprüft: § 2, § 29, § 32, § 103, § 151, § 152, § 168, § 185, § 192, § 208, § 228 SGB IX; §§ 7a, 7c, 13, 36, 37, 38, 39, 40, 41, 42, 42a, 43a, 44, 45b SGB XI;
+  §§ 30, 61, 72 SGB XII; § 37 SGB VI; § 35a, § 10 und § 41 SGB VIII; §§ 33, 33b EStG; § 3a KraftStG.
 - Der Katalog in `src/leistungen.mjs` ist kuratiert (nicht amtlich): Die Auswahl, die Erklärungen, die Rangangaben und die nächsten Schritte stammen nicht aus den Gesetzen.
   Gesetzestexte werden nicht wiedergegeben, die Normen sind verlinkt. Landesrecht (Blindengeld, Gehörlosengeld, Rundfunkbeitrag, Parkerleichterungen) ist nur als Hinweis ohne Norm enthalten.
 - Bei Gesetzesänderungen den Katalog mit dem aktuellen Wortlaut abgleichen. Keine Beträge, keine Rechtsberatung.

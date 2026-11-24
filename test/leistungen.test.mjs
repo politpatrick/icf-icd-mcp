@@ -131,3 +131,9 @@ test("Fehler bei ungültigen Eingaben", () => {
     assert.ok(r.content[0].text.length > 10);
   }
 });
+
+test("Abschluss-Review: Pflege-Pauschbetrag bei H, Kündigungsschutz bei GdB 40", () => {
+  assert.ok(ids({ merkzeichen: ["H"] }).includes("pflege_pauschbetrag"));
+  assert.ok(ids({ gdb: 40 }).includes("kuendigungsschutz"));
+  assert.ok(!ids({ gdb: 20 }).includes("kuendigungsschutz"));
+});
