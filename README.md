@@ -283,7 +283,8 @@ source/              ClaML-Quelldateien von ICF und ICD-10-GM; BRi-Textauszug un
 scripts/             Konvertierung ClaML → JSON (icf_to_json.py, icd_to_json.py, build_data.sh),
                      BRi → JSON (bri_extract.py, bi_to_json.py)
                      VersMedV → JSON (versmedv_to_json.py, k710_extract.py)
-                     und graphify-Export (export_graphify.mjs, build_graphify.sh)
+                     und graphify-Export (export_graphify.mjs, build_graphify.sh),
+                     netlify_ignore.sh (Produktions-Builds aus Git überspringen)
 test/                Tests
 ```
 
@@ -328,7 +329,13 @@ Beziehungen: `ist_teil_von`, `schliesst_aus`, `verweist_auf`, `kreuz_stern`, `ne
 
 ### Online-Endpunkt aktualisieren
 
-Das Netlify-Projekt `icf-icd-mcp` hat keinen Build-Schritt. `netlify.toml` liefert `public/` aus, die Function unter `netlify/functions/` und die Daten aus `data/` (per `included_files`). Ist das Projekt in Netlify mit diesem GitHub-Repo verknüpft, wird jeder Push auf `main` automatisch veröffentlicht; sonst mit `netlify deploy --prod`.
+Das Netlify-Projekt `icf-icd-mcp` hat keinen Build-Schritt. `netlify.toml` liefert `public/` aus, die Function unter `netlify/functions/` und die Daten aus `data/` (per `included_files`). Das Projekt ist mit diesem GitHub-Repo verknüpft, veröffentlicht wird aber **einmal im Monat**, weil im Free-Plan jeder Produktions-Deploy Credits kostet:
+
+- Merges auf `main` lösen keinen Produktions-Deploy aus: `netlify.toml` überspringt sie mit `scripts/netlify_ignore.sh`. Deploy-Vorschauen für Pull Requests laufen weiter.
+- `.github/workflows/veroeffentlichen.yml` löst am 2. jedes Monats um 10:00 UTC einen Netlify-Build-Hook aus und veröffentlicht damit den Stand von `main`. Builds über einen Build-Hook bricht Netlify mit dem ignore-Kommando nicht ab. Der Hook steht als Repository-Secret `NETLIFY_BUILD_HOOK` bereit.
+- Außer der Reihe veröffentlichen: in GitHub unter Actions → „Monatlich veröffentlichen“ → *Run workflow*, oder aus einem sauberen Checkout von `main` mit `netlify deploy --prod`.
+
+Der Live-Stand kann deshalb bis zu einem Monat hinter `main` liegen.
 
 Manuell testen lässt sich der Server, indem man JSON-RPC-Zeilen auf stdin schickt:
 
