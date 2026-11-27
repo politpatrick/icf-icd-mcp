@@ -1,5 +1,7 @@
 [build]
   publish = "public"
+  # Produktions-Builds aus Git überspringen; veröffentlicht wird monatlich über den Build-Hook
+  ignore = "bash ./scripts/netlify_ignore.sh"
 
 [functions]
   # Die JSON-Daten werden zur Laufzeit per fs gelesen und müssen daher explizit mitkommen

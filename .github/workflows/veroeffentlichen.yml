@@ -1,0 +1,27 @@
+name: Monatlich veröffentlichen
+
+# Veröffentlicht den Stand von main einmal im Monat auf Netlify (Free-Plan: jeder
+# Produktions-Deploy kostet Credits). Merges auf main werden durch netlify.toml
+# (ignore) nicht automatisch veröffentlicht. Termin: am 2. jedes Monats um 10:00 UTC,
+# nach dem Monatswechsel der Netlify-Credits. Bei Bedarf auch von Hand startbar.
+# Benötigt das Repository-Secret NETLIFY_BUILD_HOOK (URL eines Build-Hooks für main).
+
+on:
+  schedule:
+    - cron: "0 10 2 * *"
+  workflow_dispatch:
+
+jobs:
+  veroeffentlichen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Netlify-Build-Hook auslösen
+        env:
+          HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::Secret NETLIFY_BUILD_HOOK fehlt (Netlify → Project configuration → Build hooks)."
+            exit 1
+          fi
+          curl -fsS -X POST -d '{}' "$HOOK?trigger_title=Monatliche%20Ver%C3%B6ffentlichung"
+          echo "Build ausgelöst; Ergebnis unter Netlify → Deploys."
