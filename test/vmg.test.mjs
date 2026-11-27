@@ -321,6 +321,13 @@ test("Stichwortverzeichnis wird als redaktionelle Beigabe gekennzeichnet", () =>
   assert.equal(nur.stichwoerter_hinweis !== undefined, nur.results.some((r) => r.stichwort));
 });
 
+test("RF: Fundstelle § 4 Abs. 2 RBStV an amtlicher Landesrechtsquelle bestätigt", () => {
+  const rf = call("vmg_merkzeichen", { merkzeichen: "RF" }).merkzeichen[0];
+  assert.match(rf.norm, /§ 4 Abs\. 2 Rundfunkbeitragsstaatsvertrag/);
+  assert.match(rf.hinweis, /Nr\. 1 bis 3/);
+  assert.doesNotMatch(rf.hinweis, /nicht an einer amtlichen Landesrechtsquelle geprüft/);
+});
+
 test("aG und TBl: Paraphrase wird nicht als Wortlaut ausgegeben", () => {
   for (const z of ["aG", "TBl"]) {
     const h = call("vmg_merkzeichen", { merkzeichen: z }).merkzeichen[0].hinweis;

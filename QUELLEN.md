@@ -128,7 +128,8 @@ zu erzeugen (`scripts/k710_extract.py`, mit `pypdf`). Die Seitenzahlen der Brosc
   Projekts (Teilstring-Vergleich von ICD-Titeln und Alphabet-Begriffen mit dem Stichwortverzeichnis). Es gibt keine amtliche
   Zuordnung zwischen ICD-10-GM und VersMedV.
 - **Normhinweise zu aG, RF und TBl:** aG: § 229 Absatz 3 SGB IX; TBl: § 3 Absatz 1 Nummer 8 Schwerbehindertenausweisverordnung
-  (SchwbAwV). Die genaue Vorschrift des Rundfunkbeitragsstaatsvertrags zu RF ist nicht verifiziert.
+  (SchwbAwV); RF: § 4 Absatz 2 Nummer 1 bis 3 Rundfunkbeitragsstaatsvertrag, geprüft am 27.11.2026 an der amtlichen
+  Landesrechtssammlung Brandenburg (BRAVORS, https://bravors.brandenburg.de/vertraege/rbstv/4).
 
 ## Gesetzesauszüge für `verfahren_info`
 

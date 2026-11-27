@@ -391,8 +391,8 @@ const MERKZEICHEN = [
   { zeichen: "Gl", bezeichnung: "Gehörlosigkeit", ids: ["VMG:D 4"] },
   {
     zeichen: "RF", bezeichnung: "Ermäßigung beim Rundfunkbeitrag",
-    norm: "Rundfunkbeitragsstaatsvertrag (Landesrecht), Ermäßigung nach § 4",
-    hinweis: "Die gesundheitlichen Voraussetzungen sind landesrechtlich festgelegt (§ 3 Abs. 1 Nr. 5 Schwerbehindertenausweisverordnung). Die genaue Fundstelle im Rundfunkbeitragsstaatsvertrag (§ 4) wurde nicht an einer amtlichen Landesrechtsquelle geprüft; die VersMedV enthält dazu keine eigene Nummer.",
+    norm: "§ 4 Abs. 2 Rundfunkbeitragsstaatsvertrag (Landesrecht)",
+    hinweis: "Die gesundheitlichen Voraussetzungen sind landesrechtlich festgelegt (§ 3 Abs. 1 Nr. 5 Schwerbehindertenausweisverordnung): Ermäßigung auf ein Drittel nach § 4 Abs. 2 Nr. 1 bis 3 Rundfunkbeitragsstaatsvertrag (sinngemäß: Sehbehinderung mit GdB von wenigstens 60 allein deswegen; Gehörlosigkeit oder keine ausreichende Verständigung über das Gehör; GdB von wenigstens 80 und ständig keine Teilnahme an öffentlichen Veranstaltungen möglich; maßgeblich ist der Wortlaut des Staatsvertrags in der Fassung des jeweiligen Landes). Die VersMedV enthält dazu keine eigene Nummer.",
   },
   {
     zeichen: "TBl", bezeichnung: "Taubblindheit",

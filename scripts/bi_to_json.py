@@ -84,6 +84,16 @@ KORREKTUREN = {
     "krankheits oder therapie": "krankheits- oder therapie",
     # Ergänzungsstrich am Zeilenende (S. 135: "krankheits-" / "oder therapiebedingten") wurde als Trennstrich gelesen
     "krankheitsoder therapie": "krankheits- oder therapie",
+    # Fettdruck S. 106, 149: "krankheits- und therapiebedingten"
+    "krankheits und therapie": "krankheits- und therapie",
+    # Fettdruck S. 116 und 208: "Tages- und Nachtpflege", "Tages- oder Nachtpflege"
+    "Tages und Nachtpflege": "Tages- und Nachtpflege",
+    "Tages oder Nachtpflege": "Tages- oder Nachtpflege",
+    # Fettdruck S. 220: "Stress- und Ressourcenmanagement" (Bindestrich fehlt, Silbentrennung "Ressourcenmanage-ment")
+    "Stress und Ressourcenmanage ment": "Stress- und Ressourcenmanagement",
+    # Weiches Trennzeichen als Leerzeichen gelesen: S. 136 "Selbständigkeit", S. 216 "Leistung"
+    "Selbständig keit": "Selbständigkeit",
+    "Leis tung": "Leistung",
 }
 
 ALTERSHINWEIS = re.compile(
