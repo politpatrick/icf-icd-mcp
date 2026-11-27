@@ -255,6 +255,16 @@ test("Datenbestand: fehlende Bindestriche im Fettdruck sind ergänzt", () => {
   assert.match(bi.getItem({ code: "7.1.3" }).texte.erwachsene.hinweise[0], /konkreten krankheits- oder therapiebedingten/);
 });
 
+test("Datenbestand: weitere Bindestriche und Trennungen nach dem PDF korrigiert (S. 106, 116, 136, 149, 208, 216, 220)", () => {
+  const text = JSON.stringify(readData("bi.json"));
+  for (const falsch of ["krankheits und therapie", "Tages und Nachtpflege", "Tages oder Nachtpflege",
+    "Stress und Ressourcenmanage", "Ressourcenmanage ment", "Selbständig keit", "Leis tung"]) {
+    assert.ok(!text.includes(falsch), falsch);
+  }
+  assert.match(bi.getItem({ code: "6.1.6" }).texte.erwachsene.definition, /Tages- und Nachtpflege/);
+  assert.match(bi.getItem({ code: "6.1.6" }).texte.kinder.definition, /Tages- oder Nachtpflege/);
+});
+
 test("BI-Tools melden fehlende Kennungen und ungültiges Alter als Fehler", () => {
   assert.throws(() => bi.getItem({}), /Kennung fehlt/);
   assert.throws(() => bi.related({ code: "" }), /Kennung fehlt/);

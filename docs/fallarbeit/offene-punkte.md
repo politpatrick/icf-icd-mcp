@@ -22,7 +22,6 @@ Kennzeichnung: **Aufwand** klein (< 1 Std.) · mittel (halber Tag).
 - [ ] `scripts/k710_extract.py`: private pypdf-Schnittstellen ohne Endprüfung (erwartete Zeilenzahl 330), Spaltengrenze fest 214 pt, Ausgabe nicht alphabetisch sortiert. *klein*
 - [ ] `versmedv_to_json.py`: `until`-Anker prüfen nur Existenz, nicht Richtigkeit (abgesichert über Tests); Zustand außerhalb von `__init__`; stille Umordnung in `ref_id` („B 3.1.a+2“) ohne Meldung. *klein*
 - [ ] `vmg_get` gibt die Kennung normalisiert statt wie eingegeben zurück (bewusst, nur dokumentieren). *klein*
-- [ ] Merkzeichen RF: genaue Vorschrift im Rundfunkbeitragsstaatsvertrag (Landesrecht) nicht amtlich bestätigt; Tool weist darauf hin. Bei amtlicher Quelle Fundstelle ergänzen. *klein*
 
 ## Fallprofil (`src/fall.mjs`, Version 1.7.0)
 
